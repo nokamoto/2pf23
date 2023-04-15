@@ -1,0 +1,9 @@
+
+all:
+	go install mvdan.cc/gofumpt@latest
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+	gofumpt -l -w .
+	go vet ./...
+	staticcheck ./...
+	go test ./...
+	go mod tidy
