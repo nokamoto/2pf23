@@ -1,0 +1,12 @@
+version: v1
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
+  ignore_only:
+    # https://cloud.google.com/apis/design/standard_methods
+    # A rpc response message name should not always be suffixed with Response.
+    RPC_RESPONSE_STANDARD_NAME:
+      - api

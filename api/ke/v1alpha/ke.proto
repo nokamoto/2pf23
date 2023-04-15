@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package api.ke.v1alpha;
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha;kev1alpha";
+
+message Cluster {
+  // The name of the cluster. This is used to identify the cluster in the API.
+  // This is a read-only property.
+  string name = 1;
+  // The display name of the cluster. This is used only for display purposes.
+  string display_name = 2;
+}
+
+service KeService {
+  rpc CreateCluster(CreateClusterRequest) returns (Cluster) {}
+}
+
+message CreateClusterRequest {
+  Cluster cluster = 1;
+}
