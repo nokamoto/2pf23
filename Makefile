@@ -1,4 +1,15 @@
 API_GO_FILES = $(shell find pkg/api -name '*.go')
+COMMANDS = pf ke-apis
+
+define ko
+	echo $1
+	if [ -z "$$KO_DOCKER_REPO" ]; then \
+		KO_DOCKER_REPO=ghcr.io/nokamoto/2pf23/$1 ko build ./cmd/$1; \
+	else \
+		ko build ./cmd/$1; \
+	fi
+
+endef
 
 all: proto mock go
 
@@ -30,7 +41,6 @@ mock:
 build:
 	go install github.com/google/ko@latest
 	go install ./cmd/pf
-	ko build ./cmd/pf
-	ko build ./cmd/apis/ke
+	$(foreach command,$(COMMANDS),$(call ko,$(command)))
 
 .PHONY: all go proto cialpha mock build
