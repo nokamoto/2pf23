@@ -1,6 +1,6 @@
-PROTO_FILES = $(shell find . -name '*.proto')
+API_GO_FILES = $(shell find pkg/api -name '*.go')
 
-all: proto go
+all: proto mock go
 
 go:
 	go install mvdan.cc/gofumpt@latest
@@ -22,4 +22,12 @@ proto:
 cialpha:
 	go run ./build/ci/test/main.go
 
-.PHONY: all go proto cialpha
+mock:
+	go install github.com/golang/mock/mockgen@v1.6.0
+	go generate ./...
+	$(foreach file,$(API_GO_FILES),mockgen -source $(file) -destination internal/mock/$(file))
+
+build:
+	go install ./cmd/pf
+
+.PHONY: all go proto cialpha mock build
