@@ -4,9 +4,9 @@ COMMANDS = pf ke-apis
 define ko
 	echo $1
 	if [ -z "$$KO_DOCKER_REPO" ]; then \
-		KO_DOCKER_REPO=ghcr.io/nokamoto/2pf23/$1 ko build ./cmd/$1; \
+		KO_DOCKER_REPO=ghcr.io/nokamoto/2pf23 ko build --base-import-paths ./cmd/$1; \
 	else \
-		ko build ./cmd/$1; \
+		ko build --base-import-paths ./cmd/$1; \
 	fi
 
 endef
