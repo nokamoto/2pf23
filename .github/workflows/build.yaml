@@ -16,11 +16,13 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.20'
-      - run: make build
+      - name: make build (ko.local)
+        run: make build
         env:
           KO_DOCKER_REPO: ko.local
-      - name: setup-ko
+      - name: ko login
         run: |
           # NB: username doesn't seem to matter.
           echo "${{ github.token }}" | ko login ghcr.io --username "dummy" --password-stdin
-      - run: make build
+      - name: make build (ghcr.io)
+        run: make build
