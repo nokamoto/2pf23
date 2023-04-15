@@ -19,8 +19,8 @@ jobs:
       - run: make build
         env:
           KO_DOCKER_REPO: ko.local
-      - run: |
+      - name: setup-ko
+        run: |
           # NB: username doesn't seem to matter.
           echo "${{ github.token }}" | ko login ghcr.io --username "dummy" --password-stdin
-          echo "KO_DOCKER_REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
       - run: make build
