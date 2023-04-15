@@ -28,6 +28,9 @@ mock:
 	$(foreach file,$(API_GO_FILES),mockgen -source $(file) -destination internal/mock/$(file))
 
 build:
+	go install github.com/google/ko@latest
 	go install ./cmd/pf
+	ko build ./cmd/pf
+	ko build ./cmd/apis/ke
 
 .PHONY: all go proto cialpha mock build
