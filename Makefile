@@ -19,4 +19,7 @@ proto:
 	buf format -w
 	buf generate
 
-.PHONY: all go proto
+cialpha:
+	go run ./build/ci/test/main.go
+
+.PHONY: all go proto cialpha
