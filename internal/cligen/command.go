@@ -12,22 +12,31 @@ import (
 var f embed.FS
 
 type Printer struct {
-	out  io.Writer
+	root *template.Template
 	main *template.Template
 }
 
-func NewPrinter(out io.Writer) *Printer {
-	return &Printer{out: out}
-}
-
-func (p *Printer) PrintCommand(cmd *v1.Command) error {
-	if p.main == nil {
-		main, err := template.ParseFS(f, "templates/main.go.tmpl")
+func initTemplate(v **template.Template, name string) error {
+	if *v == nil {
+		t, err := template.ParseFS(f, name)
 		if err != nil {
 			return err
 		}
-		p.main = main
+		*v = t
 	}
+	return nil
+}
 
-	return p.main.Execute(p.out, cmd)
+func (p *Printer) PrintRoot(out io.Writer, pkg *v1.Package) error {
+	if err := initTemplate(&p.root, "templates/root.go.tmpl"); err != nil {
+		return err
+	}
+	return p.root.Execute(out, pkg)
+}
+
+func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
+	if err := initTemplate(&p.main, "templates/main.go.tmpl"); err != nil {
+		return err
+	}
+	return p.main.Execute(out, cmd)
 }
