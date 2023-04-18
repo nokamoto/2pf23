@@ -2,15 +2,26 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"os"
 
 	"github.com/nokamoto/2pf23/internal/cligen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 )
 
-// cligen-testdata generates testdata/cligen/main.go.
-func main() {
+func write[T any](file string, v T, f func(io.Writer, T) error) {
 	var buf bytes.Buffer
+	if err := f(&buf, v); err != nil {
+		panic(err)
+	}
+	if err := os.WriteFile(file, buf.Bytes(), 0o644); err != nil {
+		panic(err)
+	}
+}
+
+// cligen-testdata generates testdata/cligen go files.
+func main() {
+	p := cligen.Printer{}
 
 	cmd := &v1.Command{
 		Package: "cligen",
@@ -27,13 +38,16 @@ func main() {
 			},
 		},
 	}
-	p := cligen.Printer{}
-	if err := p.PrintCommand(&buf, cmd); err != nil {
-		panic(err)
+	write("testdata/cligen/main.go", cmd, p.PrintCommand)
+
+	sub := &v1.Package{
+		Package:    "sub",
+		ImportPath: "github.com/nokamoto/2pf23/testdata/cligen/sub",
+		Use:        "sub",
+		Short:      "short",
+		Long:       "long",
 	}
-	if err := os.WriteFile("testdata/cligen/main.go", buf.Bytes(), 0o644); err != nil {
-		panic(err)
-	}
+	write("testdata/cligen/sub/root.go", sub, p.PrintRoot)
 
 	pkg := &v1.Package{
 		Package:     "cligen",
@@ -41,12 +55,7 @@ func main() {
 		Short:       "short",
 		Long:        "long",
 		SubCommands: []*v1.Command{cmd},
+		SubPackages: []*v1.Package{sub},
 	}
-	buf.Reset()
-	if err := p.PrintRoot(&buf, pkg); err != nil {
-		panic(err)
-	}
-	if err := os.WriteFile("testdata/cligen/root.go", buf.Bytes(), 0o644); err != nil {
-		panic(err)
-	}
+	write("testdata/cligen/root.go", pkg, p.PrintRoot)
 }
