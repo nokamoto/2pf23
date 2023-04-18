@@ -6,6 +6,8 @@ import (
 )
 
 func newCreate() *cobra.Command {
+	var stringFlag string
+
 	cmd := &cobra.Command{
 		Use:          "use",
 		Short:        "short",
@@ -15,5 +17,7 @@ func newCreate() *cobra.Command {
             return nil
 		},
 	}
+	cmd.Flags().StringVar(&stringFlag, "string-flag", "value", "usage")
+
 	return cmd
 }

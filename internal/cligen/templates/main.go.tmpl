@@ -6,6 +6,9 @@ import (
 )
 
 func new{{.Method}}() *cobra.Command {
+{{- range .StringFlags}}
+	var {{.Name}} string
+{{end}}
 	cmd := &cobra.Command{
 		Use:          "{{.Use}}",
 		Short:        "{{.Short}}",
@@ -15,5 +18,8 @@ func new{{.Method}}() *cobra.Command {
             return nil
 		},
 	}
+{{- range .StringFlags}}
+	cmd.Flags().StringVar(&{{.Name}}, "{{.DisplayName}}", "{{.Value}}", "{{.Usage}}")
+{{end}}
 	return cmd
 }

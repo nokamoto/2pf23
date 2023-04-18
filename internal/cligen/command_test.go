@@ -11,13 +11,21 @@ import (
 
 func TestPrinter_PrintCommand(t *testing.T) {
 	var buf bytes.Buffer
-	p := &Printer{out: &buf}
+	p := NewPrinter(&buf)
 	cmd := v1.Command{
 		Package: "cligen",
 		Use:     "use",
 		Short:   "short",
 		Long:    "long",
 		Method:  "Create",
+		StringFlags: []*v1.Flag{
+			{
+				Name:        "stringFlag",
+				DisplayName: "string-flag",
+				Value:       "value",
+				Usage:       "usage",
+			},
+		},
 	}
 	if err := p.PrintCommand(&cmd); err != nil {
 		t.Fatal(err)
