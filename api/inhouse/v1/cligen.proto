@@ -22,8 +22,10 @@ message Command {
 
 message Package {
   string package = 1;
-  string use = 2;
-  string short = 3;
-  string long = 4;
-  repeated Command sub_commands = 5;
+  string import_path = 2;
+  string use = 3;
+  string short = 4;
+  string long = 5;
+  repeated Command sub_commands = 6;
+  repeated Package sub_packages = 7;
 }

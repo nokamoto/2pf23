@@ -3,6 +3,9 @@ package {{.Package}}
 
 import (
 	"github.com/spf13/cobra"
+{{- range .SubPackages}}
+	{{.Package}} "{{.ImportPath}}"
+{{- end}}
 )
 
 func NewRoot() *cobra.Command {
@@ -11,8 +14,11 @@ func NewRoot() *cobra.Command {
 		Short:        "{{.Short}}",
 		Long:         `{{.Long}}`,
 	}
-{{range .SubCommands}}
+{{- range .SubCommands}}
 	cmd.AddCommand(new{{.Method}}())
+{{end}}
+{{- range .SubPackages}}
+	cmd.AddCommand({{.Package}}.NewRoot())
 {{end}}
 	return cmd
 }

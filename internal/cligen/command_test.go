@@ -22,6 +22,15 @@ func TestPrinter_PrintRoot(t *testing.T) {
 				Method: "Create",
 			},
 		},
+		SubPackages: []*v1.Package{
+			{
+				Package:    "sub",
+				ImportPath: "github.com/nokamoto/2pf23/testdata/cligen/sub",
+				Use:        "sub",
+				Short:      "short",
+				Long:       "long",
+			},
+		},
 	}
 	if err := p.PrintRoot(&buf, pkg); err != nil {
 		t.Fatal(err)
