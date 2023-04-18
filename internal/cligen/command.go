@@ -16,6 +16,10 @@ type Printer struct {
 	main *template.Template
 }
 
+func NewPrinter(out io.Writer) *Printer {
+	return &Printer{out: out}
+}
+
 func (p *Printer) PrintCommand(cmd *v1.Command) error {
 	if p.main == nil {
 		main, err := template.ParseFS(f, "templates/main.go.tmpl")
