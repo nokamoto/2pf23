@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package api.inhouse.v1;
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
+
+message Command {
+  string package = 1;
+  string use = 2;
+  string short = 3;
+  string long = 4;
+  string method = 5;
+}
