@@ -19,3 +19,11 @@ message Command {
   string method = 5;
   repeated Flag string_flags = 6;
 }
+
+message Package {
+  string package = 1;
+  string use = 2;
+  string short = 3;
+  string long = 4;
+  repeated Command sub_commands = 5;
+}

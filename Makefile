@@ -11,7 +11,7 @@ define ko
 
 endef
 
-all: proto mock go
+all: proto mock testdata go
 
 go:
 	go install mvdan.cc/gofumpt@latest
@@ -43,4 +43,7 @@ build:
 	go install ./cmd/pf
 	$(foreach command,$(COMMANDS),$(call ko,$(command)))
 
-.PHONY: all go proto cialpha mock build
+testdata:
+	go run ./tools/cligen-testdata/main.go
+
+.PHONY: all go proto cialpha mock build testdata
