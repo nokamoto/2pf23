@@ -49,11 +49,14 @@ func TestPrinter_PrintCommand(t *testing.T) {
 	var buf bytes.Buffer
 	p := Printer{}
 	cmd := v1.Command{
-		Package: "cligen",
-		Use:     "use",
-		Short:   "short",
-		Long:    "long",
-		Method:  "Create",
+		Api:        "ke",
+		ApiVersion: "v1alpha",
+		Package:    "cligen",
+		Use:        "use",
+		Short:      "short",
+		Long:       "long",
+		Method:     "Create",
+		MethodType: v1.MethodType_METHOD_TYPE_CREATE,
 		StringFlags: []*v1.Flag{
 			{
 				Name:        "stringFlag",

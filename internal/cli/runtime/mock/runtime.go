@@ -50,17 +50,17 @@ func (mr *MockRuntimeMockRecorder) Context(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Context", reflect.TypeOf((*MockRuntime)(nil).Context), arg0)
 }
 
-// KeV1Alpha mocks base method.
-func (m *MockRuntime) KeV1Alpha(arg0 *cobra.Command) (kev1alpha.KeServiceClient, error) {
+// KeV1alpha mocks base method.
+func (m *MockRuntime) KeV1alpha(arg0 *cobra.Command) (kev1alpha.KeServiceClient, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "KeV1Alpha", arg0)
+	ret := m.ctrl.Call(m, "KeV1alpha", arg0)
 	ret0, _ := ret[0].(kev1alpha.KeServiceClient)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// KeV1Alpha indicates an expected call of KeV1Alpha.
-func (mr *MockRuntimeMockRecorder) KeV1Alpha(arg0 interface{}) *gomock.Call {
+// KeV1alpha indicates an expected call of KeV1alpha.
+func (mr *MockRuntimeMockRecorder) KeV1alpha(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KeV1Alpha", reflect.TypeOf((*MockRuntime)(nil).KeV1Alpha), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KeV1alpha", reflect.TypeOf((*MockRuntime)(nil).KeV1alpha), arg0)
 }

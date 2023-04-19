@@ -2,19 +2,17 @@
 package cligen
 
 import (
+	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	"github.com/spf13/cobra"
-	sub "github.com/nokamoto/2pf23/testdata/cligen/sub"
 )
 
-func NewRoot() *cobra.Command {
+func NewRoot(rt runtime.Runtime) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "testdata",
 		Short:        "short",
 		Long:         `long`,
 	}
-	cmd.AddCommand(newCreate())
-
-	cmd.AddCommand(sub.NewRoot())
-
+	cmd.AddCommand(newCreate(rt))
+	cmd.AddCommand(sub.NewRoot(rt))
 	return cmd
 }

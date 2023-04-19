@@ -12,7 +12,7 @@ import (
 
 type Runtime interface {
 	Context(*cobra.Command) context.Context
-	KeV1Alpha(*cobra.Command) (kev1alpha.KeServiceClient, error)
+	KeV1alpha(*cobra.Command) (kev1alpha.KeServiceClient, error)
 }
 
 type runtime struct{}
@@ -37,6 +37,6 @@ func (runtime) Context(cobra *cobra.Command) context.Context {
 	return context.Background()
 }
 
-func (runtime) KeV1Alpha(cobra *cobra.Command) (kev1alpha.KeServiceClient, error) {
+func (runtime) KeV1alpha(cobra *cobra.Command) (kev1alpha.KeServiceClient, error) {
 	return run(cobra, kev1alpha.NewKeServiceClient, nil)
 }
