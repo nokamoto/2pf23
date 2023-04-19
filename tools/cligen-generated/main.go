@@ -8,6 +8,16 @@ import (
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 )
 
+func write(file string, v *v1.Command, p cligen.Printer) {
+	var buf bytes.Buffer
+	if err := p.PrintCommand(&buf, v); err != nil {
+		panic(err)
+	}
+	if err := os.WriteFile(file, buf.Bytes(), 0o644); err != nil {
+		panic(err)
+	}
+}
+
 // cligen-testdata generates internal/cligen/generated/command.go.
 func main() {
 	p := cligen.Printer{}
@@ -15,7 +25,7 @@ func main() {
 	cmd := &v1.Command{
 		Api:        "ke",
 		ApiVersion: "v1alpha",
-		Package:    "cligen",
+		Package:    "generated",
 		Use:        "use",
 		Short:      "short",
 		Long:       "long",
@@ -30,12 +40,5 @@ func main() {
 			},
 		},
 	}
-
-	var buf bytes.Buffer
-	if err := p.PrintCommand(&buf, cmd); err != nil {
-		panic(err)
-	}
-	if err := os.WriteFile("internal/cligen/generated/command.go", buf.Bytes(), 0o644); err != nil {
-		panic(err)
-	}
+	write("internal/cligen/generated/create.go", cmd, p)
 }
