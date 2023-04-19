@@ -29,7 +29,7 @@ func Test_Create(t *testing.T) {
 			args: "",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
-					rt.EXPECT().KeV1Alpha(gomock.Any()).Return(c, nil),
+					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					c.EXPECT().CreateCluster(gomock.Any(), gomock.Any()).Return(&kev1alpha.Cluster{
 						Name:        "foo",
@@ -47,7 +47,7 @@ func Test_Create(t *testing.T) {
 			args: "--display-name bar",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
-					rt.EXPECT().KeV1Alpha(gomock.Any()).Return(c, nil),
+					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					c.EXPECT().CreateCluster(gomock.Any(), &kev1alpha.CreateClusterRequest{
 						Cluster: &kev1alpha.Cluster{

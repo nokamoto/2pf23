@@ -11,13 +11,21 @@ message Flag {
   string usage = 4;
 }
 
+enum MethodType {
+  METHOD_TYPE_UNSPECIFIED = 0;
+  METHOD_TYPE_CREATE = 1;
+}
+
 message Command {
-  string package = 1;
-  string use = 2;
-  string short = 3;
-  string long = 4;
-  string method = 5;
-  repeated Flag string_flags = 6;
+  string api = 1;
+  string api_version = 2;
+  string package = 3;
+  string use = 4;
+  string short = 5;
+  string long = 6;
+  string method = 7;
+  MethodType method_type = 8;
+  repeated Flag string_flags = 9;
 }
 
 message Package {

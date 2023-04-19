@@ -2,10 +2,11 @@
 package sub
 
 import (
+	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	"github.com/spf13/cobra"
 )
 
-func NewRoot() *cobra.Command {
+func NewRoot(rt runtime.Runtime) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "sub",
 		Short:        "short",

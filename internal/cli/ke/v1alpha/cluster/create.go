@@ -17,7 +17,7 @@ func newCreate(rt runtime.Runtime) *cobra.Command {
 		Long:         `create is a CLI for creating the kubernetes cluster.`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := rt.KeV1Alpha(cmd)
+			c, err := rt.KeV1alpha(cmd)
 			if err != nil {
 				return fmt.Errorf("failed to create a client: %w", err)
 			}

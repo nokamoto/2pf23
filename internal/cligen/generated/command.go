@@ -20,7 +20,7 @@ func newCreate(rt runtime.Runtime) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to create a client for ke.v1alpha: %w", err)
 			}
-            return nil
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&stringFlag, "string-flag", "value", "usage")
