@@ -16,16 +16,35 @@ enum MethodType {
   METHOD_TYPE_CREATE = 1;
 }
 
+message ImportPath {
+  string alias = 1;
+  string path = 2;
+}
+
+message ResourceField {
+  string id = 1;
+  string flag_name = 2;
+}
+
+message Resource {
+  string type = 1;
+  repeated ResourceField fields = 3;
+  repeated Resource children = 4;
+}
+
 message Command {
   string api = 1;
   string api_version = 2;
-  string package = 3;
-  string use = 4;
-  string short = 5;
-  string long = 6;
-  string method = 7;
-  MethodType method_type = 8;
-  repeated Flag string_flags = 9;
+  ImportPath api_import_path = 3;
+  string package = 4;
+  string use = 5;
+  string short = 6;
+  string long = 7;
+  string method = 8;
+  MethodType method_type = 9;
+  string create_resource_id = 10;
+  Resource create_resource = 11;
+  repeated Flag string_flags = 12;
 }
 
 message Package {

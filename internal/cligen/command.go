@@ -32,18 +32,13 @@ func newRuntimeArg() runtimeArg {
 	}
 }
 
-type importArg struct {
-	Alias string
-	Path  string
-}
-
-func newImports(imports []importArg) []importArg {
+func newImports(imports ...*v1.ImportPath) []*v1.ImportPath {
 	imports = append(
 		imports,
-		importArg{
+		&v1.ImportPath{
 			Path: "github.com/nokamoto/2pf23/internal/cli/runtime",
 		},
-		importArg{
+		&v1.ImportPath{
 			Path: "github.com/spf13/cobra",
 		},
 	)
@@ -55,13 +50,13 @@ func newImports(imports []importArg) []importArg {
 
 type commandArg struct {
 	Runtime runtimeArg
-	Imports []importArg
+	Imports []*v1.ImportPath
 	Command *v1.Command
 }
 
 type rootArg struct {
 	Runtime runtimeArg
-	Imports []importArg
+	Imports []*v1.ImportPath
 	Package *v1.Package
 }
 
@@ -85,7 +80,7 @@ func (p *Printer) PrintRoot(out io.Writer, pkg *v1.Package) error {
 	}
 	return p.root.Execute(out, rootArg{
 		Runtime: newRuntimeArg(),
-		Imports: newImports(nil),
+		Imports: newImports(),
 		Package: pkg,
 	})
 }
@@ -94,9 +89,16 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 	if err := initTemplate(&p.main, "templates/main.go.tmpl"); err != nil {
 		return err
 	}
+	var imports []*v1.ImportPath
+	if cmd.ApiImportPath != nil {
+		imports = append(imports, cmd.ApiImportPath)
+	}
+	imports = append(imports, &v1.ImportPath{
+		Path: "google.golang.org/protobuf/encoding/protojson",
+	})
 	return p.main.Execute(out, commandArg{
 		Runtime: newRuntimeArg(),
-		Imports: newImports(nil),
+		Imports: newImports(imports...),
 		Command: cmd,
 	})
 }
