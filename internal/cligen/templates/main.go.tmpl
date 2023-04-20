@@ -4,7 +4,7 @@ package {{.Command.Package}}
 import (
 	"fmt"
 
-{{- range .Imports}}
+{{range .Imports}}
 	{{if .Alias}}{{.Alias}} "{{.Path}}"{{else}}"{{.Path}}"{{end}}
 {{- end}}
 )
@@ -21,10 +21,26 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 		RunE: func(cmd *cobra.Command, args []string) error {
 {{- if eq .Command.MethodType 1 }}
 			// standard create method
-			_, err := {{.Runtime.Name}}.{{.Command.Api | ToTitle}}{{.Command.ApiVersion | ToTitle}}(cmd)
+			ctx := {{.Runtime.Name}}.Context(cmd)
+			c, err := {{.Runtime.Name}}.{{.Command.Api | ToTitle}}{{.Command.ApiVersion | ToTitle}}(cmd)
 			if err != nil {
 				return fmt.Errorf("failed to create a client for {{.Command.Api}}.{{.Command.ApiVersion}}: %w", err)
 			}
+			res, err := c.{{.Command.Method}}(ctx, &{{.Command.ApiVersion}}.{{.Command.Method}}Request{
+				{{.Command.CreateResourceId}}: &{{.Command.CreateResource.Type}}{
+{{- range .Command.CreateResource.Fields}}
+					{{.Id}}: {{.FlagName}},
+{{- end}}
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("{{.Command.Api}}.{{.Command.ApiVersion}}: failed to {{.Command.Method}}: %w", err)
+			}
+			message, err := protojson.Marshal(res)
+			if err != nil {
+				return err
+			}
+			cmd.Println(string(message))
 {{- end}}
             return nil
 		},

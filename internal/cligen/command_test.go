@@ -19,7 +19,7 @@ func TestPrinter_PrintRoot(t *testing.T) {
 		Long:    "long",
 		SubCommands: []*v1.Command{
 			{
-				Method: "Create",
+				Method: "CreateCluster",
 			},
 		},
 		SubPackages: []*v1.Package{
@@ -51,12 +51,26 @@ func TestPrinter_PrintCommand(t *testing.T) {
 	cmd := v1.Command{
 		Api:        "ke",
 		ApiVersion: "v1alpha",
-		Package:    "cligen",
-		Use:        "use",
-		Short:      "short",
-		Long:       "long",
-		Method:     "Create",
-		MethodType: v1.MethodType_METHOD_TYPE_CREATE,
+		ApiImportPath: &v1.ImportPath{
+			Alias: "v1alpha",
+			Path:  "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha",
+		},
+		Package:          "generated",
+		Use:              "use",
+		Short:            "short",
+		Long:             "long",
+		Method:           "CreateCluster",
+		MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
+		CreateResourceId: "Cluster",
+		CreateResource: &v1.Resource{
+			Type: "v1alpha.Cluster",
+			Fields: []*v1.ResourceField{
+				{
+					Id:       "DisplayName",
+					FlagName: "stringFlag",
+				},
+			},
+		},
 		StringFlags: []*v1.Flag{
 			{
 				Name:        "stringFlag",

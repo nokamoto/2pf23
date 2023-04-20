@@ -12,7 +12,7 @@ func NewRoot(rt runtime.Runtime) *cobra.Command {
 		Short:        "short",
 		Long:         `long`,
 	}
-	cmd.AddCommand(newCreate(rt))
+	cmd.AddCommand(newCreateCluster(rt))
 	cmd.AddCommand(sub.NewRoot(rt))
 	return cmd
 }
