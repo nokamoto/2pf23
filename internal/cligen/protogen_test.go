@@ -29,7 +29,7 @@ func content(t *testing.T, content *v1.Package) *pluginpb.CodeGeneratorResponse 
 		File: []*pluginpb.CodeGeneratorResponse_File{
 			{
 				Name:    proto.String("test.json"),
-				Content: proto.String(string(b)),
+				Content: proto.String(string(b) + "\n"),
 			},
 		},
 	}

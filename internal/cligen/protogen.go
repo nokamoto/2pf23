@@ -189,7 +189,7 @@ func (p *Plugin) codeGeneratorResponse(pkg *v1.Package) (*pluginpb.CodeGenerator
 
 	resp.File = append(resp.File, &pluginpb.CodeGeneratorResponse_File{
 		Name:    proto.String("test.json"),
-		Content: proto.String(string(bytes)),
+		Content: proto.String(string(bytes) + "\n"),
 	})
 	return &resp, nil
 }
