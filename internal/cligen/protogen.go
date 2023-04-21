@@ -44,12 +44,16 @@ func (p *Plugin) Run() error {
 
 	p.setParam(&req)
 
-	packages, err := p.codeGeneratorRequest(&req)
+	pkg, err := p.codeGeneratorRequest(&req)
 	if err != nil {
 		return fmt.Errorf("failed to generate code: %w", err)
 	}
 
-	bytes, err = proto.Marshal(p.codeGeneratorResponse(packages))
+	resp, err := p.codeGeneratorResponse(pkg)
+	if err != nil {
+		return fmt.Errorf("failed to generate response: %w", err)
+	}
+	bytes, err = proto.Marshal(resp)
 	if err != nil {
 		return fmt.Errorf("failed to marshal output: %w", err)
 	}
@@ -70,8 +74,8 @@ func (p *Plugin) debugf(format string, args ...any) {
 	fmt.Fprintf(p.debug, "debug: "+format+"\n", args...)
 }
 
-func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) ([]*v1.Package, error) {
-	var resp []*v1.Package
+func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.Package, error) {
+	var resp *v1.Package
 	for _, file := range req.GetProtoFile() {
 		// discard noisy unused information
 		file.SourceCodeInfo = nil
@@ -90,15 +94,14 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) ([]*v1
 		}
 
 		if f != nil {
-			resp = append(resp, f...)
+			resp = f
 		}
 	}
-
 	return resp, nil
 }
 
-func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto) ([]*v1.Package, error) {
-	var resp []*v1.Package
+func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto) (*v1.Package, error) {
+	var resp *v1.Package
 	for i, service := range file.GetService() {
 		p.debugf("[%d] ServiceDescriptorProto: %s", i, service.GetName())
 
@@ -106,36 +109,87 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 			p.debugf("[%d/%d] MethodDescriptorProto: %s", i, j, method.GetName())
 
 			if strings.HasPrefix(method.GetName(), "Create") {
-				resp = append(resp, &v1.Package{
-					Package:     "test1",
-					ImportPath:  "test2",
-					Use:         "test3",
-					Short:       "test4",
-					Long:        "test5",
-					SubCommands: []*v1.Command{},
+				resource := strings.TrimPrefix(method.GetName(), "Create")
+				lowercaseResource := strings.ToLower(resource)
+
+				short := fmt.Sprintf("%s is a CLI for mannaing the %s.", lowercaseResource, resource)
+
+				resp = &v1.Package{
+					Package: lowercaseResource,
+					Use:     lowercaseResource,
+					Short:   short,
+					Long:    short,
+					SubCommands: []*v1.Command{
+						p.createCommand(file, method),
+					},
 					SubPackages: []*v1.Package{},
-				})
+				}
 				continue
 			}
 
-			panic("not implemented")
+			return nil, fmt.Errorf("unsupported method: %s", method.GetName())
 		}
 	}
 	return resp, nil
 }
 
-func (p *Plugin) codeGeneratorResponse(packages []*v1.Package) *pluginpb.CodeGeneratorResponse {
-	var resp pluginpb.CodeGeneratorResponse
-	for _, pkg := range packages {
-		bytes, err := protojson.Marshal(pkg)
-		if err != nil {
-			panic(err)
-		}
+func serviceFromPackage(file *descriptorpb.FileDescriptorProto) string {
+	v := strings.Split(file.GetPackage(), ".")
+	return v[len(v)-2]
+}
 
-		resp.File = append(resp.File, &pluginpb.CodeGeneratorResponse_File{
-			Name:    proto.String(pkg.GetPackage() + ".json"),
-			Content: proto.String(string(bytes)),
-		})
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto) *v1.Command {
+	first := func(s []string) string {
+		return s[0]
 	}
-	return &resp
+	last := func(s []string) string {
+		return s[len(s)-1]
+	}
+
+	pkg := last(strings.Split(file.GetPackage(), "."))
+	resource := strings.TrimPrefix(method.GetName(), "Create")
+	short := fmt.Sprintf("create is a command to create a new %s", resource)
+
+	return &v1.Command{
+		Api:        serviceFromPackage(file),
+		ApiVersion: pkg,
+		ApiImportPath: &v1.ImportPath{
+			Alias: pkg,
+			Path:  first(strings.Split(file.GetOptions().GetGoPackage(), ";")),
+		},
+		Package:          strings.ToLower(resource),
+		Use:              "create",
+		Short:            short,
+		Long:             short,
+		Method:           "Create",
+		MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
+		CreateResourceId: resource,
+		CreateResource: &v1.Resource{
+			Type:     fmt.Sprintf("%s.%s", pkg, resource),
+			Fields:   []*v1.ResourceField{},
+			Children: []*v1.Resource{},
+		},
+		StringFlags: []*v1.Flag{},
+	}
+}
+
+func (p *Plugin) codeGeneratorResponse(pkg *v1.Package) (*pluginpb.CodeGeneratorResponse, error) {
+	var resp pluginpb.CodeGeneratorResponse
+	if pkg == nil {
+		return &resp, nil
+	}
+
+	m := protojson.MarshalOptions{
+		Multiline: true,
+	}
+	bytes, err := m.Marshal(pkg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal package: %w", err)
+	}
+
+	resp.File = append(resp.File, &pluginpb.CodeGeneratorResponse_File{
+		Name:    proto.String("test.json"),
+		Content: proto.String(string(bytes)),
+	})
+	return &resp, nil
 }

@@ -58,11 +58,10 @@ func main() {
 	write("testdata/cligen/main.go", cmd, p.PrintCommand)
 
 	sub := &v1.Package{
-		Package:    "sub",
-		ImportPath: "github.com/nokamoto/2pf23/testdata/cligen/sub",
-		Use:        "sub",
-		Short:      "short",
-		Long:       "long",
+		Package: "sub",
+		Use:     "sub",
+		Short:   "short",
+		Long:    "long",
 	}
 	write("testdata/cligen/sub/root.go", sub, p.PrintRoot)
 
