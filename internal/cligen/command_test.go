@@ -24,11 +24,10 @@ func TestPrinter_PrintRoot(t *testing.T) {
 		},
 		SubPackages: []*v1.Package{
 			{
-				Package:    "sub",
-				ImportPath: "github.com/nokamoto/2pf23/testdata/cligen/sub",
-				Use:        "sub",
-				Short:      "short",
-				Long:       "long",
+				Package: "sub",
+				Use:     "sub",
+				Short:   "short",
+				Long:    "long",
 			},
 		},
 	}

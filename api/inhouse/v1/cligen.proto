@@ -49,7 +49,6 @@ message Command {
 
 message Package {
   string package = 1;
-  string import_path = 2;
   string use = 3;
   string short = 4;
   string long = 5;
