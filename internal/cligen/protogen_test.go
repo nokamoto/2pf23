@@ -51,13 +51,13 @@ func TestPlugin_Run(t *testing.T) {
 			req: &pluginpb.CodeGeneratorRequest{
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
 					{
-						Package: proto.String("api.foo.v1alpha"),
+						Package: proto.String("api.library.v1alpha"),
 						Options: &descriptorpb.FileOptions{
-							GoPackage: proto.String("github.com/foo;bar"),
+							GoPackage: proto.String("github.com/library;libraryv1alpha"),
 						},
 						MessageType: []*descriptorpb.DescriptorProto{
 							{
-								Name: proto.String("Foo"),
+								Name: proto.String("Shelf"),
 								Field: []*descriptorpb.FieldDescriptorProto{
 									{
 										Name:     proto.String("field_name"),
@@ -70,7 +70,7 @@ func TestPlugin_Run(t *testing.T) {
 							{
 								Method: []*descriptorpb.MethodDescriptorProto{
 									{
-										Name: proto.String("CreateFoo"),
+										Name: proto.String("CreateShelf"),
 									},
 								},
 							},
@@ -79,34 +79,54 @@ func TestPlugin_Run(t *testing.T) {
 				},
 			},
 			expected: content(t, &v1.Package{
-				Package: "foo",
-				Use:     "foo",
-				Short:   "foo is a CLI for mannaing the Foo.",
-				Long:    "foo is a CLI for mannaing the Foo.",
-				SubCommands: []*v1.Command{
+				SubPackages: []*v1.Package{
 					{
-						Package:    "foo",
-						Api:        "foo",
-						ApiVersion: "v1alpha",
-						ApiImportPath: &v1.ImportPath{
-							Alias: "v1alpha",
-							Path:  "github.com/foo",
-						},
-						Use:              "create",
-						Short:            "create is a command to create a new Foo",
-						Long:             "create is a command to create a new Foo",
-						Method:           "Create",
-						MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
-						CreateResourceId: "Foo",
-						CreateResource: &v1.Resource{
-							Type: "v1alpha.Foo",
-							Children: []*v1.Resource{
-								{
-									Type: "v1alpha.Foo",
-									Fields: []*v1.ResourceField{
-										{
-											Id:       "FieldName",
-											FlagName: "fieldName",
+						Package: "library",
+						Use:     "library",
+						Short:   "library is a CLI for mannaing the library.",
+						Long:    "library is a CLI for mannaing the library.",
+						SubPackages: []*v1.Package{
+							{
+								Package: "v1alpha",
+								Use:     "v1alpha",
+								Short:   "library.v1alpha is a CLI for mannaing the library.",
+								Long:    "library.v1alpha is a CLI for mannaing the library.",
+								SubPackages: []*v1.Package{
+									{
+										Package: "shelf",
+										Use:     "shelf",
+										Short:   "shelf is a CLI for mannaing the shelf.",
+										Long:    "shelf is a CLI for mannaing the shelf.",
+										SubCommands: []*v1.Command{
+											{
+												Api:        "library",
+												ApiVersion: "v1alpha",
+												ApiImportPath: &v1.ImportPath{
+													Alias: "v1alpha",
+													Path:  "github.com/library",
+												},
+												Package:          "shelf",
+												Use:              "create",
+												Short:            "create is a command to create a new Shelf",
+												Long:             "create is a command to create a new Shelf",
+												Method:           "CreateShelf",
+												MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
+												CreateResourceId: "Shelf",
+												CreateResource: &v1.Resource{
+													Type: "v1alpha.Shelf",
+													Children: []*v1.Resource{
+														{
+															Type: "v1alpha.Shelf",
+															Fields: []*v1.ResourceField{
+																{
+																	Id:       "FieldName",
+																	FlagName: "fieldName",
+																},
+															},
+														},
+													},
+												},
+											},
 										},
 									},
 								},
