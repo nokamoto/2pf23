@@ -9,9 +9,9 @@ import (
 
 func NewRoot({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:          "{{.Package.Use}}",
-		Short:        "{{.Package.Short}}",
-		Long:         `{{.Package.Long}}`,
+		Use:   "{{.Package.Use}}",
+		Short: "{{.Package.Short}}",
+		Long:  `{{.Package.Long}}`,
 	}
 {{- range .Package.SubCommands}}
 	cmd.AddCommand(new{{.Method}}({{$.Runtime.Name}}))

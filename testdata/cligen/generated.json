@@ -1,0 +1,41 @@
+{
+    "package":  "generated",
+    "use":  "cluster",
+    "short":  "short",
+    "long":  "long",
+    "subCommands":  [
+      {
+        "api":  "ke",
+        "apiVersion":  "v1alpha",
+        "apiImportPath":  {
+          "alias":  "v1alpha",
+          "path":  "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+        },
+        "package":  "generated",
+        "use":  "create",
+        "short":  "short",
+        "long":  "long",
+        "method":  "CreateCluster",
+        "methodType":  "METHOD_TYPE_CREATE",
+        "createResourceId":  "Cluster",
+        "createResource":  {
+          "type":  "v1alpha.Cluster",
+          "fields":  [
+            {
+              "id":  "DisplayName",
+              "flagName":  "displayName"
+            }
+          ]
+        },
+        "stringFlags":[
+          {
+            "name": "displayName",
+            "displayName": "display-name",
+            "value": "",
+            "usage": "usage"
+          }
+        ]
+      }
+    ]
+  }
+  

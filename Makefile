@@ -47,6 +47,6 @@ build:
 
 testdata:
 	go run ./tools/cligen-testdata/main.go
-	go run ./tools/cligen-generated/main.go
+	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated
 
 .PHONY: all go proto cialpha mock build testdata

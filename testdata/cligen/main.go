@@ -3,8 +3,9 @@ package generated
 
 import (
 	"fmt"
+)
 
-
+import (
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
@@ -38,7 +39,7 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 				return err
 			}
 			cmd.Println(string(message))
-            return nil
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&stringFlag, "string-flag", "value", "usage")

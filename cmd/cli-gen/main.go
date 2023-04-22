@@ -10,10 +10,10 @@ import (
 
 func main() {
 	cmd := cobra.Command{
-		Use:   "cli-gen input-file output-directory",
-		Short: "cli-gen is a command line interface generator.",
-		Long:  `cli-gen is a command line interface generator.`,
-		Example: `cli-gen build/cli/test.json internal/cli`,
+		Use:          "cli-gen input-file output-directory",
+		Short:        "cli-gen is a command line interface generator.",
+		Long:         `cli-gen is a command line interface generator.`,
+		Example:      `cli-gen build/cli/test.json internal/cli`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 2 {

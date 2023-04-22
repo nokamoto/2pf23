@@ -8,9 +8,9 @@ import (
 
 func NewRoot(rt runtime.Runtime) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:          "sub",
-		Short:        "short",
-		Long:         `long`,
+		Use:   "sub",
+		Short: "short",
+		Long:  `long`,
 	}
 	return cmd
 }

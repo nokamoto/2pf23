@@ -44,8 +44,8 @@ func Test_newCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "set --string-flag to display_name",
-			args: "--string-flag bar",
+			name: "set --display-name to display_name",
+			args: "--display-name bar",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
@@ -99,7 +99,7 @@ func Test_newCreate(t *testing.T) {
 
 			err := cmd.Execute()
 			if !errors.Is(err, tc.err) {
-				t.Errorf("got %v, want %v", err, tc.err)
+				t.Fatalf("got %v, want %v", err, tc.err)
 			}
 
 			if tc.expected == nil && stdout.Len() == 0 {

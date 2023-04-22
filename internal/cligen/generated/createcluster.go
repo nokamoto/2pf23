@@ -3,7 +3,9 @@ package generated
 
 import (
 	"fmt"
+)
 
+import (
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
@@ -11,9 +13,9 @@ import (
 )
 
 func newCreateCluster(rt runtime.Runtime) *cobra.Command {
-	var stringFlag string
+	var displayName string
 	cmd := &cobra.Command{
-		Use:          "use",
+		Use:          "create",
 		Short:        "short",
 		Long:         `long`,
 		SilenceUsage: true,
@@ -26,7 +28,7 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			}
 			res, err := c.CreateCluster(ctx, &v1alpha.CreateClusterRequest{
 				Cluster: &v1alpha.Cluster{
-					DisplayName: stringFlag,
+					DisplayName: displayName,
 				},
 			})
 			if err != nil {
@@ -40,6 +42,6 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&stringFlag, "string-flag", "value", "usage")
+	cmd.Flags().StringVar(&displayName, "display-name", "", "usage")
 	return cmd
 }

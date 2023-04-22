@@ -3,8 +3,10 @@ package {{.Command.Package}}
 
 import (
 	"fmt"
+)
 
-{{range .Imports}}
+import (
+{{- range .Imports}}
 	{{if .Alias}}{{.Alias}} "{{.Path}}"{{else}}"{{.Path}}"{{end}}
 {{- end}}
 )
@@ -42,7 +44,7 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 			}
 			cmd.Println(string(message))
 {{- end}}
-            return nil
+			return nil
 		},
 	}
 {{- range .Command.StringFlags}}
