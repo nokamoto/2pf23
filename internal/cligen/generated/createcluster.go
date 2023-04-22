@@ -26,7 +26,11 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to create a client for ke.v1alpha: %w", err)
 			}
-			res, err := c.CreateCluster(ctx, &v1alpha.CreateClusterRequest{})
+			res, err := c.CreateCluster(ctx, &v1alpha.CreateClusterRequest{
+				Cluster: &v1alpha.Cluster{
+					DisplayName: displayName,
+				},
+			})
 			if err != nil {
 				return fmt.Errorf("ke.v1alpha: failed to CreateCluster: %w", err)
 			}

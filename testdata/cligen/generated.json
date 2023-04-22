@@ -21,6 +21,7 @@
         "type": "v1alpha.CreateClusterRequest",
         "children": [
           {
+            "name": "Cluster",
             "type": "v1alpha.Cluster",
             "fields": [
               {

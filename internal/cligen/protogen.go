@@ -183,11 +183,12 @@ func serviceFromPackage(file *descriptorpb.FileDescriptorProto) string {
 	return v[len(v)-2]
 }
 
-func (p *Plugin) requestMessage(typ string, file *descriptorpb.FileDescriptorProto) (*v1.RequestMessage, []*v1.Flag, error) {
+func (p *Plugin) requestMessage(typ string, name string, file *descriptorpb.FileDescriptorProto) (*v1.RequestMessage, []*v1.Flag, error) {
 	goType := strings.Split(typ, ".")
 	goType = goType[len(goType)-2:]
 	resp := &v1.RequestMessage{
 		Type: strings.Join(goType, "."),
+		Name: name,
 	}
 
 	var flags []*v1.Flag
@@ -208,14 +209,14 @@ func (p *Plugin) requestMessage(typ string, file *descriptorpb.FileDescriptorPro
 						Value: *field.JsonName,
 					})
 					flags = append(flags, &v1.Flag{
-						Name: *field.JsonName,
+						Name:        *field.JsonName,
 						DisplayName: strings.ReplaceAll(field.GetName(), "_", "-"),
-						Value: "",
-						Usage: "todo",
+						Value:       "",
+						Usage:       "todo",
 					})
 
 				case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
-					sub, fs, err := p.requestMessage(field.GetTypeName(), file)
+					sub, fs, err := p.requestMessage(field.GetTypeName(), cases.Title(language.English, cases.NoLower).String(field.GetJsonName()), file)
 					if err != nil {
 						return nil, nil, fmt.Errorf("failed to create field request message: %w", err)
 					}
@@ -245,7 +246,7 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	apiVersion := apiVersionFromPackage(file)
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
-	req, flags, err := p.requestMessage(*method.InputType, file)
+	req, flags, err := p.requestMessage(*method.InputType, "", file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}

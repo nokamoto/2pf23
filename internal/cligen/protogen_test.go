@@ -62,7 +62,7 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name:     proto.String("display_name"),
 										JsonName: proto.String("displayName"),
-										Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+										Type:     descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 									},
 								},
 							},
@@ -72,7 +72,7 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name:     proto.String("shelf"),
 										JsonName: proto.String("shelf"),
-										Type: descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+										Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
 										TypeName: proto.String(".api.library.v1alpha.Shelf"),
 									},
 								},
@@ -128,6 +128,7 @@ func TestPlugin_Run(t *testing.T) {
 													Type: "v1alpha.CreateShelfRequest",
 													Children: []*v1.RequestMessage{
 														{
+															Name: "Shelf",
 															Type: "v1alpha.Shelf",
 															Fields: []*v1.RequestMessageField{
 																{

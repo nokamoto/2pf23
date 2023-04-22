@@ -27,7 +27,8 @@ message RequestMessageField {
 }
 
 message RequestMessage {
-  string type = 1;
+  string name = 1;
+  string type = 2;
   repeated RequestMessageField fields = 3;
   repeated RequestMessage children = 4;
 }
