@@ -91,13 +91,19 @@ func initTemplate(v **template.Template, name string) error {
 	return nil
 }
 
-func (p *Printer) PrintRoot(out io.Writer, pkg *v1.Package) error {
+func (p *Printer) PrintRoot(out io.Writer, pkg *v1.Package, currentPackage string) error {
 	if err := initTemplate(&p.root, "templates/root.go.tmpl"); err != nil {
 		return err
 	}
+	var imports []*v1.ImportPath
+	for _, sub := range pkg.GetSubPackages() {
+		imports = append(imports, &v1.ImportPath{
+			Path: path.Join(currentPackage, sub.GetPackage()),
+		})
+	}
 	return p.root.Execute(out, rootArg{
 		Runtime: newRuntimeArg(),
-		Imports: newImports(),
+		Imports: newImports(imports...),
 		Package: pkg,
 	})
 }

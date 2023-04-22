@@ -10,18 +10,18 @@ import (
 
 func main() {
 	cmd := cobra.Command{
-		Use:          "cli-gen input-file output-directory",
+		Use:          "cli-gen input-file output-directory root-package",
 		Short:        "cli-gen is a command line interface generator.",
 		Long:         `cli-gen is a command line interface generator.`,
-		Example:      `cli-gen build/cli/test.json internal/cli`,
+		Example:      `cli-gen build/cli/test.json internal/cli github.com/nokamoto/2pf23/internal/cligen/generated`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 2 {
+			if len(args) != 3 {
 				cmd.Usage()
 				cmd.PrintErrln()
 				return fmt.Errorf("invalid arguments: %v", args)
 			}
-			walk, err := cligen.NewWalk(args[0], args[1])
+			walk, err := cligen.NewWalk(args[0], args[1], args[2])
 			if err != nil {
 				return fmt.Errorf("failed to create walk: %w", err)
 			}

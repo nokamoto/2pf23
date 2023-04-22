@@ -16,9 +16,10 @@ import (
 type Walk struct {
 	pkg           *v1.Package
 	rootDirectory string
+	rootPackage   string
 }
 
-func NewWalk(file string, rootDirectory string) (*Walk, error) {
+func NewWalk(file string, rootDirectory string, rootPackage string) (*Walk, error) {
 	var pkg v1.Package
 	b, err := os.ReadFile(file)
 	if err != nil {
@@ -27,25 +28,28 @@ func NewWalk(file string, rootDirectory string) (*Walk, error) {
 	if err := protojson.Unmarshal(b, &pkg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal: %w", err)
 	}
+	pkg.Use = "pf"
+	pkg.Package = path.Base(rootPackage)
+	pkg.Long = "pf is a CLI for managing the platform."
 	return &Walk{
 		pkg:           &pkg,
 		rootDirectory: rootDirectory,
+		rootPackage:   rootPackage,
 	}, nil
 }
 
-func (w *Walk) Walk() error {
-	p := Printer{}
-	file := path.Join(w.rootDirectory, "root.go")
+func (w *Walk) walk(p *Printer, dir string, pkg *v1.Package, currentPackage string) error {
+	file := path.Join(dir, "root.go")
 	var b bytes.Buffer
-	if err := p.PrintRoot(&b, w.pkg); err != nil {
+	if err := p.PrintRoot(&b, pkg, currentPackage); err != nil {
 		return fmt.Errorf("failed to print %s: %w", file, err)
 	}
 	if err := os.WriteFile(file, b.Bytes(), 0o644); err != nil {
 		return fmt.Errorf("failed to write %s: %w", file, err)
 	}
 
-	for _, cmd := range w.pkg.SubCommands {
-		file := path.Join(w.rootDirectory, strings.ToLower(cmd.GetMethod())+".go")
+	for _, cmd := range pkg.GetSubCommands() {
+		file := path.Join(dir, strings.ToLower(cmd.GetMethod())+".go")
 		var b bytes.Buffer
 		if err := p.PrintCommand(&b, cmd); err != nil {
 			return fmt.Errorf("failed to print %s: %w", file, err)
@@ -55,5 +59,20 @@ func (w *Walk) Walk() error {
 		}
 	}
 
+	for _, sub := range pkg.GetSubPackages() {
+		subDir := path.Join(dir, sub.GetPackage())
+		err := os.MkdirAll(subDir, 0o777)
+		if err != nil {
+			return fmt.Errorf("failed to mkdir %s: %w", subDir, err)
+		}
+		if err := w.walk(p, subDir, sub, path.Join(currentPackage, sub.GetPackage())); err != nil {
+			return fmt.Errorf("failed to walk %s: %w", subDir, err)
+		}
+	}
+
 	return nil
+}
+
+func (w *Walk) Walk() error {
+	return w.walk(&Printer{}, w.rootDirectory, w.pkg, w.rootPackage)
 }

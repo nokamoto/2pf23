@@ -1,43 +1,62 @@
 {
-  "package": "generated",
-  "use": "cluster",
-  "short": "short",
-  "long": "long",
-  "subCommands": [
+  "subPackages": [
     {
-      "api": "ke",
-      "apiVersion": "v1alpha",
-      "apiImportPath": {
-        "alias": "v1alpha",
-        "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
-      },
-      "package": "generated",
-      "use": "create",
-      "short": "short",
-      "long": "long",
-      "method": "CreateCluster",
-      "methodType": "METHOD_TYPE_CREATE",
-      "request": {
-        "type": "v1alpha.CreateClusterRequest",
-        "children": [
-          {
-            "name": "Cluster",
-            "type": "v1alpha.Cluster",
-            "fields": [
-              {
-                "name": "DisplayName",
-                "value": "displayName"
-              }
-            ]
-          }
-        ]
-      },
-      "stringFlags": [
+      "package": "ke",
+      "use": "ke",
+      "short": "ke is a CLI for mannaing the ke.",
+      "long": "ke is a CLI for mannaing the ke.",
+      "subPackages": [
         {
-          "name": "displayName",
-          "displayName": "display-name",
-          "value": "",
-          "usage": "usage"
+          "package": "v1alpha",
+          "use": "v1alpha",
+          "short": "ke.v1alpha is a CLI for mannaing the ke.",
+          "long": "ke.v1alpha is a CLI for mannaing the ke.",
+          "subPackages": [
+            {
+              "package": "cluster",
+              "use": "cluster",
+              "short": "cluster is a CLI for mannaing the cluster.",
+              "long": "cluster is a CLI for mannaing the cluster.",
+              "subCommands": [
+                {
+                  "api": "ke",
+                  "apiVersion": "v1alpha",
+                  "apiImportPath": {
+                    "alias": "v1alpha",
+                    "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+                  },
+                  "package": "cluster",
+                  "use": "create",
+                  "short": "create is a command to create a new Cluster",
+                  "long": "create is a command to create a new Cluster",
+                  "method": "CreateCluster",
+                  "methodType": "METHOD_TYPE_CREATE",
+                  "request": {
+                    "type": "v1alpha.CreateClusterRequest",
+                    "children": [
+                      {
+                        "name": "Cluster",
+                        "type": "v1alpha.Cluster",
+                        "fields": [
+                          {
+                            "name": "DisplayName",
+                            "value": "displayName"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "stringFlags": [
+                    {
+                      "name": "displayName",
+                      "displayName": "display-name",
+                      "usage": "todo"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }

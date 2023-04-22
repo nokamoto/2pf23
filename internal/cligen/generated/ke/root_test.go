@@ -1,4 +1,4 @@
-package generated
+package ke
 
 import (
 	"testing"
@@ -13,8 +13,8 @@ func TestNewRoot(t *testing.T) {
 			Args: "",
 		},
 		{
-			Name: "ke",
-			Args: "ke --help",
+			Name: "v1alpha",
+			Args: "v1alpha --help",
 		},
 	}.Run(t, NewRoot)
 }
