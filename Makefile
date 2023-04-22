@@ -46,7 +46,6 @@ build:
 	$(foreach command,$(COMMANDS),$(call ko,$(command)))
 
 testdata:
-	go run ./tools/cligen-testdata/main.go
 	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated
 
 .PHONY: all go proto cialpha mock build testdata
