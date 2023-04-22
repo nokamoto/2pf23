@@ -16,9 +16,10 @@ import (
 )
 
 type Plugin struct {
-	in    io.Reader
-	out   io.Writer
-	debug io.Writer
+	in        io.Reader
+	out       io.Writer
+	debug     io.Writer
+	multiline bool
 }
 
 // NewPlugin returns a new Plugin with stdin and stdout.
@@ -213,7 +214,7 @@ func (p *Plugin) codeGeneratorResponse(pkg *v1.Package) (*pluginpb.CodeGenerator
 	}
 
 	m := protojson.MarshalOptions{
-		Multiline: true,
+		Multiline: p.multiline,
 	}
 	bytes, err := m.Marshal(pkg)
 	if err != nil {

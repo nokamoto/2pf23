@@ -127,9 +127,10 @@ func TestPlugin_Run(t *testing.T) {
 
 			var out bytes.Buffer
 			p := Plugin{
-				in:    bytes.NewBuffer(b),
-				out:   &out,
-				debug: io.Discard,
+				in:        bytes.NewBuffer(b),
+				out:       &out,
+				debug:     io.Discard,
+				multiline: true,
 			}
 			if err := p.Run(); err != nil {
 				t.Fatalf("failed to run plugin: %v", err)
