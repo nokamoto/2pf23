@@ -105,39 +105,77 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 }
 
 func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto) (*v1.Package, error) {
-	var resp *v1.Package
-	for i, service := range file.GetService() {
-		p.debugf("[%d] ServiceDescriptorProto: %s", i, service.GetName())
+	resp := &v1.Package{}
 
-		for j, method := range service.GetMethod() {
-			p.debugf("[%d/%d] MethodDescriptorProto: %s", i, j, method.GetName())
+	for _, service := range file.GetService() {
+		serviceName := serviceFromPackage(file)
+		short := fmt.Sprintf("%s is a CLI for mannaing the %s.", serviceName, serviceName)
 
-			if strings.HasPrefix(method.GetName(), "Create") {
-				resource := strings.TrimPrefix(method.GetName(), "Create")
-				lowercaseResource := strings.ToLower(resource)
-
-				short := fmt.Sprintf("%s is a CLI for mannaing the %s.", lowercaseResource, resource)
-
-				sub, err := p.createCommand(file, method)
-				if err != nil {
-					return nil, fmt.Errorf("failed to create command: %w", err)
-				}
-
-				resp = &v1.Package{
-					Package:     lowercaseResource,
-					Use:         lowercaseResource,
-					Short:       short,
-					Long:        short,
-					SubCommands: []*v1.Command{sub},
-					SubPackages: []*v1.Package{},
-				}
-				continue
-			}
-
-			return nil, fmt.Errorf("unsupported method: %s", method.GetName())
+		pkg := &v1.Package{
+			Package: serviceName,
+			Use:     serviceName,
+			Short:   short,
+			Long:    short,
 		}
+		apiVersion, err := p.serviceDescriptorProto(service, file)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate service: %w", err)
+		}
+		pkg.SubPackages = append(pkg.SubPackages, apiVersion)
+		resp.SubPackages = append(resp.SubPackages, pkg)
 	}
 	return resp, nil
+}
+
+func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Package, error) {
+	apiVersion := apiVersionFromPackage(file)
+	serviceName := serviceFromPackage(file)
+	short := fmt.Sprintf("%s.%s is a CLI for mannaing the %s.", serviceName, apiVersion, serviceName)
+	resp := &v1.Package{
+		Package: apiVersion,
+		Use:     apiVersion,
+		Short:   short,
+		Long:    short,
+	}
+	resources := map[string][]*v1.Command{}
+	for _, method := range service.GetMethod() {
+		resource, cmd, err := p.methodDescriptorProto(method, file)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate method: %w", err)
+		}
+		if _, ok := resources[resource]; !ok {
+			resources[resource] = []*v1.Command{}
+		}
+		resources[resource] = append(resources[resource], cmd)
+	}
+	for resource, commands := range resources {
+		resp.SubPackages = append(resp.SubPackages, &v1.Package{
+			Package:     resource,
+			Use:         resource,
+			Short:       fmt.Sprintf("%s is a CLI for mannaing the %s.", resource, resource),
+			Long:        fmt.Sprintf("%s is a CLI for mannaing the %s.", resource, resource),
+			SubCommands: commands,
+		})
+	}
+	return resp, nil
+}
+
+func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto) (string, *v1.Command, error) {
+	if strings.HasPrefix(method.GetName(), "Create") {
+		resource := strings.ToLower(strings.TrimPrefix(method.GetName(), "Create"))
+		cmd, err := p.createCommand(file, method)
+		if err != nil {
+			return "", nil, fmt.Errorf("failed to create command: %w", err)
+		}
+		return resource, cmd, nil
+	}
+
+	return "", nil, fmt.Errorf("unsupported method: %s", method.GetName())
+}
+
+func apiVersionFromPackage(file *descriptorpb.FileDescriptorProto) string {
+	v := strings.Split(file.GetPackage(), ".")
+	return v[len(v)-1]
 }
 
 func serviceFromPackage(file *descriptorpb.FileDescriptorProto) string {
@@ -172,35 +210,32 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	first := func(s []string) string {
 		return s[0]
 	}
-	last := func(s []string) string {
-		return s[len(s)-1]
-	}
 
-	pkg := last(strings.Split(file.GetPackage(), "."))
+	apiVersion := apiVersionFromPackage(file)
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 
-	child, err := p.children(fmt.Sprintf("%s.%s", pkg, resource), file)
+	child, err := p.children(fmt.Sprintf("%s.%s", apiVersion, resource), file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate child: %w", err)
 	}
 
 	return &v1.Command{
 		Api:        serviceFromPackage(file),
-		ApiVersion: pkg,
+		ApiVersion: apiVersion,
 		ApiImportPath: &v1.ImportPath{
-			Alias: pkg,
+			Alias: apiVersion,
 			Path:  first(strings.Split(file.GetOptions().GetGoPackage(), ";")),
 		},
 		Package:          strings.ToLower(resource),
 		Use:              "create",
 		Short:            short,
 		Long:             short,
-		Method:           "Create",
+		Method:           method.GetName(),
 		MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
 		CreateResourceId: resource,
 		CreateResource: &v1.Resource{
-			Type:     fmt.Sprintf("%s.%s", pkg, resource),
+			Type:     fmt.Sprintf("%s.%s", apiVersion, resource),
 			Fields:   []*v1.ResourceField{},
 			Children: []*v1.Resource{child},
 		},
