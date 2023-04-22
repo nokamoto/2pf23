@@ -42,6 +42,7 @@ mock:
 build:
 	go install github.com/google/ko@latest
 	go install ./cmd/pf
+	go install ./cmd/cli-gen
 	$(foreach command,$(COMMANDS),$(call ko,$(command)))
 
 testdata:
