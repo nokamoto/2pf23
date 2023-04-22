@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -114,14 +116,17 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 
 				short := fmt.Sprintf("%s is a CLI for mannaing the %s.", lowercaseResource, resource)
 
+				sub, err := p.createCommand(file, method)
+				if err != nil {
+					return nil, fmt.Errorf("failed to create command: %w", err)
+				}
+
 				resp = &v1.Package{
-					Package: lowercaseResource,
-					Use:     lowercaseResource,
-					Short:   short,
-					Long:    short,
-					SubCommands: []*v1.Command{
-						p.createCommand(file, method),
-					},
+					Package:     lowercaseResource,
+					Use:         lowercaseResource,
+					Short:       short,
+					Long:        short,
+					SubCommands: []*v1.Command{sub},
 					SubPackages: []*v1.Package{},
 				}
 				continue
@@ -138,7 +143,30 @@ func serviceFromPackage(file *descriptorpb.FileDescriptorProto) string {
 	return v[len(v)-2]
 }
 
-func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto) *v1.Command {
+func (p *Plugin) children(typ string, file *descriptorpb.FileDescriptorProto) (*v1.Resource, error) {
+	var fields []*v1.ResourceField
+	for _, message := range file.GetMessageType() {
+		if strings.HasSuffix(typ, message.GetName()) {
+			for _, field := range message.GetField() {
+				if field.GetName() == "name" {
+					// `name` is output only field
+					continue
+				}
+				fields = append(fields, &v1.ResourceField{
+					Id:       cases.Title(language.English, cases.NoLower).String(*field.JsonName),
+					FlagName: *field.JsonName,
+				})
+			}
+			return &v1.Resource{
+				Type:   typ,
+				Fields: fields,
+			}, nil
+		}
+	}
+	return nil, fmt.Errorf("not found: %s in %s", typ, file.GetName())
+}
+
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto) (*v1.Command, error) {
 	first := func(s []string) string {
 		return s[0]
 	}
@@ -149,6 +177,11 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	pkg := last(strings.Split(file.GetPackage(), "."))
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
+
+	child, err := p.children(fmt.Sprintf("%s.%s", pkg, resource), file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate child: %w", err)
+	}
 
 	return &v1.Command{
 		Api:        serviceFromPackage(file),
@@ -167,10 +200,10 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 		CreateResource: &v1.Resource{
 			Type:     fmt.Sprintf("%s.%s", pkg, resource),
 			Fields:   []*v1.ResourceField{},
-			Children: []*v1.Resource{},
+			Children: []*v1.Resource{child},
 		},
 		StringFlags: []*v1.Flag{},
-	}
+	}, nil
 }
 
 func (p *Plugin) codeGeneratorResponse(pkg *v1.Package) (*pluginpb.CodeGeneratorResponse, error) {
