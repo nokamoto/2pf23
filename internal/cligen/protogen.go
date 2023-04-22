@@ -183,27 +183,58 @@ func serviceFromPackage(file *descriptorpb.FileDescriptorProto) string {
 	return v[len(v)-2]
 }
 
-func (p *Plugin) children(typ string, file *descriptorpb.FileDescriptorProto) (*v1.Resource, error) {
-	var fields []*v1.ResourceField
+func (p *Plugin) requestMessage(typ string, file *descriptorpb.FileDescriptorProto) (*v1.RequestMessage, []*v1.Flag, error) {
+	goType := strings.Split(typ, ".")
+	goType = goType[len(goType)-2:]
+	resp := &v1.RequestMessage{
+		Type: strings.Join(goType, "."),
+	}
+
+	var flags []*v1.Flag
+
+	found := false
 	for _, message := range file.GetMessageType() {
-		if strings.HasSuffix(typ, message.GetName()) {
+		absoluteName := fmt.Sprintf(".%s.%s", file.GetPackage(), message.GetName())
+		if found = typ == absoluteName; found {
 			for _, field := range message.GetField() {
 				if field.GetName() == "name" {
 					// `name` is output only field
 					continue
 				}
-				fields = append(fields, &v1.ResourceField{
-					Id:       cases.Title(language.English, cases.NoLower).String(*field.JsonName),
-					FlagName: *field.JsonName,
-				})
+				switch field.GetType() {
+				case descriptorpb.FieldDescriptorProto_TYPE_STRING:
+					resp.Fields = append(resp.Fields, &v1.RequestMessageField{
+						Name:  cases.Title(language.English, cases.NoLower).String(*field.JsonName),
+						Value: *field.JsonName,
+					})
+					flags = append(flags, &v1.Flag{
+						Name: *field.JsonName,
+						DisplayName: strings.ReplaceAll(field.GetName(), "_", "-"),
+						Value: "",
+						Usage: "todo",
+					})
+
+				case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+					sub, fs, err := p.requestMessage(field.GetTypeName(), file)
+					if err != nil {
+						return nil, nil, fmt.Errorf("failed to create field request message: %w", err)
+					}
+					resp.Children = append(resp.Children, sub)
+					flags = append(flags, fs...)
+
+				default:
+					return nil, nil, fmt.Errorf("unsupported field type: %s", field.GetType())
+				}
 			}
-			return &v1.Resource{
-				Type:   typ,
-				Fields: fields,
-			}, nil
+			break
 		}
 	}
-	return nil, fmt.Errorf("not found: %s in %s", typ, file.GetName())
+
+	if !found {
+		return nil, nil, fmt.Errorf("failed to find message: %s", typ)
+	}
+
+	return resp, flags, nil
 }
 
 func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto) (*v1.Command, error) {
@@ -214,10 +245,9 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	apiVersion := apiVersionFromPackage(file)
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
-
-	child, err := p.children(fmt.Sprintf("%s.%s", apiVersion, resource), file)
+	req, flags, err := p.requestMessage(*method.InputType, file)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate child: %w", err)
+		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}
 
 	return &v1.Command{
@@ -227,19 +257,14 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 			Alias: apiVersion,
 			Path:  first(strings.Split(file.GetOptions().GetGoPackage(), ";")),
 		},
-		Package:          strings.ToLower(resource),
-		Use:              "create",
-		Short:            short,
-		Long:             short,
-		Method:           method.GetName(),
-		MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
-		CreateResourceId: resource,
-		CreateResource: &v1.Resource{
-			Type:     fmt.Sprintf("%s.%s", apiVersion, resource),
-			Fields:   []*v1.ResourceField{},
-			Children: []*v1.Resource{child},
-		},
-		StringFlags: []*v1.Flag{},
+		Package:     strings.ToLower(resource),
+		Use:         "create",
+		Short:       short,
+		Long:        short,
+		Method:      method.GetName(),
+		MethodType:  v1.MethodType_METHOD_TYPE_CREATE,
+		Request:     req,
+		StringFlags: flags,
 	}, nil
 }
 

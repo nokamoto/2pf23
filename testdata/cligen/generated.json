@@ -17,13 +17,17 @@
       "long": "long",
       "method": "CreateCluster",
       "methodType": "METHOD_TYPE_CREATE",
-      "createResourceId": "Cluster",
-      "createResource": {
-        "type": "v1alpha.Cluster",
-        "fields": [
+      "request": {
+        "type": "v1alpha.CreateClusterRequest",
+        "children": [
           {
-            "id": "DisplayName",
-            "flagName": "displayName"
+            "type": "v1alpha.Cluster",
+            "fields": [
+              {
+                "name": "DisplayName",
+                "value": "displayName"
+              }
+            ]
           }
         ]
       },

@@ -21,15 +21,15 @@ message ImportPath {
   string path = 2;
 }
 
-message ResourceField {
-  string id = 1;
-  string flag_name = 2;
+message RequestMessageField {
+  string name = 1;
+  string value = 2;
 }
 
-message Resource {
+message RequestMessage {
   string type = 1;
-  repeated ResourceField fields = 3;
-  repeated Resource children = 4;
+  repeated RequestMessageField fields = 3;
+  repeated RequestMessage children = 4;
 }
 
 message Command {
@@ -42,8 +42,7 @@ message Command {
   string long = 7;
   string method = 8;
   MethodType method_type = 9;
-  string create_resource_id = 10;
-  Resource create_resource = 11;
+  RequestMessage request = 11;
   repeated Flag string_flags = 12;
 }
 

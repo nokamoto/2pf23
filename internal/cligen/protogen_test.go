@@ -60,8 +60,20 @@ func TestPlugin_Run(t *testing.T) {
 								Name: proto.String("Shelf"),
 								Field: []*descriptorpb.FieldDescriptorProto{
 									{
-										Name:     proto.String("field_name"),
-										JsonName: proto.String("fieldName"),
+										Name:     proto.String("display_name"),
+										JsonName: proto.String("displayName"),
+										Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+									},
+								},
+							},
+							{
+								Name: proto.String("CreateShelfRequest"),
+								Field: []*descriptorpb.FieldDescriptorProto{
+									{
+										Name:     proto.String("shelf"),
+										JsonName: proto.String("shelf"),
+										Type: descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+										TypeName: proto.String(".api.library.v1alpha.Shelf"),
 									},
 								},
 							},
@@ -70,7 +82,8 @@ func TestPlugin_Run(t *testing.T) {
 							{
 								Method: []*descriptorpb.MethodDescriptorProto{
 									{
-										Name: proto.String("CreateShelf"),
+										Name:      proto.String("CreateShelf"),
+										InputType: proto.String(".api.library.v1alpha.CreateShelfRequest"),
 									},
 								},
 							},
@@ -105,25 +118,32 @@ func TestPlugin_Run(t *testing.T) {
 													Alias: "v1alpha",
 													Path:  "github.com/library",
 												},
-												Package:          "shelf",
-												Use:              "create",
-												Short:            "create is a command to create a new Shelf",
-												Long:             "create is a command to create a new Shelf",
-												Method:           "CreateShelf",
-												MethodType:       v1.MethodType_METHOD_TYPE_CREATE,
-												CreateResourceId: "Shelf",
-												CreateResource: &v1.Resource{
-													Type: "v1alpha.Shelf",
-													Children: []*v1.Resource{
+												Package:    "shelf",
+												Use:        "create",
+												Short:      "create is a command to create a new Shelf",
+												Long:       "create is a command to create a new Shelf",
+												Method:     "CreateShelf",
+												MethodType: v1.MethodType_METHOD_TYPE_CREATE,
+												Request: &v1.RequestMessage{
+													Type: "v1alpha.CreateShelfRequest",
+													Children: []*v1.RequestMessage{
 														{
 															Type: "v1alpha.Shelf",
-															Fields: []*v1.ResourceField{
+															Fields: []*v1.RequestMessageField{
 																{
-																	Id:       "FieldName",
-																	FlagName: "fieldName",
+																	Name:  "DisplayName",
+																	Value: "displayName",
 																},
 															},
 														},
+													},
+												},
+												StringFlags: []*v1.Flag{
+													{
+														Name:        "displayName",
+														DisplayName: "display-name",
+														Value:       "",
+														Usage:       "todo",
 													},
 												},
 											},
