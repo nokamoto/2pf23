@@ -19,7 +19,18 @@
       "methodType":  "METHOD_TYPE_CREATE",
       "createResourceId":  "Cluster",
       "createResource":  {
-        "type":  "v1alpha.Cluster"
+        "type":  "v1alpha.Cluster",
+        "children":  [
+          {
+            "type":  "v1alpha.Cluster",
+            "fields":  [
+              {
+                "id":  "DisplayName",
+                "flagName":  "displayName"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

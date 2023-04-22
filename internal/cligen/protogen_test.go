@@ -55,6 +55,17 @@ func TestPlugin_Run(t *testing.T) {
 						Options: &descriptorpb.FileOptions{
 							GoPackage: proto.String("github.com/foo;bar"),
 						},
+						MessageType: []*descriptorpb.DescriptorProto{
+							{
+								Name: proto.String("Foo"),
+								Field: []*descriptorpb.FieldDescriptorProto{
+									{
+										Name:     proto.String("field_name"),
+										JsonName: proto.String("fieldName"),
+									},
+								},
+							},
+						},
 						Service: []*descriptorpb.ServiceDescriptorProto{
 							{
 								Method: []*descriptorpb.MethodDescriptorProto{
@@ -89,6 +100,17 @@ func TestPlugin_Run(t *testing.T) {
 						CreateResourceId: "Foo",
 						CreateResource: &v1.Resource{
 							Type: "v1alpha.Foo",
+							Children: []*v1.Resource{
+								{
+									Type: "v1alpha.Foo",
+									Fields: []*v1.ResourceField{
+										{
+											Id:       "FieldName",
+											FlagName: "fieldName",
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -105,9 +127,10 @@ func TestPlugin_Run(t *testing.T) {
 
 			var out bytes.Buffer
 			p := Plugin{
-				in:    bytes.NewBuffer(b),
-				out:   &out,
-				debug: io.Discard,
+				in:        bytes.NewBuffer(b),
+				out:       &out,
+				debug:     io.Discard,
+				multiline: true,
 			}
 			if err := p.Run(); err != nil {
 				t.Fatalf("failed to run plugin: %v", err)
