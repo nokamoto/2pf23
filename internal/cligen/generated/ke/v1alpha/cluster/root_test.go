@@ -1,4 +1,4 @@
-package generated
+package cluster
 
 import (
 	"testing"
@@ -13,8 +13,8 @@ func TestNewRoot(t *testing.T) {
 			Args: "",
 		},
 		{
-			Name: "ke",
-			Args: "ke --help",
+			Name: "create",
+			Args: "create --help",
 		},
 	}.Run(t, NewRoot)
 }

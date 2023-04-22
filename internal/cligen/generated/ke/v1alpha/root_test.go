@@ -1,4 +1,4 @@
-package generated
+package v1alpha
 
 import (
 	"testing"
@@ -13,8 +13,8 @@ func TestNewRoot(t *testing.T) {
 			Args: "",
 		},
 		{
-			Name: "ke",
-			Args: "ke --help",
+			Name: "cluster",
+			Args: "cluster --help",
 		},
 	}.Run(t, NewRoot)
 }
