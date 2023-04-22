@@ -2,9 +2,11 @@ package cligen
 
 import (
 	"embed"
+	"fmt"
 	"io"
 	"path"
 	"sort"
+	"strings"
 	"text/template"
 
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
@@ -60,10 +62,25 @@ type rootArg struct {
 	Package *v1.Package
 }
 
+func printFields(indent int, req *v1.RequestMessage) string {
+	var s string
+	tabs := strings.Repeat("\t", indent)
+	for _, field := range req.GetFields() {
+		s += fmt.Sprintf("%s%s: %s,\n", tabs, field.GetName(), field.GetValue())
+	}
+	for _, child := range req.GetChildren() {
+		s += fmt.Sprintf("%s%s: &%s{\n", tabs, child.GetName(), child.GetType())
+		s += printFields(indent+1, child)
+		s += fmt.Sprintf("%s},", tabs)
+	}
+	return s
+}
+
 func initTemplate(v **template.Template, name string) error {
 	if *v == nil {
 		fm := template.FuncMap{
-			"ToTitle": cases.Title(language.English, cases.NoLower).String,
+			"ToTitle":  cases.Title(language.English, cases.NoLower).String,
+			"ToFields": printFields,
 		}
 		t, err := template.New(path.Base(name)).Funcs(fm).ParseFS(f, name)
 		if err != nil {
