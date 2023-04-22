@@ -25,9 +25,10 @@ type Plugin struct {
 // NewPlugin returns a new Plugin with stdin and stdout.
 func NewPlugin() *Plugin {
 	return &Plugin{
-		in:    os.Stdin,
-		out:   os.Stdout,
-		debug: io.Discard,
+		in:        os.Stdin,
+		out:       os.Stdout,
+		debug:     io.Discard,
+		multiline: true,
 	}
 }
 
