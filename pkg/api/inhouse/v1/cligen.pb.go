@@ -66,15 +66,29 @@ func (MethodType) EnumDescriptor() ([]byte, []int) {
 	return file_api_inhouse_v1_cligen_proto_rawDescGZIP(), []int{0}
 }
 
+// Flag represents command line flag.
+//
+// ```
+// var displayName string
+// cmd.Flags().StringVar(&displayName, "display-name", "default value", "usage string")
+// ```
 type Flag struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name        string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// name is the variable name.
+	// e.g. displayName
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// display_name is the display name of the flag.
+	// e.g. display-name
 	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Value       string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
-	Usage       string `protobuf:"bytes,4,opt,name=usage,proto3" json:"usage,omitempty"`
+	// value is the default value of the flag.
+	// e.g. default value
+	Value string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	// usage is the usage string of the flag.
+	// e.g. usage string
+	Usage string `protobuf:"bytes,4,opt,name=usage,proto3" json:"usage,omitempty"`
 }
 
 func (x *Flag) Reset() {
@@ -137,13 +151,22 @@ func (x *Flag) GetUsage() string {
 	return ""
 }
 
+// ImportPath represents golang import path.
+//
+// ```
+// import v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+// ```
 type ImportPath struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// alias is the alias of the import path.
+	// e.g. v1alpha
 	Alias string `protobuf:"bytes,1,opt,name=alias,proto3" json:"alias,omitempty"`
-	Path  string `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	// path is the import path.
+	// e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
+	Path string `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
 }
 
 func (x *ImportPath) Reset() {
@@ -192,12 +215,21 @@ func (x *ImportPath) GetPath() string {
 	return ""
 }
 
+// RequestMessageField represents golang struct field value.
+//
+// ```
+// Displayname: displayName
+// ```
 type RequestMessageField struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name  string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// name is the field name.
+	// e.g. DisplayName
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// value is the field value.
+	// e.g. displayName
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 }
 
@@ -247,15 +279,32 @@ func (x *RequestMessageField) GetValue() string {
 	return ""
 }
 
+// RequestMessage represents golang struct.
+//
+// ```
+//
+//	&v1alpha.ClusterCreateRequest {
+//	  Cluster: &v1alpha.Cluster {
+//	    DisplayName: displayName,
+//	  }
+//	}
+//
+// ```
 type RequestMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name     string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Type     string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	Fields   []*RequestMessageField `protobuf:"bytes,3,rep,name=fields,proto3" json:"fields,omitempty"`
-	Children []*RequestMessage      `protobuf:"bytes,4,rep,name=children,proto3" json:"children,omitempty"`
+	// name is the field set by this message.
+	// e.g. Cluster
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// type is the type of the field.
+	// e.g. v1alpha.Cluster
+	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	// fields is the list of non message fields.
+	Fields []*RequestMessageField `protobuf:"bytes,3,rep,name=fields,proto3" json:"fields,omitempty"`
+	// children is the list of message fields.
+	Children []*RequestMessage `protobuf:"bytes,4,rep,name=children,proto3" json:"children,omitempty"`
 }
 
 func (x *RequestMessage) Reset() {
@@ -318,22 +367,40 @@ func (x *RequestMessage) GetChildren() []*RequestMessage {
 	return nil
 }
 
+// Command represents golang code to call a single gRPC method.
 type Command struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Api           string          `protobuf:"bytes,1,opt,name=api,proto3" json:"api,omitempty"`
-	ApiVersion    string          `protobuf:"bytes,2,opt,name=api_version,json=apiVersion,proto3" json:"api_version,omitempty"`
-	ApiImportPath *ImportPath     `protobuf:"bytes,3,opt,name=api_import_path,json=apiImportPath,proto3" json:"api_import_path,omitempty"`
-	Package       string          `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
-	Use           string          `protobuf:"bytes,5,opt,name=use,proto3" json:"use,omitempty"`
-	Short         string          `protobuf:"bytes,6,opt,name=short,proto3" json:"short,omitempty"`
-	Long          string          `protobuf:"bytes,7,opt,name=long,proto3" json:"long,omitempty"`
-	Method        string          `protobuf:"bytes,8,opt,name=method,proto3" json:"method,omitempty"`
-	MethodType    MethodType      `protobuf:"varint,9,opt,name=method_type,json=methodType,proto3,enum=api.inhouse.v1.MethodType" json:"method_type,omitempty"`
-	Request       *RequestMessage `protobuf:"bytes,11,opt,name=request,proto3" json:"request,omitempty"`
-	StringFlags   []*Flag         `protobuf:"bytes,12,rep,name=string_flags,json=stringFlags,proto3" json:"string_flags,omitempty"`
+	// api is the name of the gRPC API.
+	// e.g. ke
+	Api string `protobuf:"bytes,1,opt,name=api,proto3" json:"api,omitempty"`
+	// api_version is the version of the gRPC API.
+	// e.g. v1alpha
+	ApiVersion string `protobuf:"bytes,2,opt,name=api_version,json=apiVersion,proto3" json:"api_version,omitempty"`
+	// api_import_path is the import path of the gRPC API.
+	// e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
+	ApiImportPath *ImportPath `protobuf:"bytes,3,opt,name=api_import_path,json=apiImportPath,proto3" json:"api_import_path,omitempty"`
+	// package is the name of the generated code package.
+	// e.g. cluster
+	Package string `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
+	// use is the name of the command.
+	// e.g. create
+	Use string `protobuf:"bytes,5,opt,name=use,proto3" json:"use,omitempty"`
+	// short is the short description of the command.
+	Short string `protobuf:"bytes,6,opt,name=short,proto3" json:"short,omitempty"`
+	// long is the long description of the command.
+	Long string `protobuf:"bytes,7,opt,name=long,proto3" json:"long,omitempty"`
+	// method is the name of the gRPC method.
+	// e.g. CreateCluster
+	Method string `protobuf:"bytes,8,opt,name=method,proto3" json:"method,omitempty"`
+	// method_type is the type of the gRPC method.
+	MethodType MethodType `protobuf:"varint,9,opt,name=method_type,json=methodType,proto3,enum=api.inhouse.v1.MethodType" json:"method_type,omitempty"`
+	// request is the request message passed to the gRPC method at runtime.
+	Request *RequestMessage `protobuf:"bytes,11,opt,name=request,proto3" json:"request,omitempty"`
+	// string_flags is the list of string flags of the command.
+	StringFlags []*Flag `protobuf:"bytes,12,rep,name=string_flags,json=stringFlags,proto3" json:"string_flags,omitempty"`
 }
 
 func (x *Command) Reset() {
@@ -445,16 +512,39 @@ func (x *Command) GetStringFlags() []*Flag {
 	return nil
 }
 
+// Package represents golang codes hierarchy and root command.
+//
+// The root command is the entry point of the CLI.
+// The hierarchy of the commands is represented by sub_commands and sub_packages.
+//
+// {root-directory}
+// ├── ke
+// │   ├── root.go
+// │   └── v1alpha
+// │       ├── cluster
+// │       │   ├── createcluster.go
+// │       │   └── root.go
+// │       └── root.go
+// └── root.go
 type Package struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Package     string     `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
-	Use         string     `protobuf:"bytes,3,opt,name=use,proto3" json:"use,omitempty"`
-	Short       string     `protobuf:"bytes,4,opt,name=short,proto3" json:"short,omitempty"`
-	Long        string     `protobuf:"bytes,5,opt,name=long,proto3" json:"long,omitempty"`
+	// package is the name of the generated code package.
+	// e.g. cluster
+	Package string `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
+	// use is the name of the root command.
+	Use string `protobuf:"bytes,3,opt,name=use,proto3" json:"use,omitempty"`
+	// short is the short description of the root command.
+	Short string `protobuf:"bytes,4,opt,name=short,proto3" json:"short,omitempty"`
+	// long is the long description of the root command.
+	Long string `protobuf:"bytes,5,opt,name=long,proto3" json:"long,omitempty"`
+	// sub_commands is the list of sub commands.
+	// The root command adds sub commands to the CLI.
 	SubCommands []*Command `protobuf:"bytes,6,rep,name=sub_commands,json=subCommands,proto3" json:"sub_commands,omitempty"`
+	// sub_packages is the list of sub packages.
+	// The root command adds root commands of sub packages to the CLI.
 	SubPackages []*Package `protobuf:"bytes,7,rep,name=sub_packages,json=subPackages,proto3" json:"sub_packages,omitempty"`
 }
 
