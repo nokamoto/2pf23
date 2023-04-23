@@ -1,4 +1,4 @@
-package cligen
+package protogen
 
 import (
 	"bytes"

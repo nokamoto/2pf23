@@ -5,7 +5,7 @@ package api.inhouse.v1;
 option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
 
 // Flag represents command line flag.
-// 
+//
 // ```
 // var displayName string
 // cmd.Flags().StringVar(&displayName, "display-name", "default value", "usage string")
@@ -45,7 +45,7 @@ message ImportPath {
 }
 
 // RequestMessageField represents golang struct field value.
-// 
+//
 // ```
 // Displayname: displayName
 // ```

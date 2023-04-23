@@ -1,4 +1,4 @@
-package cligen
+package protogen
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/nokamoto/2pf23/internal/cligen/protogen/api"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -81,6 +82,7 @@ func (p *Plugin) debugf(format string, args ...any) {
 func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.Package, error) {
 	var resp *v1.Package
 	for _, file := range req.GetProtoFile() {
+		apidesc := api.NewAPI(file)
 		// discard noisy unused information
 		file.SourceCodeInfo = nil
 
@@ -92,7 +94,7 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 		debug, _ := protojson.Marshal(file)
 		p.debugf("FileDescriptorProto: %s", debug)
 
-		f, err := p.fileDescriptorProto(req, file)
+		f, err := p.fileDescriptorProto(req, file, apidesc)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate file: %w", err)
 		}
@@ -104,11 +106,11 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 	return resp, nil
 }
 
-func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto) (*v1.Package, error) {
+func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, apidesc *api.API) (*v1.Package, error) {
 	resp := &v1.Package{}
 
 	for _, service := range file.GetService() {
-		serviceName := serviceFromPackage(file)
+		serviceName := apidesc.ServiceName()
 		short := fmt.Sprintf("%s is a CLI for mannaing the %s.", serviceName, serviceName)
 
 		pkg := &v1.Package{
@@ -117,19 +119,19 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 			Short:   short,
 			Long:    short,
 		}
-		apiVersion, err := p.serviceDescriptorProto(service, file)
+		apiPackage, err := p.serviceDescriptorProto(service, file, apidesc)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate service: %w", err)
 		}
-		pkg.SubPackages = append(pkg.SubPackages, apiVersion)
+		pkg.SubPackages = append(pkg.SubPackages, apiPackage)
 		resp.SubPackages = append(resp.SubPackages, pkg)
 	}
 	return resp, nil
 }
 
-func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Package, error) {
-	apiVersion := apiVersionFromPackage(file)
-	serviceName := serviceFromPackage(file)
+func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *api.API) (*v1.Package, error) {
+	apiVersion := apidesc.APIVersion()
+	serviceName := apidesc.ServiceName()
 	short := fmt.Sprintf("%s.%s is a CLI for mannaing the %s.", serviceName, apiVersion, serviceName)
 	resp := &v1.Package{
 		Package: apiVersion,
@@ -139,7 +141,7 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	}
 	resources := map[string][]*v1.Command{}
 	for _, method := range service.GetMethod() {
-		resource, cmd, err := p.methodDescriptorProto(method, file)
+		resource, cmd, err := p.methodDescriptorProto(method, file, apidesc)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate method: %w", err)
 		}
@@ -160,10 +162,10 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	return resp, nil
 }
 
-func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto) (string, *v1.Command, error) {
+func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *api.API) (string, *v1.Command, error) {
 	if strings.HasPrefix(method.GetName(), "Create") {
 		resource := strings.ToLower(strings.TrimPrefix(method.GetName(), "Create"))
-		cmd, err := p.createCommand(file, method)
+		cmd, err := p.createCommand(file, method, apidesc)
 		if err != nil {
 			return "", nil, fmt.Errorf("failed to create command: %w", err)
 		}
@@ -171,16 +173,6 @@ func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProt
 	}
 
 	return "", nil, fmt.Errorf("unsupported method: %s", method.GetName())
-}
-
-func apiVersionFromPackage(file *descriptorpb.FileDescriptorProto) string {
-	v := strings.Split(file.GetPackage(), ".")
-	return v[len(v)-1]
-}
-
-func serviceFromPackage(file *descriptorpb.FileDescriptorProto) string {
-	v := strings.Split(file.GetPackage(), ".")
-	return v[len(v)-2]
 }
 
 func (p *Plugin) requestMessage(typ string, name string, file *descriptorpb.FileDescriptorProto) (*v1.RequestMessage, []*v1.Flag, error) {
@@ -238,12 +230,8 @@ func (p *Plugin) requestMessage(typ string, name string, file *descriptorpb.File
 	return resp, flags, nil
 }
 
-func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto) (*v1.Command, error) {
-	first := func(s []string) string {
-		return s[0]
-	}
-
-	apiVersion := apiVersionFromPackage(file)
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, apidesc *api.API) (*v1.Command, error) {
+	apiVersion := apidesc.APIVersion()
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 	req, flags, err := p.requestMessage(*method.InputType, "", file)
@@ -252,20 +240,17 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	}
 
 	return &v1.Command{
-		Api:        serviceFromPackage(file),
-		ApiVersion: apiVersion,
-		ApiImportPath: &v1.ImportPath{
-			Alias: apiVersion,
-			Path:  first(strings.Split(file.GetOptions().GetGoPackage(), ";")),
-		},
-		Package:     strings.ToLower(resource),
-		Use:         "create",
-		Short:       short,
-		Long:        short,
-		Method:      method.GetName(),
-		MethodType:  v1.MethodType_METHOD_TYPE_CREATE,
-		Request:     req,
-		StringFlags: flags,
+		Api:           apidesc.ServiceName(),
+		ApiVersion:    apiVersion,
+		ApiImportPath: apidesc.ImportPath(),
+		Package:       strings.ToLower(resource),
+		Use:           "create",
+		Short:         short,
+		Long:          short,
+		Method:        method.GetName(),
+		MethodType:    v1.MethodType_METHOD_TYPE_CREATE,
+		Request:       req,
+		StringFlags:   flags,
 	}, nil
 }
 
