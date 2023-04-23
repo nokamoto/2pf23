@@ -1,4 +1,4 @@
-package api
+package protogen
 
 import (
 	"strings"

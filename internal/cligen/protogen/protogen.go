@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nokamoto/2pf23/internal/cligen/protogen/api"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -82,7 +81,7 @@ func (p *Plugin) debugf(format string, args ...any) {
 func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.Package, error) {
 	var resp *v1.Package
 	for _, file := range req.GetProtoFile() {
-		apidesc := api.NewAPI(file)
+		apidesc := NewAPI(file)
 		// discard noisy unused information
 		file.SourceCodeInfo = nil
 
@@ -106,7 +105,7 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 	return resp, nil
 }
 
-func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, apidesc *api.API) (*v1.Package, error) {
+func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, apidesc *API) (*v1.Package, error) {
 	resp := &v1.Package{}
 
 	for _, service := range file.GetService() {
@@ -129,7 +128,7 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 	return resp, nil
 }
 
-func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *api.API) (*v1.Package, error) {
+func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *API) (*v1.Package, error) {
 	apiVersion := apidesc.APIVersion()
 	serviceName := apidesc.ServiceName()
 	short := fmt.Sprintf("%s.%s is a CLI for mannaing the %s.", serviceName, apiVersion, serviceName)
@@ -162,7 +161,7 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	return resp, nil
 }
 
-func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *api.API) (string, *v1.Command, error) {
+func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *API) (string, *v1.Command, error) {
 	if strings.HasPrefix(method.GetName(), "Create") {
 		resource := strings.ToLower(strings.TrimPrefix(method.GetName(), "Create"))
 		cmd, err := p.createCommand(file, method, apidesc)
@@ -230,7 +229,7 @@ func (p *Plugin) requestMessage(typ string, name string, file *descriptorpb.File
 	return resp, flags, nil
 }
 
-func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, apidesc *api.API) (*v1.Command, error) {
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, apidesc *API) (*v1.Command, error) {
 	apiVersion := apidesc.APIVersion()
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
