@@ -4,10 +4,24 @@ package api.inhouse.v1;
 
 option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
 
+// Flag represents command line flag.
+// 
+// ```
+// var displayName string
+// cmd.Flags().StringVar(&displayName, "display-name", "default value", "usage string")
+// ```
 message Flag {
+  // name is the variable name.
+  // e.g. displayName
   string name = 1;
+  // display_name is the display name of the flag.
+  // e.g. display-name
   string display_name = 2;
+  // value is the default value of the flag.
+  // e.g. default value
   string value = 3;
+  // usage is the usage string of the flag.
+  // e.g. usage string
   string usage = 4;
 }
 
@@ -16,42 +30,116 @@ enum MethodType {
   METHOD_TYPE_CREATE = 1;
 }
 
+// ImportPath represents golang import path.
+//
+// ```
+// import v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+// ```
 message ImportPath {
+  // alias is the alias of the import path.
+  // e.g. v1alpha
   string alias = 1;
+  // path is the import path.
+  // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
   string path = 2;
 }
 
+// RequestMessageField represents golang struct field value.
+// 
+// ```
+// Displayname: displayName
+// ```
 message RequestMessageField {
+  // name is the field name.
+  // e.g. DisplayName
   string name = 1;
+  // value is the field value.
+  // e.g. displayName
   string value = 2;
 }
 
+// RequestMessage represents golang struct.
+//
+// ```
+// &v1alpha.ClusterCreateRequest {
+//   Cluster: &v1alpha.Cluster {
+//     DisplayName: displayName,
+//   }
+// }
+// ```
 message RequestMessage {
+  // name is the field set by this message.
+  // e.g. Cluster
   string name = 1;
+  // type is the type of the field.
+  // e.g. v1alpha.Cluster
   string type = 2;
+  // fields is the list of non message fields.
   repeated RequestMessageField fields = 3;
+  // children is the list of message fields.
   repeated RequestMessage children = 4;
 }
 
+// Command represents golang code to call a single gRPC method.
 message Command {
+  // api is the name of the gRPC API.
+  // e.g. ke
   string api = 1;
+  // api_version is the version of the gRPC API.
+  // e.g. v1alpha
   string api_version = 2;
+  // api_import_path is the import path of the gRPC API.
+  // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
   ImportPath api_import_path = 3;
+  // package is the name of the generated code package.
+  // e.g. cluster
   string package = 4;
+  // use is the name of the command.
+  // e.g. create
   string use = 5;
+  // short is the short description of the command.
   string short = 6;
+  // long is the long description of the command.
   string long = 7;
+  // method is the name of the gRPC method.
+  // e.g. CreateCluster
   string method = 8;
+  // method_type is the type of the gRPC method.
   MethodType method_type = 9;
+  // request is the request message passed to the gRPC method at runtime.
   RequestMessage request = 11;
+  // string_flags is the list of string flags of the command.
   repeated Flag string_flags = 12;
 }
 
+// Package represents golang codes hierarchy and root command.
+//
+// The root command is the entry point of the CLI.
+// The hierarchy of the commands is represented by sub_commands and sub_packages.
+//
+// {root-directory}
+// ├── ke
+// │   ├── root.go
+// │   └── v1alpha
+// │       ├── cluster
+// │       │   ├── createcluster.go
+// │       │   └── root.go
+// │       └── root.go
+// └── root.go
 message Package {
+  // package is the name of the generated code package.
+  // e.g. cluster
   string package = 1;
+  // use is the name of the root command.
   string use = 3;
+  // short is the short description of the root command.
   string short = 4;
+  // long is the long description of the root command.
   string long = 5;
+  // sub_commands is the list of sub commands.
+  // The root command adds sub commands to the CLI.
   repeated Command sub_commands = 6;
+  // sub_packages is the list of sub packages.
+  // The root command adds root commands of sub packages to the CLI.
   repeated Package sub_packages = 7;
 }
