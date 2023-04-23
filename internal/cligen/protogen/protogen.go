@@ -81,7 +81,7 @@ func (p *Plugin) debugf(format string, args ...any) {
 func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.Package, error) {
 	var resp *v1.Package
 	for _, file := range req.GetProtoFile() {
-		apidesc := NewAPI(file)
+		api := NewAPIDescriptor(file)
 		// discard noisy unused information
 		file.SourceCodeInfo = nil
 
@@ -93,7 +93,7 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 		debug, _ := protojson.Marshal(file)
 		p.debugf("FileDescriptorProto: %s", debug)
 
-		f, err := p.fileDescriptorProto(req, file, apidesc)
+		f, err := p.fileDescriptorProto(req, file, api)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate file: %w", err)
 		}
@@ -105,11 +105,11 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 	return resp, nil
 }
 
-func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, apidesc *API) (*v1.Package, error) {
+func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, api *APIDescriptor) (*v1.Package, error) {
 	resp := &v1.Package{}
 
 	for _, service := range file.GetService() {
-		serviceName := apidesc.ServiceName()
+		serviceName := api.ServiceName()
 		short := fmt.Sprintf("%s is a CLI for mannaing the %s.", serviceName, serviceName)
 
 		pkg := &v1.Package{
@@ -118,7 +118,7 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 			Short:   short,
 			Long:    short,
 		}
-		apiPackage, err := p.serviceDescriptorProto(service, file, apidesc)
+		apiPackage, err := p.serviceDescriptorProto(service, file, api)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate service: %w", err)
 		}
@@ -128,9 +128,9 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 	return resp, nil
 }
 
-func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *API) (*v1.Package, error) {
-	apiVersion := apidesc.APIVersion()
-	serviceName := apidesc.ServiceName()
+func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, api *APIDescriptor) (*v1.Package, error) {
+	apiVersion := api.APIVersion()
+	serviceName := api.ServiceName()
 	short := fmt.Sprintf("%s.%s is a CLI for mannaing the %s.", serviceName, apiVersion, serviceName)
 	resp := &v1.Package{
 		Package: apiVersion,
@@ -140,7 +140,7 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	}
 	resources := map[string][]*v1.Command{}
 	for _, method := range service.GetMethod() {
-		resource, cmd, err := p.methodDescriptorProto(method, file, apidesc)
+		resource, cmd, err := p.methodDescriptorProto(method, file, api)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate method: %w", err)
 		}
@@ -161,10 +161,10 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	return resp, nil
 }
 
-func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, apidesc *API) (string, *v1.Command, error) {
+func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, api *APIDescriptor) (string, *v1.Command, error) {
 	if strings.HasPrefix(method.GetName(), "Create") {
 		resource := strings.ToLower(strings.TrimPrefix(method.GetName(), "Create"))
-		cmd, err := p.createCommand(file, method, apidesc)
+		cmd, err := p.createCommand(file, method, api)
 		if err != nil {
 			return "", nil, fmt.Errorf("failed to create command: %w", err)
 		}
@@ -229,8 +229,7 @@ func (p *Plugin) requestMessage(typ string, name string, file *descriptorpb.File
 	return resp, flags, nil
 }
 
-func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, apidesc *API) (*v1.Command, error) {
-	apiVersion := apidesc.APIVersion()
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, api *APIDescriptor) (*v1.Command, error) {
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 	req, flags, err := p.requestMessage(*method.InputType, "", file)
@@ -239,9 +238,9 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	}
 
 	return &v1.Command{
-		Api:           apidesc.ServiceName(),
-		ApiVersion:    apiVersion,
-		ApiImportPath: apidesc.ImportPath(),
+		Api:           api.ServiceName(),
+		ApiVersion:    api.APIVersion(),
+		ApiImportPath: api.ImportPath(),
 		Package:       strings.ToLower(resource),
 		Use:           "create",
 		Short:         short,
