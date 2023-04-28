@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -19,15 +20,35 @@ import (
 )
 
 func Test_newCreate(t *testing.T) {
-	clientErr := errors.New("client error")
-	rpcErr := status.Errorf(codes.Unavailable, "rpc error")
-	testcases := []struct {
+	type testcase struct {
 		name     string
 		args     string
 		mock     func(*mockruntime.MockRuntime, *mock_kev1alpha.MockKeServiceClient)
 		expected *kev1alpha.Cluster
 		err      error
-	}{
+	}
+
+	clientErr := errors.New("client error")
+	rpcErr := status.Errorf(codes.Unavailable, "rpc error")
+
+	set := func(args string, cluster *kev1alpha.Cluster) testcase {
+		return testcase{
+			name: fmt.Sprintf("set %s", args),
+			args: args,
+			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+				gomock.InOrder(
+					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
+					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
+					c.EXPECT().CreateCluster(context.TODO(), &kev1alpha.CreateClusterRequest{
+						Cluster: cluster,
+					}).Return(cluster, nil),
+				)
+			},
+			expected: cluster,
+		}
+	}
+
+	testcases := []testcase{
 		{
 			name: "ok",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
@@ -43,22 +64,12 @@ func Test_newCreate(t *testing.T) {
 				Name: "foo",
 			},
 		},
-		{
-			name: "set --display-name to display_name",
-			args: "--display-name bar",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
-				gomock.InOrder(
-					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
-					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().CreateCluster(context.TODO(), &kev1alpha.CreateClusterRequest{
-						Cluster: &kev1alpha.Cluster{
-							DisplayName: "bar",
-						},
-					}).Return(&kev1alpha.Cluster{}, nil),
-				)
-			},
-			expected: &kev1alpha.Cluster{},
-		},
+		set("--display-name bar", &kev1alpha.Cluster{
+			DisplayName: "bar",
+		}),
+		set("--num-nodes 3", &kev1alpha.Cluster{
+			NumNodes: 3,
+		}),
 		{
 			name: "failed to create a client for ke.v1alpha",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {

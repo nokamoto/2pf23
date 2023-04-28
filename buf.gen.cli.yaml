@@ -1,0 +1,6 @@
+version: v1
+plugins:
+  - plugin: cli
+    out: build/cli
+    opt:
+      - debug

@@ -41,6 +41,10 @@
                           {
                             "name": "DisplayName",
                             "value": "displayName"
+                          },
+                          {
+                            "name": "NumNodes",
+                            "value": "numNodes"
                           }
                         ]
                       }
@@ -50,6 +54,14 @@
                     {
                       "name": "displayName",
                       "displayName": "display-name",
+                      "usage": "todo"
+                    }
+                  ],
+                  "int32Flags": [
+                    {
+                      "name": "numNodes",
+                      "displayName": "num-nodes",
+                      "value": "0",
                       "usage": "todo"
                     }
                   ]

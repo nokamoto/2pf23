@@ -14,6 +14,7 @@ import (
 
 func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 	var displayName string
+	var numNodes int32
 	cmd := &cobra.Command{
 		Use:          "create",
 		Short:        "create is a command to create a new Cluster",
@@ -29,6 +30,7 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			res, err := c.CreateCluster(ctx, &v1alpha.CreateClusterRequest{
 				Cluster: &v1alpha.Cluster{
 					DisplayName: displayName,
+					NumNodes:    numNodes,
 				},
 			})
 			if err != nil {
@@ -43,5 +45,6 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&displayName, "display-name", "", "todo")
+	cmd.Flags().Int32Var(&numNodes, "num-nodes", 0, "todo")
 	return cmd
 }
