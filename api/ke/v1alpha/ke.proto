@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package api.ke.v1alpha;
 
+import "api/option/v1/options.proto";
+
 option go_package = "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha;kev1alpha";
 
 message Cluster {
@@ -9,9 +11,9 @@ message Cluster {
   // This is a read-only property.
   string name = 1;
   // The display name of the cluster. This is used only for display purposes.
-  string display_name = 2;
+  string display_name = 2 [(api.option.v1.Resource.usage) = "The display name of the cluster."];
   // The number of worker nodes in the cluster.
-  int32 num_nodes = 3;
+  int32 num_nodes = 3 [(api.option.v1.Resource.usage) = "The number of worker nodes in the cluster."];
 }
 
 service KeService {

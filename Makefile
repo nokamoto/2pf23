@@ -1,4 +1,4 @@
-API_GO_FILES = $(shell find pkg/api -name '*.go')
+API_GO_FILES = $(shell find pkg/api -name '*grpc.pb.go')
 COMMANDS = pf ke-apis
 
 define ko
@@ -28,6 +28,7 @@ proto:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	buf lint --error-format=json
 	buf format -w
+	rm -r pkg/api
 	buf generate
 
 cialpha:
@@ -35,6 +36,7 @@ cialpha:
 
 mock:
 	go install github.com/golang/mock/mockgen@v1.6.0
+	rm -r internal/mock
 	go generate ./...
 	$(foreach file,$(API_GO_FILES),mockgen -source $(file) -destination internal/mock/$(file))
 
