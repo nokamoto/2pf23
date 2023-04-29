@@ -110,6 +110,8 @@ message Command {
   RequestMessage request = 11;
   // string_flags is the list of string flags of the command.
   repeated Flag string_flags = 12;
+  // int32_flags is the list of number flags of the command.
+  repeated Flag int32_flags = 13;
 }
 
 // Package represents golang codes hierarchy and root command.

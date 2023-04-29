@@ -15,6 +15,9 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 {{- range .Command.StringFlags}}
 	var {{.Name}} string
 {{- end}}
+{{- range .Command.Int32Flags}}
+	var {{.Name}} int32
+{{- end}}
 	cmd := &cobra.Command{
 		Use:          "{{.Command.Use}}",
 		Short:        "{{.Command.Short}}",
@@ -45,6 +48,9 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 	}
 {{- range .Command.StringFlags}}
 	cmd.Flags().StringVar(&{{.Name}}, "{{.DisplayName}}", "{{.Value}}", "{{.Usage}}")
+{{- end}}
+{{- range .Command.Int32Flags}}
+	cmd.Flags().Int32Var(&{{.Name}}, "{{.DisplayName}}", {{.Value}}, "{{.Usage}}")
 {{- end}}
 	return cmd
 }
