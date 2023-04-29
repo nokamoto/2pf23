@@ -19,6 +19,15 @@ type Walk struct {
 	rootPackage   string
 }
 
+// NewWalk creates a new Walk.
+//
+// file is a protogen result file. It contains protojson encoded v1.Package.
+//
+// rootDirectory is a root directory where the generated files are placed.
+// e.g. internal/cli/generated
+//
+// rootPackage is a root package name of the generated root file.
+// e.g. github.com/nokamoto/2pf23/internal/cli/generated
 func NewWalk(file string, rootDirectory string, rootPackage string) (*Walk, error) {
 	var pkg v1.Package
 	b, err := os.ReadFile(file)
