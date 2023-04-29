@@ -176,7 +176,7 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 
-	req, err := NewRequestMessageDescriptor(file).RequestMessage(*method.InputType)
+	req, err := NewRequestMessageDescriptor(p.debug, file).RequestMessage(*method.InputType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}

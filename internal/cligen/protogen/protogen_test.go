@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
+	optionv1 "github.com/nokamoto/2pf23/pkg/api/option/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -35,6 +36,12 @@ func content(t *testing.T, content *v1.Package) *pluginpb.CodeGeneratorResponse 
 	}
 }
 
+func withUsage(field *descriptorpb.FieldDescriptorProto, usage string) *descriptorpb.FieldDescriptorProto {
+	field.Options = &descriptorpb.FieldOptions{}
+	proto.SetExtension(field.Options, optionv1.E_Resource_Usage, usage)
+	return field
+}
+
 func TestPlugin_Run(t *testing.T) {
 	testcases := []struct {
 		name     string
@@ -59,11 +66,14 @@ func TestPlugin_Run(t *testing.T) {
 							{
 								Name: proto.String("Shelf"),
 								Field: []*descriptorpb.FieldDescriptorProto{
-									{
-										Name:     proto.String("display_name"),
-										JsonName: proto.String("displayName"),
-										Type:     descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
-									},
+									withUsage(
+										&descriptorpb.FieldDescriptorProto{
+											Name:     proto.String("display_name"),
+											JsonName: proto.String("displayName"),
+											Type:     descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+										},
+										"display name usage",
+									),
 								},
 							},
 							{
@@ -143,8 +153,7 @@ func TestPlugin_Run(t *testing.T) {
 													{
 														Name:        "displayName",
 														DisplayName: "display-name",
-														Value:       "",
-														Usage:       "todo",
+														Usage:       "display name usage",
 													},
 												},
 											},

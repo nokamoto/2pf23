@@ -2,18 +2,22 @@ package protogen
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
+	optionv1 "github.com/nokamoto/2pf23/pkg/api/option/v1"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 // RequestMessageDescriptor describes a construct of a request message from a proto file.
 // It describes relationships between flags and a request message.
 type RequestMessageDescriptor struct {
-	file *descriptorpb.FileDescriptorProto
+	file  *descriptorpb.FileDescriptorProto
+	debug io.Writer
 
 	// StringFlags is a list of string flags.
 	StringFlags []*v1.Flag
@@ -23,8 +27,8 @@ type RequestMessageDescriptor struct {
 	Message *v1.RequestMessage
 }
 
-func NewRequestMessageDescriptor(file *descriptorpb.FileDescriptorProto) *RequestMessageDescriptor {
-	return &RequestMessageDescriptor{file: file}
+func NewRequestMessageDescriptor(debug io.Writer, file *descriptorpb.FileDescriptorProto) *RequestMessageDescriptor {
+	return &RequestMessageDescriptor{debug: debug, file: file}
 }
 
 func (r *RequestMessageDescriptor) goType(typ string) string {
@@ -52,7 +56,9 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 					Name:        *field.JsonName,
 					DisplayName: strings.ReplaceAll(field.GetName(), "_", "-"),
 					Value:       "",
-					Usage:       "todo",
+				}
+				if proto.HasExtension(field.GetOptions(), optionv1.E_Resource_Usage) {
+					flag.Usage = proto.GetExtension(field.GetOptions(), optionv1.E_Resource_Usage).(string)
 				}
 
 				goFieldName := cases.Title(language.English, cases.NoLower).String(*field.JsonName)

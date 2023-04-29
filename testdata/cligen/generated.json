@@ -54,15 +54,14 @@
                     {
                       "name": "displayName",
                       "displayName": "display-name",
-                      "usage": "todo"
+                      "usage": "The display name of the cluster."
                     }
                   ],
                   "int32Flags": [
                     {
                       "name": "numNodes",
                       "displayName": "num-nodes",
-                      "value": "0",
-                      "usage": "todo"
+                      "value": "0"
                     }
                   ]
                 }

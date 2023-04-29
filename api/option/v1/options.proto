@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package api.option.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/option/v1;optionv1";
+
+message Resource {
+  extend google.protobuf.FieldOptions {
+    // usage is usage of the field in the CLI.
+    string usage = 50000;
+  }
+}

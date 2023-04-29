@@ -44,7 +44,7 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&displayName, "display-name", "", "todo")
-	cmd.Flags().Int32Var(&numNodes, "num-nodes", 0, "todo")
+	cmd.Flags().StringVar(&displayName, "display-name", "", "The display name of the cluster.")
+	cmd.Flags().Int32Var(&numNodes, "num-nodes", 0, "")
 	return cmd
 }
