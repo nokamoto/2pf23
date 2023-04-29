@@ -3,28 +3,12 @@ package cligen
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
-
-func diff(t *testing.T, in, out string) {
-	t.Helper()
-
-	expected, err := os.ReadFile(in)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	actual, err := os.ReadFile(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if diff := cmp.Diff(string(expected), string(actual)); diff != "" {
-		t.Errorf("%s %s (-want +got)\n%s", in, out, diff)
-	}
-}
 
 func TestWalk_Walk(t *testing.T) {
 	temp, err := os.MkdirTemp("", "cligen")
@@ -41,6 +25,36 @@ func TestWalk_Walk(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// diff(t, "generated/createcluster.go", fmt.Sprintf("%s/createcluster.go", temp))
-	diff(t, "generated/root.go", fmt.Sprintf("%s/root.go", temp))
+	err = filepath.WalkDir("generated", func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		target := filepath.Join(temp, strings.TrimPrefix(path, "generated"))
+
+		if d.IsDir() && strings.Contains(d.Name(), "helper") {
+			return filepath.SkipDir
+		}
+		if d.IsDir() || strings.HasSuffix(path, "_test.go") {
+			return nil
+		}
+
+		expected, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+
+		actual, err := os.ReadFile(target)
+		if err != nil {
+			return fmt.Errorf("%s: %w", target, err)
+		}
+
+		if diff := cmp.Diff(string(expected), string(actual)); diff != "" {
+			return fmt.Errorf("%s %s (-want +got)\n%s", path, target, diff)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 }
