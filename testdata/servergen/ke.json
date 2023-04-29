@@ -1,3 +1,8 @@
 {
-  "package": "ke"
+  "package": "ke",
+  "apiImportPath": {
+    "alias": "v1alpha",
+    "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+  },
+  "unimplementedServer": "v1alpha.UnimplementedKeServiceServer"
 }
