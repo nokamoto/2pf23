@@ -65,9 +65,18 @@ type rootArg struct {
 func printFields(indent int, req *v1.RequestMessage) string {
 	var s string
 	tabs := strings.Repeat("\t", indent)
+
+	max := 0
 	for _, field := range req.GetFields() {
-		s += fmt.Sprintf("%s%s: %s,\n", tabs, field.GetName(), field.GetValue())
+		if len(field.GetName()) > max {
+			max = len(field.GetName())
+		}
 	}
+	for _, field := range req.GetFields() {
+		spaces := strings.Repeat(" ", 1+max-len(field.GetName()))
+		s += fmt.Sprintf("%s%s:%s%s,\n", tabs, field.GetName(), spaces, field.GetValue())
+	}
+
 	for _, child := range req.GetChildren() {
 		s += fmt.Sprintf("%s%s: &%s{\n", tabs, child.GetName(), child.GetType())
 		s += printFields(indent+1, child)
