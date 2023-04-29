@@ -1,8 +1,17 @@
 {
-  "package": "ke",
+  "name": "ke",
+  "apiVersion": "v1alpha",
   "apiImportPath": {
-    "alias": "v1alpha",
+    "alias": "kev1alpha",
     "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
   },
-  "unimplementedServer": "v1alpha.UnimplementedKeServiceServer"
+  "unimplementedServer": "kev1alpha.UnimplementedKeServiceServer",
+  "calls": [
+    {
+      "name": "CreateCluster",
+      "method_type": "METHOD_TYPE_CREATE",
+      "request_type": "kev1alpha.CreateClusterRequest",
+      "response_type": "kev1alpha.Cluster"
+    }
+  ]
 }

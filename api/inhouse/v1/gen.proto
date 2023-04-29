@@ -17,3 +17,8 @@ message ImportPath {
   // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
   string path = 2;
 }
+
+enum MethodType {
+  METHOD_TYPE_UNSPECIFIED = 0;
+  METHOD_TYPE_CREATE = 1;
+}
