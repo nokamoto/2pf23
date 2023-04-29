@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package api.inhouse.v1;
 
+import "api/inhouse/v1/gen.proto";
+
 option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
 
 // Flag represents command line flag.
@@ -28,20 +30,6 @@ message Flag {
 enum MethodType {
   METHOD_TYPE_UNSPECIFIED = 0;
   METHOD_TYPE_CREATE = 1;
-}
-
-// ImportPath represents golang import path.
-//
-// ```
-// import v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
-// ```
-message ImportPath {
-  // alias is the alias of the import path.
-  // e.g. v1alpha
-  string alias = 1;
-  // path is the import path.
-  // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
-  string path = 2;
 }
 
 // RequestMessageField represents golang struct field value.

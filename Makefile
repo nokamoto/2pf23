@@ -48,6 +48,7 @@ build:
 
 testdata:
 	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated github.com/nokamoto/2pf23/internal/cligen/generated
+	go run ./cmd/server-gen/main.go testdata/servergen internal/servergen/generated
 
 cli:
 	go install github.com/bufbuild/buf/cmd/buf@latest

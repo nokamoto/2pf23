@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package api.inhouse.v1;
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
+
+// ImportPath represents golang import path.
+//
+// ```
+// import v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+// ```
+message ImportPath {
+  // alias is the alias of the import path.
+  // e.g. v1alpha
+  string alias = 1;
+  // path is the import path.
+  // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
+  string path = 2;
+}

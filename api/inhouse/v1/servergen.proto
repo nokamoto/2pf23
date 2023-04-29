@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package api.inhouse.v1;
+
+import "api/inhouse/v1/gen.proto";
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
+
+// Service represents golang code to receive gRPC requests.
+message Service {
+  // package is the name of the package.
+  // e.g. ke
+  string package = 1;
+  // api_import_path is the import path of the gRPC API.
+  // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
+  ImportPath api_import_path = 2;
+  // unimplemented_server is the name of the unimplemented server.
+  // e.g. v1alpha.UnimplementedKeServer
+  string unimplemented_server = 3;
+}
