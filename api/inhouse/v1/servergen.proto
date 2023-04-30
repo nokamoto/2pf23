@@ -13,12 +13,18 @@ message Call {
   string name = 1;
   // method_type is the type of the method.
   MethodType method_type = 2;
-  // request_type is the type of the request.
+  // request_type is the type of the gRPC request.
   // e.g. v1alpha.CreateClusterRequest
   string request_type = 3;
-  // response_type is the type of the response.
+  // response_type is the type of the gRPC response.
   // e.g. v1alpha.Cluster
   string response_type = 4;
+  // resource_type is the type of the resource.
+  // e.g. v1alpha.Cluster
+  string resource_type = 5;
+  // get_resource_method is the name of the method to get the resource from the request.
+  // e.g. GetCluster
+  string get_resource_method = 6;
 }
 
 // Service represents golang code to receive gRPC requests.

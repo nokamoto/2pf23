@@ -16,6 +16,7 @@ all: proto mock testdata cli go
 go:
 	go install mvdan.cc/gofumpt@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
+	go generate ./...
 	gofumpt -l -w .
 	go vet ./...
 	staticcheck ./...
@@ -37,7 +38,6 @@ cialpha:
 mock:
 	go install github.com/golang/mock/mockgen@v1.6.0
 	rm -r internal/mock
-	go generate ./...
 	$(foreach file,$(API_GO_FILES),mockgen -source $(file) -destination internal/mock/$(file))
 
 build:

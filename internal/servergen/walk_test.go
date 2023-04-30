@@ -32,6 +32,10 @@ func TestWalk_Walk(t *testing.T) {
 
 		target := filepath.Join(temp, strings.TrimPrefix(path, "generated"))
 
+		if d.IsDir() && strings.Contains(d.Name(), "mock") {
+			return filepath.SkipDir
+		}
+
 		if d.IsDir() || strings.HasSuffix(path, "_test.go") {
 			return nil
 		}

@@ -12,14 +12,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+//go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
+type runtime interface {
+	Create(ctx context.Context, resource *kev1alpha.Cluster) (*kev1alpha.Cluster, error)
+}
+
 type service struct {
 	kev1alpha.UnimplementedKeServiceServer
 	logger *zap.Logger
+	rt     runtime
 }
 
-func NewService(logger *zap.Logger) *service {
+func NewService(logger *zap.Logger, rt runtime) *service {
 	return &service{
 		logger: logger.Named("ke.v1alpha"),
+		rt:     rt,
 	}
 }
 
@@ -27,5 +34,10 @@ func (s *service) CreateCluster(ctx context.Context, req *kev1alpha.CreateCluste
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
 	// standard create method
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
+	res, err := s.rt.Create(ctx, req.GetCluster())
+	if err != nil {
+		logger.Error("unknown error", zap.Error(err))
+		return nil, status.Error(codes.Unknown, "unknown error")
+	}
+	return res, nil
 }

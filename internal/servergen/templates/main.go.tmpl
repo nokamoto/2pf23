@@ -11,14 +11,25 @@ import (
 {{- end}}
 )
 
+//go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
+type runtime interface {
+{{- range .Service.Calls}}
+{{- if eq .MethodType 1}}
+	Create(ctx context.Context, resource *{{.ResourceType}}) (*{{.ResourceType}}, error)
+{{- end}}
+{{- end}}
+}
+
 type service struct {
 	{{.Service.UnimplementedServer}}
 	logger *zap.Logger
+	rt     runtime
 }
 
-func NewService(logger *zap.Logger) *service {
+func NewService(logger *zap.Logger, rt runtime) *service {
 	return &service{
 		logger: logger.Named("{{.Service.Name}}.{{.Service.ApiVersion}}"),
+		rt:     rt,
 	}
 }
 
@@ -27,7 +38,14 @@ func NewService(logger *zap.Logger) *service {
 	logger.Debug("request received")
 {{- if eq .MethodType 1}}
 	// standard create method
-{{- end}}
+	res, err := s.rt.Create(ctx, req.{{.GetResourceMethod}}())
+	if err != nil {
+		logger.Error("unknown error", zap.Error(err))
+		return nil, status.Error(codes.Unknown, "unknown error")
+	}
+	return res, nil
+{{- else}}
 	return nil, status.Error(codes.Unimplemented, "method not implemented")
+{{- end}}
 }
 {{- end}}
