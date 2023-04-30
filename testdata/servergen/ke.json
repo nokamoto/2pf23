@@ -11,7 +11,9 @@
       "name": "CreateCluster",
       "method_type": "METHOD_TYPE_CREATE",
       "request_type": "kev1alpha.CreateClusterRequest",
-      "response_type": "kev1alpha.Cluster"
+      "response_type": "kev1alpha.Cluster",
+      "resource_type": "kev1alpha.Cluster",
+      "get_resource_method": "GetCluster"
     }
   ]
 }
