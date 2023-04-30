@@ -2,7 +2,6 @@ package protogen
 
 import (
 	"fmt"
-	"io"
 	"strings"
 
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
@@ -16,8 +15,7 @@ import (
 // RequestMessageDescriptor describes a construct of a request message from a proto file.
 // It describes relationships between flags and a request message.
 type RequestMessageDescriptor struct {
-	file  *descriptorpb.FileDescriptorProto
-	debug io.Writer
+	file *descriptorpb.FileDescriptorProto
 
 	// StringFlags is a list of string flags.
 	StringFlags []*v1.Flag
@@ -27,8 +25,8 @@ type RequestMessageDescriptor struct {
 	Message *v1.RequestMessage
 }
 
-func NewRequestMessageDescriptor(debug io.Writer, file *descriptorpb.FileDescriptorProto) *RequestMessageDescriptor {
-	return &RequestMessageDescriptor{debug: debug, file: file}
+func NewRequestMessageDescriptor(file *descriptorpb.FileDescriptorProto) *RequestMessageDescriptor {
+	return &RequestMessageDescriptor{file: file}
 }
 
 func (r *RequestMessageDescriptor) goType(typ string) string {

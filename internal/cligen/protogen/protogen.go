@@ -2,10 +2,9 @@ package protogen
 
 import (
 	"fmt"
-	"io"
-	"os"
 	"strings"
 
+	"github.com/nokamoto/2pf23/internal/protogen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -14,66 +13,23 @@ import (
 )
 
 type Plugin struct {
-	in        io.Reader
-	out       io.Writer
-	debug     io.Writer
-	multiline bool
+	protogen.Plugin
 }
 
 // NewPlugin returns a new Plugin with stdin and stdout.
 func NewPlugin() *Plugin {
-	return &Plugin{
-		in:        os.Stdin,
-		out:       os.Stdout,
-		debug:     io.Discard,
-		multiline: true,
-	}
-}
+	var p *Plugin
+	p = &Plugin{
+		*protogen.NewPlugin(func(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, error) {
+			pkg, err := p.codeGeneratorRequest(req)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate code: %w", err)
+			}
 
-// Run reads CodeGeneratorRequest from stdin, writes CodeGeneratorResponse to stdout.
-//
-// if the parameter is "debug", it writes debug messages to stderr.
-func (p *Plugin) Run() error {
-	bytes, err := io.ReadAll(p.in)
-	if err != nil {
-		return fmt.Errorf("failed to read input: %w", err)
+			return p.codeGeneratorResponse(pkg)
+		}),
 	}
-
-	var req pluginpb.CodeGeneratorRequest
-	if err := proto.Unmarshal(bytes, &req); err != nil {
-		return fmt.Errorf("failed to unmarshal input: %w", err)
-	}
-
-	p.setParam(&req)
-
-	pkg, err := p.codeGeneratorRequest(&req)
-	if err != nil {
-		return fmt.Errorf("failed to generate code: %w", err)
-	}
-
-	resp, err := p.codeGeneratorResponse(pkg)
-	if err != nil {
-		return fmt.Errorf("failed to generate response: %w", err)
-	}
-	bytes, err = proto.Marshal(resp)
-	if err != nil {
-		return fmt.Errorf("failed to marshal output: %w", err)
-	}
-
-	if _, err := p.out.Write(bytes); err != nil {
-		return fmt.Errorf("failed to write output: %w", err)
-	}
-	return nil
-}
-
-func (p *Plugin) setParam(req *pluginpb.CodeGeneratorRequest) {
-	if req.GetParameter() == "debug" {
-		p.debug = os.Stderr
-	}
-}
-
-func (p *Plugin) debugf(format string, args ...any) {
-	fmt.Fprintf(p.debug, "debug: "+format+"\n", args...)
+	return p
 }
 
 func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.Package, error) {
@@ -84,12 +40,12 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 		file.SourceCodeInfo = nil
 
 		if len(file.GetService()) == 0 {
-			p.debugf("skipped: no services: %s", file.GetName())
+			p.Debugf("skipped: no services: %s", file.GetName())
 			continue
 		}
 
 		debug, _ := protojson.Marshal(file)
-		p.debugf("FileDescriptorProto: %s", debug)
+		p.Debugf("FileDescriptorProto: %s", debug)
 
 		f, err := p.fileDescriptorProto(req, file, api)
 		if err != nil {
@@ -176,7 +132,7 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 
-	req, err := NewRequestMessageDescriptor(p.debug, file).RequestMessage(*method.InputType)
+	req, err := NewRequestMessageDescriptor(file).RequestMessage(*method.InputType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}
@@ -203,10 +159,7 @@ func (p *Plugin) codeGeneratorResponse(pkg *v1.Package) (*pluginpb.CodeGenerator
 		return &resp, nil
 	}
 
-	m := protojson.MarshalOptions{
-		Multiline: p.multiline,
-	}
-	bytes, err := m.Marshal(pkg)
+	bytes, err := p.MarshalJsonProto(pkg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal package: %w", err)
 	}

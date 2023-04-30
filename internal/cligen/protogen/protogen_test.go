@@ -2,7 +2,6 @@ package protogen
 
 import (
 	"bytes"
-	"io"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -56,6 +55,7 @@ func TestPlugin_Run(t *testing.T) {
 		{
 			name: "create",
 			req: &pluginpb.CodeGeneratorRequest{
+				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
 					{
 						Package: proto.String("api.library.v1alpha"),
@@ -176,12 +176,9 @@ func TestPlugin_Run(t *testing.T) {
 			}
 
 			var out bytes.Buffer
-			p := Plugin{
-				in:        bytes.NewBuffer(b),
-				out:       &out,
-				debug:     io.Discard,
-				multiline: true,
-			}
+			p := NewPlugin()
+			p.SetInput(bytes.NewReader(b))
+			p.SetOutput(&out)
 			if err := p.Run(); err != nil {
 				t.Fatalf("failed to run plugin: %v", err)
 			}
