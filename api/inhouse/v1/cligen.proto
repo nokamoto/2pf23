@@ -27,11 +27,6 @@ message Flag {
   string usage = 4;
 }
 
-enum MethodType {
-  METHOD_TYPE_UNSPECIFIED = 0;
-  METHOD_TYPE_CREATE = 1;
-}
-
 // RequestMessageField represents golang struct field value.
 //
 // ```

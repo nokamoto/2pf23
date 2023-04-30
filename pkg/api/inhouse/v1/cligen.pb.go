@@ -20,52 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MethodType int32
-
-const (
-	MethodType_METHOD_TYPE_UNSPECIFIED MethodType = 0
-	MethodType_METHOD_TYPE_CREATE      MethodType = 1
-)
-
-// Enum value maps for MethodType.
-var (
-	MethodType_name = map[int32]string{
-		0: "METHOD_TYPE_UNSPECIFIED",
-		1: "METHOD_TYPE_CREATE",
-	}
-	MethodType_value = map[string]int32{
-		"METHOD_TYPE_UNSPECIFIED": 0,
-		"METHOD_TYPE_CREATE":      1,
-	}
-)
-
-func (x MethodType) Enum() *MethodType {
-	p := new(MethodType)
-	*p = x
-	return p
-}
-
-func (x MethodType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (MethodType) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_inhouse_v1_cligen_proto_enumTypes[0].Descriptor()
-}
-
-func (MethodType) Type() protoreflect.EnumType {
-	return &file_api_inhouse_v1_cligen_proto_enumTypes[0]
-}
-
-func (x MethodType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use MethodType.Descriptor instead.
-func (MethodType) EnumDescriptor() ([]byte, []int) {
-	return file_api_inhouse_v1_cligen_proto_rawDescGZIP(), []int{0}
-}
-
 // Flag represents command line flag.
 //
 // ```
@@ -639,15 +593,11 @@ var file_api_inhouse_v1_cligen_proto_rawDesc = []byte{
 	0x0c, 0x73, 0x75, 0x62, 0x5f, 0x70, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x73, 0x18, 0x07, 0x20,
 	0x03, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x69, 0x6e, 0x68, 0x6f, 0x75, 0x73,
 	0x65, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x52, 0x0b, 0x73, 0x75,
-	0x62, 0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x73, 0x2a, 0x41, 0x0a, 0x0a, 0x4d, 0x65, 0x74,
-	0x68, 0x6f, 0x64, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1b, 0x0a, 0x17, 0x4d, 0x45, 0x54, 0x48, 0x4f,
-	0x44, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49,
-	0x45, 0x44, 0x10, 0x00, 0x12, 0x16, 0x0a, 0x12, 0x4d, 0x45, 0x54, 0x48, 0x4f, 0x44, 0x5f, 0x54,
-	0x59, 0x50, 0x45, 0x5f, 0x43, 0x52, 0x45, 0x41, 0x54, 0x45, 0x10, 0x01, 0x42, 0x2e, 0x5a, 0x2c,
-	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6e, 0x6f, 0x6b, 0x61, 0x6d,
-	0x6f, 0x74, 0x6f, 0x2f, 0x32, 0x70, 0x66, 0x32, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70,
-	0x69, 0x2f, 0x69, 0x6e, 0x68, 0x6f, 0x75, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x62, 0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x73, 0x42, 0x2e, 0x5a, 0x2c, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6e, 0x6f, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f,
+	0x2f, 0x32, 0x70, 0x66, 0x32, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x69,
+	0x6e, 0x68, 0x6f, 0x75, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x33,
 }
 
 var (
@@ -662,27 +612,26 @@ func file_api_inhouse_v1_cligen_proto_rawDescGZIP() []byte {
 	return file_api_inhouse_v1_cligen_proto_rawDescData
 }
 
-var file_api_inhouse_v1_cligen_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_api_inhouse_v1_cligen_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_api_inhouse_v1_cligen_proto_goTypes = []interface{}{
-	(MethodType)(0),             // 0: api.inhouse.v1.MethodType
-	(*Flag)(nil),                // 1: api.inhouse.v1.Flag
-	(*RequestMessageField)(nil), // 2: api.inhouse.v1.RequestMessageField
-	(*RequestMessage)(nil),      // 3: api.inhouse.v1.RequestMessage
-	(*Command)(nil),             // 4: api.inhouse.v1.Command
-	(*Package)(nil),             // 5: api.inhouse.v1.Package
-	(*ImportPath)(nil),          // 6: api.inhouse.v1.ImportPath
+	(*Flag)(nil),                // 0: api.inhouse.v1.Flag
+	(*RequestMessageField)(nil), // 1: api.inhouse.v1.RequestMessageField
+	(*RequestMessage)(nil),      // 2: api.inhouse.v1.RequestMessage
+	(*Command)(nil),             // 3: api.inhouse.v1.Command
+	(*Package)(nil),             // 4: api.inhouse.v1.Package
+	(*ImportPath)(nil),          // 5: api.inhouse.v1.ImportPath
+	(MethodType)(0),             // 6: api.inhouse.v1.MethodType
 }
 var file_api_inhouse_v1_cligen_proto_depIdxs = []int32{
-	2, // 0: api.inhouse.v1.RequestMessage.fields:type_name -> api.inhouse.v1.RequestMessageField
-	3, // 1: api.inhouse.v1.RequestMessage.children:type_name -> api.inhouse.v1.RequestMessage
-	6, // 2: api.inhouse.v1.Command.api_import_path:type_name -> api.inhouse.v1.ImportPath
-	0, // 3: api.inhouse.v1.Command.method_type:type_name -> api.inhouse.v1.MethodType
-	3, // 4: api.inhouse.v1.Command.request:type_name -> api.inhouse.v1.RequestMessage
-	1, // 5: api.inhouse.v1.Command.string_flags:type_name -> api.inhouse.v1.Flag
-	1, // 6: api.inhouse.v1.Command.int32_flags:type_name -> api.inhouse.v1.Flag
-	4, // 7: api.inhouse.v1.Package.sub_commands:type_name -> api.inhouse.v1.Command
-	5, // 8: api.inhouse.v1.Package.sub_packages:type_name -> api.inhouse.v1.Package
+	1, // 0: api.inhouse.v1.RequestMessage.fields:type_name -> api.inhouse.v1.RequestMessageField
+	2, // 1: api.inhouse.v1.RequestMessage.children:type_name -> api.inhouse.v1.RequestMessage
+	5, // 2: api.inhouse.v1.Command.api_import_path:type_name -> api.inhouse.v1.ImportPath
+	6, // 3: api.inhouse.v1.Command.method_type:type_name -> api.inhouse.v1.MethodType
+	2, // 4: api.inhouse.v1.Command.request:type_name -> api.inhouse.v1.RequestMessage
+	0, // 5: api.inhouse.v1.Command.string_flags:type_name -> api.inhouse.v1.Flag
+	0, // 6: api.inhouse.v1.Command.int32_flags:type_name -> api.inhouse.v1.Flag
+	3, // 7: api.inhouse.v1.Package.sub_commands:type_name -> api.inhouse.v1.Command
+	4, // 8: api.inhouse.v1.Package.sub_packages:type_name -> api.inhouse.v1.Package
 	9, // [9:9] is the sub-list for method output_type
 	9, // [9:9] is the sub-list for method input_type
 	9, // [9:9] is the sub-list for extension type_name
@@ -763,14 +712,13 @@ func file_api_inhouse_v1_cligen_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_inhouse_v1_cligen_proto_rawDesc,
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_api_inhouse_v1_cligen_proto_goTypes,
 		DependencyIndexes: file_api_inhouse_v1_cligen_proto_depIdxs,
-		EnumInfos:         file_api_inhouse_v1_cligen_proto_enumTypes,
 		MessageInfos:      file_api_inhouse_v1_cligen_proto_msgTypes,
 	}.Build()
 	File_api_inhouse_v1_cligen_proto = out.File

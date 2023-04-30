@@ -56,7 +56,7 @@ func NewWalk(inputDirectory string, rootDirectory string) (*Walk, error) {
 }
 
 func (w *Walk) walk(p *Printer, svc *v1.Service) error {
-	dir := filepath.Join(w.rootDirectory, svc.GetPackage())
+	dir := filepath.Join(w.rootDirectory, svc.GetName(), svc.GetApiVersion())
 	if err := os.MkdirAll(dir, 0o777); err != nil {
 		return fmt.Errorf("failed to mkdir %s: %w", dir, err)
 	}

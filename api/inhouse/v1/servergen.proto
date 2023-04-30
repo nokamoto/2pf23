@@ -6,15 +6,35 @@ import "api/inhouse/v1/gen.proto";
 
 option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
 
+// Call represents a gRPC call.
+message Call {
+  // name is the name of the call.
+  // e.g. CreateCluster
+  string name = 1;
+  // method_type is the type of the method.
+  MethodType method_type = 2;
+  // request_type is the type of the request.
+  // e.g. v1alpha.CreateClusterRequest
+  string request_type = 3;
+  // response_type is the type of the response.
+  // e.g. v1alpha.Cluster
+  string response_type = 4;
+}
+
 // Service represents golang code to receive gRPC requests.
 message Service {
-  // package is the name of the package.
+  // name is the name of the gRPC service.
   // e.g. ke
-  string package = 1;
+  string name = 1;
+  // api_version is the version of the gRPC API.
+  // e.g. v1alpha
+  string api_version = 2;
   // api_import_path is the import path of the gRPC API.
   // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
-  ImportPath api_import_path = 2;
+  ImportPath api_import_path = 3;
   // unimplemented_server is the name of the unimplemented server.
   // e.g. v1alpha.UnimplementedKeServer
-  string unimplemented_server = 3;
+  string unimplemented_server = 4;
+  // calls is the list of gRPC calls.
+  repeated Call calls = 5;
 }
