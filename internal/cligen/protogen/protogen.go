@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
+// Plugin is a protoc plugin to generate cli code.
 type Plugin struct {
 	protogen.Plugin
 }
