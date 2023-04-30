@@ -36,8 +36,8 @@ func (s *service) CreateCluster(ctx context.Context, req *kev1alpha.CreateCluste
 	// standard create method
 	res, err := s.rt.Create(ctx, req.GetCluster())
 	if err != nil {
-		logger.Error("failed to create resource", zap.Error(err))
-		return nil, status.Error(codes.Internal, "internal error")
+		logger.Error("unknown error", zap.Error(err))
+		return nil, status.Error(codes.Unknown, "unknown error")
 	}
 	return res, nil
 }
