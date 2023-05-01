@@ -3,7 +3,7 @@ module github.com/nokamoto/2pf23
 go 1.20
 
 require (
-	dagger.io/dagger v0.6.0
+	dagger.io/dagger v0.6.1
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.9
 	github.com/spf13/cobra v1.7.0
