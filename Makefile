@@ -43,7 +43,6 @@ mock:
 build:
 	go install github.com/google/ko@latest
 	go install ./cmd/pf
-	go install ./cmd/cli-gen
 	$(foreach command,$(COMMANDS),$(call ko,$(command)))
 
 testdata:
@@ -53,7 +52,8 @@ testdata:
 cli:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install ./cmd/protoc-gen-cli
-	buf generate --template buf.gen.cli.yaml
+	go install ./cmd/protoc-gen-server
+	buf generate --template buf.gen.local.yaml
 	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
 
 .PHONY: all go proto cialpha mock build testdata

@@ -4,3 +4,7 @@ plugins:
     out: build/cli
     opt:
       - debug
+  - plugin: server
+    out: build/server
+    opt:
+      - debug
