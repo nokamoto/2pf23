@@ -36,7 +36,7 @@ func NewPlugin() *Plugin {
 func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.Package, error) {
 	var resp *v1.Package
 	for _, file := range req.GetProtoFile() {
-		api := NewAPIDescriptor(file)
+		api := protogen.NewAPIDescriptor(file)
 		// discard noisy unused information
 		file.SourceCodeInfo = nil
 
@@ -60,7 +60,7 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) (*v1.P
 	return resp, nil
 }
 
-func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, api *APIDescriptor) (*v1.Package, error) {
+func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *descriptorpb.FileDescriptorProto, api *protogen.APIDescriptor) (*v1.Package, error) {
 	resp := &v1.Package{}
 
 	for _, service := range file.GetService() {
@@ -83,7 +83,7 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 	return resp, nil
 }
 
-func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, api *APIDescriptor) (*v1.Package, error) {
+func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, api *protogen.APIDescriptor) (*v1.Package, error) {
 	apiVersion := api.APIVersion()
 	serviceName := api.ServiceName()
 	short := fmt.Sprintf("%s.%s is a CLI for mannaing the %s.", serviceName, apiVersion, serviceName)
@@ -116,7 +116,7 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	return resp, nil
 }
 
-func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, api *APIDescriptor) (string, *v1.Command, error) {
+func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, api *protogen.APIDescriptor) (string, *v1.Command, error) {
 	if strings.HasPrefix(method.GetName(), "Create") {
 		resource := strings.ToLower(strings.TrimPrefix(method.GetName(), "Create"))
 		cmd, err := p.createCommand(file, method, api)
@@ -129,7 +129,7 @@ func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProt
 	return "", nil, fmt.Errorf("unsupported method: %s", method.GetName())
 }
 
-func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, api *APIDescriptor) (*v1.Command, error) {
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, api *protogen.APIDescriptor) (*v1.Command, error) {
 	resource := strings.TrimPrefix(method.GetName(), "Create")
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nokamoto/2pf23/internal/cligrotogen"
+	"github.com/nokamoto/2pf23/internal/servergen/protogen"
 )
 
 func main() {
