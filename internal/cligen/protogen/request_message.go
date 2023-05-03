@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nokamoto/2pf23/internal/protogen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	optionv1 "github.com/nokamoto/2pf23/pkg/api/option/v1"
 	"golang.org/x/text/cases"
@@ -29,14 +30,9 @@ func NewRequestMessageDescriptor(file *descriptorpb.FileDescriptorProto) *Reques
 	return &RequestMessageDescriptor{file: file}
 }
 
-func (r *RequestMessageDescriptor) goType(typ string) string {
-	v := strings.Split(typ, ".")
-	return strings.Join(v[len(v)-2:], ".")
-}
-
 func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.RequestMessage, error) {
 	resp := &v1.RequestMessage{
-		Type: r.goType(typ),
+		Type: protogen.GoTypeNameFromFullyQualified(typ),
 		Name: name,
 	}
 

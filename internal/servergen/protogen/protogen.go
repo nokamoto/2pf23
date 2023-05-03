@@ -38,13 +38,31 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) ([]*v1
 	var resp []*v1.Service
 	for _, file := range req.GetProtoFile() {
 		for _, svc := range file.GetService() {
-			resp = append(resp, p.service(svc, file))
+			s, err := p.service(svc, file)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate service: %w", err)
+			}
+			resp = append(resp, s)
 		}
 	}
 	return resp, nil
 }
 
-func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) *v1.Service {
+func (p *Plugin) createCall(method *descriptorpb.MethodDescriptorProto, api *protogen.APIDescriptor) (*v1.Call, error) {
+	m := protogen.NewMethodDescriptor(method)
+	accessor := fmt.Sprintf("Get%s", m.ResourceNameAsCreateMethod())
+	resp := &v1.Call{
+		Name:              method.GetName(),
+		MethodType:        v1.MethodType_METHOD_TYPE_CREATE,
+		RequestType:       protogen.GoTypeNameFromFullyQualified(method.GetInputType()),
+		ResponseType:      protogen.GoTypeNameFromFullyQualified(method.GetOutputType()),
+		ResourceType:      protogen.GoTypeNameFromFullyQualified(method.GetOutputType()),
+		GetResourceMethod: accessor,
+	}
+	return resp, nil
+}
+
+func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Service, error) {
 	api := protogen.NewAPIDescriptor(file)
 	resp := &v1.Service{
 		Name:                svc.GetName(),
@@ -52,7 +70,18 @@ func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descrip
 		ApiImportPath:       api.ImportPath(),
 		UnimplementedServer: fmt.Sprintf("Unimplemented%sServer", svc.GetName()),
 	}
-	return resp
+	for _, method := range svc.GetMethod() {
+		m := protogen.NewMethodDescriptor(method)
+		switch m.Type() {
+		case v1.MethodType_METHOD_TYPE_CREATE:
+			call, err := p.createCall(method, api)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create call: %w", err)
+			}
+			resp.Calls = append(resp.Calls, call)
+		}
+	}
+	return resp, nil
 }
 
 func (p *Plugin) codeGeneratorResponse(services []*v1.Service) (*pluginpb.CodeGeneratorResponse, error) {

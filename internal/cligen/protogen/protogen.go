@@ -117,8 +117,10 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 }
 
 func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, api *protogen.APIDescriptor) (string, *v1.Command, error) {
-	if strings.HasPrefix(method.GetName(), "Create") {
-		resource := strings.ToLower(strings.TrimPrefix(method.GetName(), "Create"))
+	m := protogen.NewMethodDescriptor(method)
+	switch m.Type() {
+	case v1.MethodType_METHOD_TYPE_CREATE:
+		resource := strings.ToLower(m.ResourceNameAsCreateMethod())
 		cmd, err := p.createCommand(file, method, api)
 		if err != nil {
 			return "", nil, fmt.Errorf("failed to create command: %w", err)
