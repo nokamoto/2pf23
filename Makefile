@@ -11,7 +11,7 @@ define ko
 
 endef
 
-all: proto mock testdata cli go
+all: proto mock testdata gen go
 
 go:
 	go install mvdan.cc/gofumpt@latest
@@ -47,13 +47,17 @@ build:
 
 testdata:
 	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated github.com/nokamoto/2pf23/internal/cligen/generated
-	go run ./cmd/server-gen/main.go testdata/servergen internal/servergen/generated
+	go run ./cmd/server-gen/main.go testdata/servergen internal/servergen/generated --mock
 
-cli:
+gen:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install ./cmd/protoc-gen-cli
 	go install ./cmd/protoc-gen-server
+	rm -rf build/cli build/server
 	buf generate --template buf.gen.local.yaml
+	rm -rf internal/cli/generated
 	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
+	rm -rf internal/server/generated
+	go run ./cmd/server-gen/main.go build/server internal/server/generated
 
 .PHONY: all go proto cialpha mock build testdata

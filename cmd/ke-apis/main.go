@@ -1,17 +1,24 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 
-	v1alphaservice "github.com/nokamoto/2pf23/internal/service/ke/v1alpha"
+	v1alphaservice "github.com/nokamoto/2pf23/internal/server/generated/ke/v1alpha"
 	v1alphaapi "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 )
+
+type todo struct{}
+
+func (t *todo) Create(ctx context.Context, cluster *v1alphaapi.Cluster) (*v1alphaapi.Cluster, error) {
+	return nil, fmt.Errorf("not implemented")
+}
 
 // Run the ke server.
 //
@@ -42,7 +49,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	v1alphaapi.RegisterKeServiceServer(s, v1alphaservice.NewService(logger))
+	v1alphaapi.RegisterKeServiceServer(s, v1alphaservice.NewService(logger, &todo{}))
 
 	logger.Info("server listening", zap.String("address", lis.Addr().String()))
 	if err := s.Serve(lis); err != nil {

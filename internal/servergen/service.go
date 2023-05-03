@@ -14,7 +14,8 @@ import (
 var f embed.FS
 
 type Printer struct {
-	main *template.Template
+	main       *template.Template
+	enableMock bool
 }
 
 func initTemplate(v **template.Template, name string) error {
@@ -30,8 +31,9 @@ func initTemplate(v **template.Template, name string) error {
 }
 
 type mainArgs struct {
-	Service *v1.Service
-	Imports []*v1.ImportPath
+	Service    *v1.Service
+	Imports    []*v1.ImportPath
+	EnableMock bool
 }
 
 func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
@@ -60,7 +62,14 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 	})
 
 	return p.main.Execute(out, mainArgs{
-		Service: svc,
-		Imports: imports,
+		Service:    svc,
+		Imports:    imports,
+		EnableMock: p.enableMock,
 	})
+}
+
+// EnableMock enables mock generation.
+// If enable is true, "//go:generate mockgen" is inserted into the generated code.
+func (p *Printer) EnableMock(enable bool) {
+	p.enableMock = enable
 }

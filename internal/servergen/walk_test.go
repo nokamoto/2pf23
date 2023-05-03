@@ -16,7 +16,7 @@ func TestWalk_Walk(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	w, err := NewWalk("../../testdata/servergen", temp)
+	w, err := NewWalk("../../testdata/servergen", temp, true)
 	if err != nil {
 		t.Fatal(err)
 	}

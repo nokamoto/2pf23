@@ -64,15 +64,15 @@ func TestPlugin_Run(t *testing.T) {
 			want: &pluginpb.CodeGeneratorResponse{
 				File: []*pluginpb.CodeGeneratorResponse_File{
 					{
-						Name: proto.String("KeService.v1alpha.json"),
+						Name: proto.String("ke.v1alpha.json"),
 						Content: content(t, &v1.Service{
-							Name:       "KeService",
+							Name:       "ke",
 							ApiVersion: "v1alpha",
 							ApiImportPath: &v1.ImportPath{
 								Alias: "v1alpha",
 								Path:  "com.example.ke.v1alpha",
 							},
-							UnimplementedServer: "UnimplementedKeServiceServer",
+							UnimplementedServer: "v1alpha.UnimplementedKeServiceServer",
 							Calls: []*v1.Call{
 								{
 									Name:              "CreateCluster",
