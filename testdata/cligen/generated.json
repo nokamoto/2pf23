@@ -64,6 +64,29 @@
                       "value": "0"
                     }
                   ]
+                },
+                {
+                  "api": "ke",
+                  "apiVersion": "v1alpha",
+                  "apiImportPath": {
+                    "alias": "v1alpha",
+                    "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+                  },
+                  "package": "cluster",
+                  "use": "get cluster-name",
+                  "short": "get is a command to get the Cluster",
+                  "long": "get is a command to get the Cluster",
+                  "method": "GetCluster",
+                  "methodType": "METHOD_TYPE_GET",
+                  "request": {
+                    "type": "v1alpha.GetClusterRequest",
+                    "fields": [
+                      {
+                        "name": "Name",
+                        "value": "args[0]"
+                      }
+                    ]
+                  }
                 }
               ]
             }

@@ -23,17 +23,18 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 		Short:        "{{.Command.Short}}",
 		Long:         `{{.Command.Long}}`,
 		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
 {{- if eq .Command.MethodType 1 }}
-			// standard create method
+		Args:         cobra.ExactArgs(0),
+{{- else if eq .Command.MethodType 2 }}
+		Args:         cobra.ExactArgs(1),
+{{- end}}
+		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := {{.Runtime.Name}}.Context(cmd)
 			c, err := {{.Runtime.Name}}.{{.Command.Api | ToTitle}}{{.Command.ApiVersion | ToTitle}}(cmd)
 			if err != nil {
 				return fmt.Errorf("failed to create a client for {{.Command.Api}}.{{.Command.ApiVersion}}: %w", err)
 			}
-			res, err := c.{{.Command.Method}}(ctx, &{{.Command.Request.Type}}{
-{{.Command.Request | ToFields 4}}
-			})
+			res, err := c.{{.Command.Method}}(ctx, {{.Command.Request | ToValue 3}})
 			if err != nil {
 				return fmt.Errorf("{{.Command.Api}}.{{.Command.ApiVersion}}: failed to {{.Command.Method}}: %w", err)
 			}
@@ -42,7 +43,6 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 				return err
 			}
 			cmd.Println(string(message))
-{{- end}}
 			return nil
 		},
 	}

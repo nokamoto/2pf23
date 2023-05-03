@@ -56,6 +56,26 @@ func (mr *MockKeServiceClientMockRecorder) CreateCluster(ctx, in interface{}, op
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockKeServiceClient)(nil).CreateCluster), varargs...)
 }
 
+// GetCluster mocks base method.
+func (m *MockKeServiceClient) GetCluster(ctx context.Context, in *kev1alpha.GetClusterRequest, opts ...grpc.CallOption) (*kev1alpha.Cluster, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetCluster", varargs...)
+	ret0, _ := ret[0].(*kev1alpha.Cluster)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCluster indicates an expected call of GetCluster.
+func (mr *MockKeServiceClientMockRecorder) GetCluster(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCluster", reflect.TypeOf((*MockKeServiceClient)(nil).GetCluster), varargs...)
+}
+
 // MockKeServiceServer is a mock of KeServiceServer interface.
 type MockKeServiceServer struct {
 	ctrl     *gomock.Controller
@@ -92,6 +112,21 @@ func (m *MockKeServiceServer) CreateCluster(arg0 context.Context, arg1 *kev1alph
 func (mr *MockKeServiceServerMockRecorder) CreateCluster(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockKeServiceServer)(nil).CreateCluster), arg0, arg1)
+}
+
+// GetCluster mocks base method.
+func (m *MockKeServiceServer) GetCluster(arg0 context.Context, arg1 *kev1alpha.GetClusterRequest) (*kev1alpha.Cluster, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCluster", arg0, arg1)
+	ret0, _ := ret[0].(*kev1alpha.Cluster)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCluster indicates an expected call of GetCluster.
+func (mr *MockKeServiceServerMockRecorder) GetCluster(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCluster", reflect.TypeOf((*MockKeServiceServer)(nil).GetCluster), arg0, arg1)
 }
 
 // mustEmbedUnimplementedKeServiceServer mocks base method.

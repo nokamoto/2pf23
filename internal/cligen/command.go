@@ -80,8 +80,20 @@ func printFields(indent int, req *v1.RequestMessage) string {
 	for _, child := range req.GetChildren() {
 		s += fmt.Sprintf("%s%s: &%s{\n", tabs, child.GetName(), child.GetType())
 		s += printFields(indent+1, child)
-		s += fmt.Sprintf("%s},", tabs)
+		s += fmt.Sprintf("%s},\n", tabs)
 	}
+	return s
+}
+
+func toValue(indent int, req *v1.RequestMessage) string {
+	s := fmt.Sprintf("&%s{", req.GetType())
+	if len(req.GetFields()) == 0 && len(req.GetChildren()) == 0 {
+		return s + "}"
+	}
+	s += "\n"
+	s += printFields(indent+1, req)
+	s += strings.Repeat("\t", indent)
+	s += "}"
 	return s
 }
 
@@ -90,6 +102,7 @@ func initTemplate(v **template.Template, name string) error {
 		fm := template.FuncMap{
 			"ToTitle":  cases.Title(language.English, cases.NoLower).String,
 			"ToFields": printFields,
+			"ToValue":  toValue,
 		}
 		t, err := template.New(path.Base(name)).Funcs(fm).ParseFS(f, name)
 		if err != nil {

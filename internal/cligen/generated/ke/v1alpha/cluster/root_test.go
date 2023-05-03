@@ -16,5 +16,9 @@ func TestNewRoot(t *testing.T) {
 			Name: "create",
 			Args: "create --help",
 		},
+		{
+			Name: "get",
+			Args: "get --help",
+		},
 	}.Run(t, NewRoot)
 }

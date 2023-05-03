@@ -1,6 +1,7 @@
 package protogen
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -83,6 +84,8 @@ func (p *Plugin) fileDescriptorProto(req *pluginpb.CodeGeneratorRequest, file *d
 	return resp, nil
 }
 
+var errUnimplemented = fmt.Errorf("todo: implement later")
+
 func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto, api *protogen.APIDescriptor) (*v1.Package, error) {
 	apiVersion := api.APIVersion()
 	serviceName := api.ServiceName()
@@ -96,6 +99,9 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	resources := map[string][]*v1.Command{}
 	for _, method := range service.GetMethod() {
 		resource, cmd, err := p.methodDescriptorProto(method, file, api)
+		if errors.Is(err, errUnimplemented) {
+			continue
+		}
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate method: %w", err)
 		}
@@ -126,6 +132,9 @@ func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProt
 			return "", nil, fmt.Errorf("failed to create command: %w", err)
 		}
 		return resource, cmd, nil
+
+	case v1.MethodType_METHOD_TYPE_GET:
+		return "", nil, errUnimplemented
 	}
 
 	return "", nil, fmt.Errorf("unsupported method: %s", method.GetName())

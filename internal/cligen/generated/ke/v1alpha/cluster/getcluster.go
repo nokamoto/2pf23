@@ -12,29 +12,24 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-func newCreateCluster(rt runtime.Runtime) *cobra.Command {
-	var displayName string
-	var numNodes int32
+func newGetCluster(rt runtime.Runtime) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:          "create",
-		Short:        "create is a command to create a new Cluster",
-		Long:         `create is a command to create a new Cluster`,
+		Use:          "get cluster-name",
+		Short:        "get is a command to get the Cluster",
+		Long:         `get is a command to get the Cluster`,
 		SilenceUsage: true,
-		Args:         cobra.ExactArgs(0),
+		Args:         cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := rt.Context(cmd)
 			c, err := rt.KeV1alpha(cmd)
 			if err != nil {
 				return fmt.Errorf("failed to create a client for ke.v1alpha: %w", err)
 			}
-			res, err := c.CreateCluster(ctx, &v1alpha.CreateClusterRequest{
-				Cluster: &v1alpha.Cluster{
-					DisplayName: displayName,
-					NumNodes:    numNodes,
-				},
+			res, err := c.GetCluster(ctx, &v1alpha.GetClusterRequest{
+				Name: args[0],
 			})
 			if err != nil {
-				return fmt.Errorf("ke.v1alpha: failed to CreateCluster: %w", err)
+				return fmt.Errorf("ke.v1alpha: failed to GetCluster: %w", err)
 			}
 			message, err := protojson.Marshal(res)
 			if err != nil {
@@ -44,7 +39,5 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&displayName, "display-name", "", "The display name of the cluster.")
-	cmd.Flags().Int32Var(&numNodes, "num-nodes", 0, "")
 	return cmd
 }

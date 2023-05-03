@@ -20,8 +20,13 @@ message Cluster {
 
 service KeService {
   rpc CreateCluster(CreateClusterRequest) returns (Cluster) {}
+  rpc GetCluster(GetClusterRequest) returns (Cluster) {}
 }
 
 message CreateClusterRequest {
   Cluster cluster = 1;
+}
+
+message GetClusterRequest {
+  string name = 1;
 }

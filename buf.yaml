@@ -10,3 +10,5 @@ lint:
     # A rpc response message name should not always be suffixed with Response.
     RPC_RESPONSE_STANDARD_NAME:
       - api
+    RPC_REQUEST_RESPONSE_UNIQUE:
+      - api
