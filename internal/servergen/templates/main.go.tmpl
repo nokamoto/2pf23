@@ -3,6 +3,7 @@ package {{.Service.ApiVersion}}
 
 import (
 	"context"
+	"errors"
 )
 
 import (
@@ -39,6 +40,10 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 {{- if eq .MethodType 1}}
 	// standard create method
 	res, err := s.rt.Create(ctx, req.{{.GetResourceMethod}}())
+	if errors.Is(err, app.ErrInvalidArgument) {
+		logger.Error("invalid argument", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 	if err != nil {
 		logger.Error("unknown error", zap.Error(err))
 		return nil, status.Error(codes.Unknown, "unknown error")

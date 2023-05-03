@@ -7,8 +7,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
+	"github.com/nokamoto/2pf23/internal/app"
 	mockv1alpha "github.com/nokamoto/2pf23/internal/servergen/generated/ke/v1alpha/mock"
-	"github.com/nokamoto/2pf23/internal/servergen/helper"
+	"github.com/nokamoto/2pf23/internal/util/helper"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc/codes"
@@ -43,6 +44,14 @@ func Test_CreateCluster(t *testing.T) {
 				Name:        "foo",
 				DisplayName: "test",
 			},
+		},
+		{
+			name: "invalid argument",
+			req:  &kev1alpha.CreateClusterRequest{},
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
+			},
+			code: codes.InvalidArgument,
 		},
 		{
 			name: "unknown error",

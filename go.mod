@@ -6,6 +6,7 @@ require (
 	dagger.io/dagger v0.6.1
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.9
+	github.com/google/uuid v1.3.0
 	github.com/spf13/cobra v1.7.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/text v0.9.0

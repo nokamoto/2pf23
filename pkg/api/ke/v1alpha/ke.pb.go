@@ -28,10 +28,12 @@ type Cluster struct {
 
 	// The name of the cluster. This is used to identify the cluster in the API.
 	// This is a read-only property.
+	// The format is `projects/{project_id}/clusters/{cluster_id}`.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// The display name of the cluster. This is used only for display purposes.
 	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	// The number of worker nodes in the cluster.
+	// If unspecified during cluster creation, the default value is 3.
 	NumNodes int32 `protobuf:"varint,3,opt,name=num_nodes,json=numNodes,proto3" json:"num_nodes,omitempty"`
 }
 
