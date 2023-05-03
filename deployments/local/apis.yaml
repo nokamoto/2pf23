@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ke-apis
+  name: ke-apis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ke-apis
+  template:
+    metadata:
+      labels:
+        app: ke-apis
+    spec:
+      containers:
+      - image: ke-apis
+        name: ke-apis
+        env:
+        - name: DEBUG
+          value: "true"

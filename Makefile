@@ -60,4 +60,7 @@ gen:
 	rm -rf internal/server/generated
 	go run ./cmd/server-gen/main.go build/server internal/server/generated
 
-.PHONY: all go proto cialpha mock build testdata
+tilt:
+	curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+
+.PHONY: build testdata
