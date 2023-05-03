@@ -54,7 +54,7 @@ func setupEnt(logger *zap.Logger) *ent.Client {
 	dbname := envOr("POSTGRESQL_DBNAME", "ke")
 	password := envOr("POSTGRESQL_PASSWORD", "local")
 	dataSource := fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable", host, user, dbname, password)
-	logger.Debug("connecting to postgres", zap.String("datasource", dataSource))
+	logger.Debug("connecting to postgres", zap.String("host", host), zap.String("dbname", dbname), zap.String("user", user))
 	client, err := ent.Open("postgres", dataSource)
 	if err != nil {
 		logger.Fatal("failed opening connection to postgres", zap.Error(err))
@@ -71,8 +71,7 @@ func setupEnt(logger *zap.Logger) *ent.Client {
 // GRPC_PORT: The port number to listen. If not set, 9000 is used.
 // DEBUG: Enable debug logging if set to non-empty.
 // POSTGRESQL_HOST: The host name of the postgresql server. If not set, postgresql.default.svc.cluster.local is used.
-// POSTGRESQL_PORT: The port number of the postgresql server. If not set, 5432 is used.
-// POSTGRESQL_USER: The user name of the postgresql server. If not set, postgresql is used.
+// POSTGRESQL_USER: The user name of the postgresql server. If not set, postgres is used.
 // POSTGRESQL_DBNAME: The database name of the postgresql server. If not set, ke is used.
 // POSTGRESQL_PASSWORD: The password of the postgresql server. If not set, local is used.
 func main() {

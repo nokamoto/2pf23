@@ -63,4 +63,4 @@ gen:
 tilt:
 	curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
 
-.PHONY: all go proto cialpha mock build testdata gen setup local local-teardown tilt
+.PHONY: build testdata
