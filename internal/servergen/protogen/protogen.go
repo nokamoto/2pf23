@@ -65,10 +65,10 @@ func (p *Plugin) createCall(method *descriptorpb.MethodDescriptorProto, api *pro
 func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Service, error) {
 	api := protogen.NewAPIDescriptor(file)
 	resp := &v1.Service{
-		Name:                svc.GetName(),
+		Name:                api.ServiceName(),
 		ApiVersion:          api.APIVersion(),
 		ApiImportPath:       api.ImportPath(),
-		UnimplementedServer: fmt.Sprintf("Unimplemented%sServer", svc.GetName()),
+		UnimplementedServer: fmt.Sprintf("%s.Unimplemented%sServer", api.APIVersion(), svc.GetName()),
 	}
 	for _, method := range svc.GetMethod() {
 		m := protogen.NewMethodDescriptor(method)

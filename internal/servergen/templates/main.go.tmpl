@@ -11,7 +11,7 @@ import (
 {{- end}}
 )
 
-//go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
+{{if .EnableMock}}//go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE{{end}}
 type runtime interface {
 {{- range .Service.Calls}}
 {{- if eq .MethodType 1}}

@@ -16,6 +16,7 @@ import (
 type Walk struct {
 	services      []*v1.Service
 	rootDirectory string
+	enableMock    bool
 }
 
 // NewWalk creates a new Walk.
@@ -23,9 +24,12 @@ type Walk struct {
 // inputDirectory is a directory where the input files are placed. The input files contain protojson encoded v1.Package.
 //
 // rootDirectory is a root directory where the generated files are placed.
-func NewWalk(inputDirectory string, rootDirectory string) (*Walk, error) {
+//
+// enableMock enables mock generation. see servergen.Printer.EnableMock.
+func NewWalk(inputDirectory string, rootDirectory string, enableMock bool) (*Walk, error) {
 	walk := Walk{
 		rootDirectory: rootDirectory,
+		enableMock:    enableMock,
 	}
 	err := filepath.WalkDir(inputDirectory, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -76,6 +80,7 @@ func (w *Walk) walk(p *Printer, svc *v1.Service) error {
 
 func (w *Walk) Walk() error {
 	p := &Printer{}
+	p.EnableMock(w.enableMock)
 	for _, svc := range w.services {
 		if err := w.walk(p, svc); err != nil {
 			return err

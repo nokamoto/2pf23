@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	var enableMock bool
 	cmd := cobra.Command{
 		Use:          "server-gen input-directory output-directory",
 		Short:        "server-gen is a server generator.",
@@ -21,7 +22,7 @@ func main() {
 				cmd.PrintErrln()
 				return fmt.Errorf("invalid arguments: %v", args)
 			}
-			walk, err := servergen.NewWalk(args[0], args[1])
+			walk, err := servergen.NewWalk(args[0], args[1], enableMock)
 			if err != nil {
 				return fmt.Errorf("failed to create walk: %w", err)
 			}
@@ -31,6 +32,7 @@ func main() {
 			return nil
 		},
 	}
+	cmd.PersistentFlags().BoolVar(&enableMock, "mock", false, "enable mock generation")
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}

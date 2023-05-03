@@ -48,6 +48,11 @@ func NewWalk(file string, rootDirectory string, rootPackage string) (*Walk, erro
 }
 
 func (w *Walk) walk(p *Printer, dir string, pkg *v1.Package, currentPackage string) error {
+	err := os.MkdirAll(dir, 0o777)
+	if err != nil {
+		return fmt.Errorf("failed to mkdir %s: %w", dir, err)
+	}
+
 	file := path.Join(dir, "root.go")
 	var b bytes.Buffer
 	if err := p.PrintRoot(&b, pkg, currentPackage); err != nil {
@@ -70,10 +75,6 @@ func (w *Walk) walk(p *Printer, dir string, pkg *v1.Package, currentPackage stri
 
 	for _, sub := range pkg.GetSubPackages() {
 		subDir := path.Join(dir, sub.GetPackage())
-		err := os.MkdirAll(subDir, 0o777)
-		if err != nil {
-			return fmt.Errorf("failed to mkdir %s: %w", subDir, err)
-		}
 		if err := w.walk(p, subDir, sub, path.Join(currentPackage, sub.GetPackage())); err != nil {
 			return fmt.Errorf("failed to walk %s: %w", subDir, err)
 		}
