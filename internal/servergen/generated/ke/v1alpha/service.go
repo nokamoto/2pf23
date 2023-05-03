@@ -3,9 +3,11 @@ package v1alpha
 
 import (
 	"context"
+	"errors"
 )
 
 import (
+	"github.com/nokamoto/2pf23/internal/app"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -35,6 +37,10 @@ func (s *service) CreateCluster(ctx context.Context, req *kev1alpha.CreateCluste
 	logger.Debug("request received")
 	// standard create method
 	res, err := s.rt.Create(ctx, req.GetCluster())
+	if errors.Is(err, app.ErrInvalidArgument) {
+		logger.Error("invalid argument", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 	if err != nil {
 		logger.Error("unknown error", zap.Error(err))
 		return nil, status.Error(codes.Unknown, "unknown error")
