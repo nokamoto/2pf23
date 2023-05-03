@@ -49,6 +49,13 @@ func TestPlugin_Run(t *testing.T) {
 						Service: []*descriptorpb.ServiceDescriptorProto{
 							{
 								Name: proto.String("KeService"),
+								Method: []*descriptorpb.MethodDescriptorProto{
+									{
+										Name:       proto.String("CreateCluster"),
+										InputType:  proto.String(".api.ke.v1alpha.CreateClusterRequest"),
+										OutputType: proto.String(".api.ke.v1alpha.Cluster"),
+									},
+								},
 							},
 						},
 					},
@@ -66,6 +73,16 @@ func TestPlugin_Run(t *testing.T) {
 								Path:  "com.example.ke.v1alpha",
 							},
 							UnimplementedServer: "UnimplementedKeServiceServer",
+							Calls: []*v1.Call{
+								{
+									Name:              "CreateCluster",
+									MethodType:        v1.MethodType_METHOD_TYPE_CREATE,
+									RequestType:       "v1alpha.CreateClusterRequest",
+									ResponseType:      "v1alpha.Cluster",
+									ResourceType:      "v1alpha.Cluster",
+									GetResourceMethod: "GetCluster",
+								},
+							},
 						}),
 					},
 				},
