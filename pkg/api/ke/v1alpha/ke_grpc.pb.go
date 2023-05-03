@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	KeService_CreateCluster_FullMethodName = "/api.ke.v1alpha.KeService/CreateCluster"
+	KeService_GetCluster_FullMethodName    = "/api.ke.v1alpha.KeService/GetCluster"
 )
 
 // KeServiceClient is the client API for KeService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type KeServiceClient interface {
 	CreateCluster(ctx context.Context, in *CreateClusterRequest, opts ...grpc.CallOption) (*Cluster, error)
+	GetCluster(ctx context.Context, in *GetClusterRequest, opts ...grpc.CallOption) (*Cluster, error)
 }
 
 type keServiceClient struct {
@@ -46,11 +48,21 @@ func (c *keServiceClient) CreateCluster(ctx context.Context, in *CreateClusterRe
 	return out, nil
 }
 
+func (c *keServiceClient) GetCluster(ctx context.Context, in *GetClusterRequest, opts ...grpc.CallOption) (*Cluster, error) {
+	out := new(Cluster)
+	err := c.cc.Invoke(ctx, KeService_GetCluster_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KeServiceServer is the server API for KeService service.
 // All implementations must embed UnimplementedKeServiceServer
 // for forward compatibility
 type KeServiceServer interface {
 	CreateCluster(context.Context, *CreateClusterRequest) (*Cluster, error)
+	GetCluster(context.Context, *GetClusterRequest) (*Cluster, error)
 	mustEmbedUnimplementedKeServiceServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedKeServiceServer struct {
 
 func (UnimplementedKeServiceServer) CreateCluster(context.Context, *CreateClusterRequest) (*Cluster, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCluster not implemented")
+}
+func (UnimplementedKeServiceServer) GetCluster(context.Context, *GetClusterRequest) (*Cluster, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCluster not implemented")
 }
 func (UnimplementedKeServiceServer) mustEmbedUnimplementedKeServiceServer() {}
 
@@ -92,6 +107,24 @@ func _KeService_CreateCluster_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KeService_GetCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeServiceServer).GetCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeService_GetCluster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeServiceServer).GetCluster(ctx, req.(*GetClusterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KeService_ServiceDesc is the grpc.ServiceDesc for KeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var KeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCluster",
 			Handler:    _KeService_CreateCluster_Handler,
+		},
+		{
+			MethodName: "GetCluster",
+			Handler:    _KeService_GetCluster_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

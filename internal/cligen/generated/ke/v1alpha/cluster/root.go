@@ -13,5 +13,6 @@ func NewRoot(rt runtime.Runtime) *cobra.Command {
 		Long:  `cluster is a CLI for mannaing the cluster.`,
 	}
 	cmd.AddCommand(newCreateCluster(rt))
+	cmd.AddCommand(newGetCluster(rt))
 	return cmd
 }

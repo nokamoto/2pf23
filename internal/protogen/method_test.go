@@ -23,6 +23,13 @@ func TestMethodDescriptor_Type(t *testing.T) {
 			want: v1.MethodType_METHOD_TYPE_CREATE,
 		},
 		{
+			name: "get",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("GetFoo"),
+			},
+			want: v1.MethodType_METHOD_TYPE_GET,
+		},
+		{
 			name: "unspecified",
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("SearchFoo"),

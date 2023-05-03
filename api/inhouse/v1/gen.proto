@@ -21,4 +21,5 @@ message ImportPath {
 enum MethodType {
   METHOD_TYPE_UNSPECIFIED = 0;
   METHOD_TYPE_CREATE = 1;
+  METHOD_TYPE_GET = 2;
 }

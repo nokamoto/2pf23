@@ -23,6 +23,9 @@ func (m *MethodDescriptor) Type() v1.MethodType {
 	if strings.HasPrefix(m.method.GetName(), "Create") {
 		return v1.MethodType_METHOD_TYPE_CREATE
 	}
+	if strings.HasPrefix(m.method.GetName(), "Get") {
+		return v1.MethodType_METHOD_TYPE_GET
+	}
 	return v1.MethodType_METHOD_TYPE_UNSPECIFIED
 }
 

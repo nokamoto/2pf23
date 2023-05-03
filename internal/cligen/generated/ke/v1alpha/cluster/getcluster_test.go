@@ -3,46 +3,32 @@ package cluster
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/nokamoto/2pf23/internal/cli/runtime/mock"
 	"github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
+	"github.com/nokamoto/2pf23/internal/util/helper"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func Test_newCreate(t *testing.T) {
+func Test_newGet(t *testing.T) {
 	clientErr := errors.New("client error")
 	rpcErr := status.Errorf(codes.Unavailable, "rpc error")
-
-	set := func(args string, cluster *kev1alpha.Cluster) testcase {
-		return testcase{
-			name: fmt.Sprintf("set %s", args),
-			args: args,
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
-				gomock.InOrder(
-					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
-					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().CreateCluster(context.TODO(), &kev1alpha.CreateClusterRequest{
-						Cluster: cluster,
-					}).Return(cluster, nil),
-				)
-			},
-			expected: cluster,
-		}
-	}
 
 	testcases := testcases{
 		{
 			name: "ok",
+			args: "foo",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().CreateCluster(context.TODO(), gomock.Any()).Return(&kev1alpha.Cluster{
+					c.EXPECT().GetCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.GetClusterRequest{
+						Name: "foo",
+					})).Return(&kev1alpha.Cluster{
 						Name: "foo",
 					}, nil),
 				)
@@ -51,14 +37,9 @@ func Test_newCreate(t *testing.T) {
 				Name: "foo",
 			},
 		},
-		set("--display-name bar", &kev1alpha.Cluster{
-			DisplayName: "bar",
-		}),
-		set("--num-nodes 3", &kev1alpha.Cluster{
-			NumNodes: 3,
-		}),
 		{
-			name: "failed to create a client for ke.v1alpha",
+			name: "failed to get a client for ke.v1alpha",
+			args: "foo",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
@@ -68,17 +49,18 @@ func Test_newCreate(t *testing.T) {
 			err: clientErr,
 		},
 		{
-			name: "failed to CreateCluster",
+			name: "failed to GetCluster",
+			args: "foo",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().CreateCluster(context.TODO(), gomock.Any()).Return(nil, rpcErr),
+					c.EXPECT().GetCluster(context.TODO(), gomock.Any()).Return(nil, rpcErr),
 				)
 			},
 			err: rpcErr,
 		},
 	}
 
-	testcases.run(t, newCreateCluster)
+	testcases.run(t, newGetCluster)
 }
