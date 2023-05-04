@@ -3,15 +3,18 @@ package ke
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/nokamoto/2pf23/internal/app"
+	"github.com/nokamoto/2pf23/internal/infra"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 )
 
 type runtime interface {
 	NewID() string
 	Create(context.Context, *kev1alpha.Cluster) error
+	Get(context.Context, string) (*kev1alpha.Cluster, error)
 }
 
 const (
@@ -49,4 +52,15 @@ func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) (*kev1
 	}
 
 	return cluster, nil
+}
+
+func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, error) {
+	res, err := c.rt.Get(ctx, name)
+	if errors.Is(err, infra.ErrNotFound) {
+		return nil, fmt.Errorf("%w: %s", app.ErrNotFound, name)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

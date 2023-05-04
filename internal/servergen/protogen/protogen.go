@@ -48,18 +48,30 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) ([]*v1
 	return resp, nil
 }
 
-func (p *Plugin) createCall(method *descriptorpb.MethodDescriptorProto, api *protogen.APIDescriptor) (*v1.Call, error) {
-	m := protogen.NewMethodDescriptor(method)
+func (p *Plugin) setCall(call *v1.Call, m *protogen.MethodDescriptor) {
+	call.RequestType = protogen.GoTypeNameFromFullyQualified(m.GetInputType())
+	call.ResponseType = protogen.GoTypeNameFromFullyQualified(m.GetOutputType())
+	call.ResourceType = protogen.GoTypeNameFromFullyQualified(m.GetOutputType())
+}
+
+func (p *Plugin) createCall(m *protogen.MethodDescriptor) *v1.Call {
 	accessor := fmt.Sprintf("Get%s", m.ResourceNameAsCreateMethod())
 	resp := &v1.Call{
-		Name:              method.GetName(),
+		Name:              m.GetName(),
 		MethodType:        v1.MethodType_METHOD_TYPE_CREATE,
-		RequestType:       protogen.GoTypeNameFromFullyQualified(method.GetInputType()),
-		ResponseType:      protogen.GoTypeNameFromFullyQualified(method.GetOutputType()),
-		ResourceType:      protogen.GoTypeNameFromFullyQualified(method.GetOutputType()),
 		GetResourceMethod: accessor,
 	}
-	return resp, nil
+	p.setCall(resp, m)
+	return resp
+}
+
+func (p *Plugin) getCall(m *protogen.MethodDescriptor) *v1.Call {
+	resp := &v1.Call{
+		Name:       m.GetName(),
+		MethodType: v1.MethodType_METHOD_TYPE_GET,
+	}
+	p.setCall(resp, m)
+	return resp
 }
 
 func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Service, error) {
@@ -74,11 +86,10 @@ func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descrip
 		m := protogen.NewMethodDescriptor(method)
 		switch m.Type() {
 		case v1.MethodType_METHOD_TYPE_CREATE:
-			call, err := p.createCall(method, api)
-			if err != nil {
-				return nil, fmt.Errorf("failed to create call: %w", err)
-			}
-			resp.Calls = append(resp.Calls, call)
+			resp.Calls = append(resp.Calls, p.createCall(m))
+
+		case v1.MethodType_METHOD_TYPE_GET:
+			resp.Calls = append(resp.Calls, p.getCall(m))
 		}
 	}
 	return resp, nil
