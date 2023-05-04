@@ -53,7 +53,7 @@ func TestPlugin_Run(t *testing.T) {
 			expected: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create",
+			name: "create, get",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -94,6 +94,10 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name:      proto.String("CreateShelf"),
 										InputType: proto.String(".api.library.v1alpha.CreateShelfRequest"),
+									},
+									{
+										Name:      proto.String("GetShelf"),
+										InputType: proto.String(".api.library.v1alpha.GetShelfRequest"),
 									},
 								},
 							},
@@ -154,6 +158,29 @@ func TestPlugin_Run(t *testing.T) {
 														Name:        "displayName",
 														DisplayName: "display-name",
 														Usage:       "display name usage",
+													},
+												},
+											},
+											{
+												Api:        "library",
+												ApiVersion: "v1alpha",
+												ApiImportPath: &v1.ImportPath{
+													Alias: "v1alpha",
+													Path:  "github.com/library",
+												},
+												Package:    "shelf",
+												Use:        "get shelf-name",
+												Short:      "get is a command to get the Shelf",
+												Long:       "get is a command to get the Shelf",
+												Method:     "GetShelf",
+												MethodType: v1.MethodType_METHOD_TYPE_GET,
+												Request: &v1.RequestMessage{
+													Type: "v1alpha.GetShelfRequest",
+													Fields: []*v1.RequestMessageField{
+														{
+															Name:  "Name",
+															Value: "args[0]",
+														},
 													},
 												},
 											},

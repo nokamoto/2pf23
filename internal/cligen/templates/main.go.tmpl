@@ -19,16 +19,16 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 	var {{.Name}} int32
 {{- end}}
 	cmd := &cobra.Command{
-		Use:          "{{.Command.Use}}",
-		Short:        "{{.Command.Short}}",
-		Long:         `{{.Command.Long}}`,
-		SilenceUsage: true,
+		Use:   "{{.Command.Use}}",
+		Short: "{{.Command.Short}}",
+		Long:  `{{.Command.Long}}`,
 {{- if eq .Command.MethodType 1 }}
-		Args:         cobra.ExactArgs(0),
+		Args:  cobra.ExactArgs(0),
 {{- else if eq .Command.MethodType 2 }}
-		Args:         cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(1),
 {{- end}}
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
 			ctx := {{.Runtime.Name}}.Context(cmd)
 			c, err := {{.Runtime.Name}}.{{.Command.Api | ToTitle}}{{.Command.ApiVersion | ToTitle}}(cmd)
 			if err != nil {

@@ -16,12 +16,12 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 	var displayName string
 	var numNodes int32
 	cmd := &cobra.Command{
-		Use:          "create",
-		Short:        "create is a command to create a new Cluster",
-		Long:         `create is a command to create a new Cluster`,
-		SilenceUsage: true,
-		Args:         cobra.ExactArgs(0),
+		Use:   "create",
+		Short: "create is a command to create a new Cluster",
+		Long:  `create is a command to create a new Cluster`,
+		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
 			ctx := rt.Context(cmd)
 			c, err := rt.KeV1alpha(cmd)
 			if err != nil {

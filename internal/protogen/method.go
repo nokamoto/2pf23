@@ -29,8 +29,18 @@ func (m *MethodDescriptor) Type() v1.MethodType {
 	return v1.MethodType_METHOD_TYPE_UNSPECIFIED
 }
 
+func (m *MethodDescriptor) resourceNameAs(s string) string {
+	return strings.TrimPrefix(m.method.GetName(), s)
+}
+
 // ResourceNameAsCreateMethod returns a resource name from a standard create method name.
 // For example, if the method name is `CreateFoo`, it returns `Foo`.
 func (m *MethodDescriptor) ResourceNameAsCreateMethod() string {
-	return strings.TrimPrefix(m.method.GetName(), "Create")
+	return m.resourceNameAs("Create")
+}
+
+// ResourceNameAsGetMethod returns a resource name from a standard get method name.
+// For example, if the method name is `GetFoo`, it returns `Foo`.
+func (m *MethodDescriptor) ResourceNameAsGetMethod() string {
+	return m.resourceNameAs("Get")
 }
