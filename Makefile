@@ -1,6 +1,6 @@
 API_GO_FILES = $(shell find pkg/api -name '*grpc.pb.go')
 COMMANDS = pf ke-apis
-GOBIN = $(shell go env GOBIN)
+GOBIN = $(shell go env GOPATH)/bin
 
 define ko
 	echo $1
