@@ -3,7 +3,6 @@ package {{.Service.ApiVersion}}
 
 import (
 	"context"
-	"errors"
 )
 
 import (
@@ -17,6 +16,8 @@ type runtime interface {
 {{- range .Service.Calls}}
 {{- if eq .MethodType 1}}
 	Create(ctx context.Context, resource *{{.ResourceType}}) (*{{.ResourceType}}, error)
+{{- else if eq .MethodType 2}}
+	Get(ctx context.Context, name string) (*{{.ResourceType}}, error)
 {{- end}}
 {{- end}}
 }
@@ -34,23 +35,16 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 	}
 }
 
-{{range .Service.Calls}}func (s *service) {{.Name}}(ctx context.Context, req *{{.RequestType}}) (*{{.ResponseType}}, error) {
+{{range .Service.Calls}}
+func (s *service) {{.Name}}(ctx context.Context, req *{{.RequestType}}) (*{{.ResponseType}}, error) {
 	logger := s.logger.With(zap.String("method", "{{.Name}}"), zap.Any("request", req))
 	logger.Debug("request received")
 {{- if eq .MethodType 1}}
-	// standard create method
 	res, err := s.rt.Create(ctx, req.{{.GetResourceMethod}}())
-	if errors.Is(err, app.ErrInvalidArgument) {
-		logger.Error("invalid argument", zap.Error(err))
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	if err != nil {
-		logger.Error("unknown error", zap.Error(err))
-		return nil, status.Error(codes.Unknown, "unknown error")
-	}
-	return res, nil
-{{- else}}
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
+{{- else if eq .MethodType 2}}
+	res, err := s.rt.Get(ctx, req.GetName())
 {{- end}}
+	return helper.ErrorOr(logger, res, err)
 }
-{{- end}}
+
+{{end}}

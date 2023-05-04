@@ -49,3 +49,18 @@ func (mr *MockruntimeMockRecorder) Create(ctx, resource interface{}) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*Mockruntime)(nil).Create), ctx, resource)
 }
+
+// Get mocks base method.
+func (m *Mockruntime) Get(ctx context.Context, name string) (*kev1alpha.Cluster, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, name)
+	ret0, _ := ret[0].(*kev1alpha.Cluster)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockruntimeMockRecorder) Get(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*Mockruntime)(nil).Get), ctx, name)
+}

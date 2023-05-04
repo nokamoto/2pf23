@@ -3,15 +3,12 @@ package v1alpha
 
 import (
 	"context"
-	"errors"
 )
 
 import (
-	"github.com/nokamoto/2pf23/internal/app"
+	"github.com/nokamoto/2pf23/internal/server/helper"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type runtime interface {
@@ -34,15 +31,6 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 func (s *service) CreateCluster(ctx context.Context, req *v1alpha.CreateClusterRequest) (*v1alpha.Cluster, error) {
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	// standard create method
 	res, err := s.rt.Create(ctx, req.GetCluster())
-	if errors.Is(err, app.ErrInvalidArgument) {
-		logger.Error("invalid argument", zap.Error(err))
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	if err != nil {
-		logger.Error("unknown error", zap.Error(err))
-		return nil, status.Error(codes.Unknown, "unknown error")
-	}
-	return res, nil
+	return helper.ErrorOr(logger, res, err)
 }

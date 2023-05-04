@@ -14,6 +14,13 @@
       "response_type": "kev1alpha.Cluster",
       "resource_type": "kev1alpha.Cluster",
       "get_resource_method": "GetCluster"
+    },
+    {
+      "name": "GetCluster",
+      "method_type": "METHOD_TYPE_GET",
+      "request_type": "kev1alpha.GetClusterRequest",
+      "response_type": "kev1alpha.Cluster",
+      "resource_type": "kev1alpha.Cluster"
     }
   ]
 }
