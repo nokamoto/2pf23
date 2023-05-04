@@ -28,9 +28,9 @@ proto:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	go install github.com/bufbuild/buf/cmd/buf@latest
-	buf lint --error-format=json
-	buf format -w
-	buf generate
+	buf lint --config build/buf/buf.yaml --error-format=json
+	buf format --config build/buf/buf.yaml -w
+	buf generate --template build/buf/buf.gen.yaml
 
 cialpha:
 	go run ./build/ci/test/main.go
@@ -52,7 +52,7 @@ gen:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install ./cmd/protoc-gen-cli
 	go install ./cmd/protoc-gen-server
-	buf generate --template buf.gen.local.yaml
+	buf generate --template build/buf/buf.gen.local.yaml
 	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
 	go run ./cmd/server-gen/main.go build/server internal/server/generated
 
