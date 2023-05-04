@@ -17,14 +17,40 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
+type testcase[T1 any, T2 any] struct {
+	name     string
+	req      *T1
+	mock     func(*mockv1alpha.Mockruntime)
+	expected *T2
+	code     codes.Code
+}
+
+func run[T1 any, T2 any](t *testing.T, f func(*service, context.Context, *T1) (*T2, error), tt []testcase[T1, T2]) {
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+
+			rt := mockv1alpha.NewMockruntime(ctrl)
+			s := NewService(zaptest.NewLogger(t), rt)
+
+			if tc.mock != nil {
+				tc.mock(rt)
+			}
+
+			res, err := f(s, context.TODO(), tc.req)
+			if code := status.Code(err); code != tc.code {
+				t.Errorf("expected %v, got %v", tc.code, code)
+			}
+
+			if diff := cmp.Diff(res, tc.expected, protocmp.Transform()); diff != "" {
+				t.Errorf("differs: (-want +got)\n%s", diff)
+			}
+		})
+	}
+}
+
 func Test_CreateCluster(t *testing.T) {
-	testcases := []struct {
-		name     string
-		req      *kev1alpha.CreateClusterRequest
-		mock     func(*mockv1alpha.Mockruntime)
-		expected *kev1alpha.Cluster
-		code     codes.Code
-	}{
+	testcases := []testcase[kev1alpha.CreateClusterRequest, kev1alpha.Cluster]{
 		{
 			name: "ok",
 			req: &kev1alpha.CreateClusterRequest{
@@ -47,15 +73,20 @@ func Test_CreateCluster(t *testing.T) {
 		},
 		{
 			name: "invalid argument",
-			req:  &kev1alpha.CreateClusterRequest{},
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
 			},
 			code: codes.InvalidArgument,
 		},
 		{
+			name: "not found",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+		{
 			name: "unknown error",
-			req:  &kev1alpha.CreateClusterRequest{},
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("unknown"))
 			},
@@ -63,25 +94,48 @@ func Test_CreateCluster(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
+	run(t, (*service).CreateCluster, testcases)
+}
 
-			rt := mockv1alpha.NewMockruntime(ctrl)
-			s := NewService(zaptest.NewLogger(t), rt)
-
-			if tc.mock != nil {
-				tc.mock(rt)
-			}
-
-			res, err := s.CreateCluster(context.TODO(), tc.req)
-			if code := status.Code(err); code != tc.code {
-				t.Errorf("expected %v, got %v", tc.code, code)
-			}
-
-			if diff := cmp.Diff(res, tc.expected, protocmp.Transform()); diff != "" {
-				t.Errorf("differs: (-want +got)\n%s", diff)
-			}
-		})
+func Test_GetCluster(t *testing.T) {
+	testcases := []testcase[kev1alpha.GetClusterRequest, kev1alpha.Cluster]{
+		{
+			name: "ok",
+			req: &kev1alpha.GetClusterRequest{
+				Name: "foo",
+			},
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Get(gomock.Any(), "foo").Return(&kev1alpha.Cluster{
+					Name:        "foo",
+					DisplayName: "test",
+				}, nil)
+			},
+			expected: &kev1alpha.Cluster{
+				Name:        "foo",
+				DisplayName: "test",
+			},
+		},
+		{
+			name: "invalid argument",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "not found",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+		{
+			name: "unknown error",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil, errors.New("unknown"))
+			},
+			code: codes.Unknown,
+		},
 	}
+	run(t, (*service).GetCluster, testcases)
 }

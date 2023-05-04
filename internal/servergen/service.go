@@ -48,9 +48,7 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 
 	static := []string{
 		"go.uber.org/zap",
-		"google.golang.org/grpc/codes",
-		"google.golang.org/grpc/status",
-		"github.com/nokamoto/2pf23/internal/app",
+		"github.com/nokamoto/2pf23/internal/server/helper",
 	}
 	for _, s := range static {
 		imports = append(imports, &v1.ImportPath{
