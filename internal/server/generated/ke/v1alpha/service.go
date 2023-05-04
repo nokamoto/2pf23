@@ -34,7 +34,6 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 func (s *service) CreateCluster(ctx context.Context, req *v1alpha.CreateClusterRequest) (*v1alpha.Cluster, error) {
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	// standard create method
 	res, err := s.rt.Create(ctx, req.GetCluster())
 	if errors.Is(err, app.ErrInvalidArgument) {
 		logger.Error("invalid argument", zap.Error(err))

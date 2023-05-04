@@ -17,6 +17,8 @@ type runtime interface {
 {{- range .Service.Calls}}
 {{- if eq .MethodType 1}}
 	Create(ctx context.Context, resource *{{.ResourceType}}) (*{{.ResourceType}}, error)
+{{- else if eq .MethodType 2}}
+	Get(ctx context.Context, name string) (*{{.ResourceType}}, error)
 {{- end}}
 {{- end}}
 }
@@ -38,8 +40,10 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 	logger := s.logger.With(zap.String("method", "{{.Name}}"), zap.Any("request", req))
 	logger.Debug("request received")
 {{- if eq .MethodType 1}}
-	// standard create method
 	res, err := s.rt.Create(ctx, req.{{.GetResourceMethod}}())
+{{- else if eq .MethodType 2}}
+	res, err := s.rt.Get(ctx, req.GetName())
+{{- end}}
 	if errors.Is(err, app.ErrInvalidArgument) {
 		logger.Error("invalid argument", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -49,8 +53,6 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 		return nil, status.Error(codes.Unknown, "unknown error")
 	}
 	return res, nil
-{{- else}}
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
-{{- end}}
 }
-{{- end}}
+
+{{end}}

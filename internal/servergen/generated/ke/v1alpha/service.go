@@ -17,6 +17,7 @@ import (
 //go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
 type runtime interface {
 	Create(ctx context.Context, resource *kev1alpha.Cluster) (*kev1alpha.Cluster, error)
+	Get(ctx context.Context, name string) (*kev1alpha.Cluster, error)
 }
 
 type service struct {
@@ -35,8 +36,22 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 func (s *service) CreateCluster(ctx context.Context, req *kev1alpha.CreateClusterRequest) (*kev1alpha.Cluster, error) {
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	// standard create method
 	res, err := s.rt.Create(ctx, req.GetCluster())
+	if errors.Is(err, app.ErrInvalidArgument) {
+		logger.Error("invalid argument", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	if err != nil {
+		logger.Error("unknown error", zap.Error(err))
+		return nil, status.Error(codes.Unknown, "unknown error")
+	}
+	return res, nil
+}
+
+func (s *service) GetCluster(ctx context.Context, req *kev1alpha.GetClusterRequest) (*kev1alpha.Cluster, error) {
+	logger := s.logger.With(zap.String("method", "GetCluster"), zap.Any("request", req))
+	logger.Debug("request received")
+	res, err := s.rt.Get(ctx, req.GetName())
 	if errors.Is(err, app.ErrInvalidArgument) {
 		logger.Error("invalid argument", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, err.Error())
