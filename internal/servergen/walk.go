@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/nokamoto/2pf23/internal/util/gen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -71,7 +72,7 @@ func (w *Walk) walk(p *Printer, svc *v1.Service) error {
 	}
 
 	file := filepath.Join(dir, "service.go")
-	if err := os.WriteFile(file, b.Bytes(), 0o644); err != nil {
+	if err := gen.WriteFormattedGo(file, b.Bytes()); err != nil {
 		return fmt.Errorf("failed to write %s: %w", file, err)
 	}
 

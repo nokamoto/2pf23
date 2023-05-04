@@ -36,7 +36,8 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 	}
 }
 
-{{range .Service.Calls}}func (s *service) {{.Name}}(ctx context.Context, req *{{.RequestType}}) (*{{.ResponseType}}, error) {
+{{range .Service.Calls}}
+func (s *service) {{.Name}}(ctx context.Context, req *{{.RequestType}}) (*{{.ResponseType}}, error) {
 	logger := s.logger.With(zap.String("method", "{{.Name}}"), zap.Any("request", req))
 	logger.Debug("request received")
 {{- if eq .MethodType 1}}

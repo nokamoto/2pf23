@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/nokamoto/2pf23/internal/util/gen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -58,7 +59,7 @@ func (w *Walk) walk(p *Printer, dir string, pkg *v1.Package, currentPackage stri
 	if err := p.PrintRoot(&b, pkg, currentPackage); err != nil {
 		return fmt.Errorf("failed to print %s: %w", file, err)
 	}
-	if err := os.WriteFile(file, b.Bytes(), 0o644); err != nil {
+	if err := gen.WriteFormattedGo(file, b.Bytes()); err != nil {
 		return fmt.Errorf("failed to write %s: %w", file, err)
 	}
 
@@ -68,7 +69,7 @@ func (w *Walk) walk(p *Printer, dir string, pkg *v1.Package, currentPackage stri
 		if err := p.PrintCommand(&b, cmd); err != nil {
 			return fmt.Errorf("failed to print %s: %w", file, err)
 		}
-		if err := os.WriteFile(file, b.Bytes(), 0o644); err != nil {
+		if err := gen.WriteFormattedGo(file, b.Bytes()); err != nil {
 			return fmt.Errorf("failed to write %s: %w", file, err)
 		}
 	}
