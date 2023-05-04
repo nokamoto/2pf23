@@ -37,7 +37,7 @@ func TestPlugin_Run(t *testing.T) {
 			want: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create",
+			name: "create, get",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -53,6 +53,11 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name:       proto.String("CreateCluster"),
 										InputType:  proto.String(".api.ke.v1alpha.CreateClusterRequest"),
+										OutputType: proto.String(".api.ke.v1alpha.Cluster"),
+									},
+									{
+										Name:       proto.String("GetCluster"),
+										InputType:  proto.String(".api.ke.v1alpha.GetClusterRequest"),
 										OutputType: proto.String(".api.ke.v1alpha.Cluster"),
 									},
 								},
@@ -81,6 +86,13 @@ func TestPlugin_Run(t *testing.T) {
 									ResponseType:      "v1alpha.Cluster",
 									ResourceType:      "v1alpha.Cluster",
 									GetResourceMethod: "GetCluster",
+								},
+								{
+									Name:         "GetCluster",
+									MethodType:   v1.MethodType_METHOD_TYPE_GET,
+									RequestType:  "v1alpha.GetClusterRequest",
+									ResponseType: "v1alpha.Cluster",
+									ResourceType: "v1alpha.Cluster",
 								},
 							},
 						}),

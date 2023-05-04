@@ -13,6 +13,7 @@ import (
 
 type runtime interface {
 	Create(ctx context.Context, resource *v1alpha.Cluster) (*v1alpha.Cluster, error)
+	Get(ctx context.Context, name string) (*v1alpha.Cluster, error)
 }
 
 type service struct {
@@ -32,5 +33,12 @@ func (s *service) CreateCluster(ctx context.Context, req *v1alpha.CreateClusterR
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
 	res, err := s.rt.Create(ctx, req.GetCluster())
+	return helper.ErrorOr(logger, res, err)
+}
+
+func (s *service) GetCluster(ctx context.Context, req *v1alpha.GetClusterRequest) (*v1alpha.Cluster, error) {
+	logger := s.logger.With(zap.String("method", "GetCluster"), zap.Any("request", req))
+	logger.Debug("request received")
+	res, err := s.rt.Get(ctx, req.GetName())
 	return helper.ErrorOr(logger, res, err)
 }
