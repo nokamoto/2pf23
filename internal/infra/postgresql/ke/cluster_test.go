@@ -20,9 +20,7 @@ func TestCluster_Create(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&_fk=1")
 	defer client.Close()
 
-	c := &Cluster{
-		client: client.Cluster,
-	}
+	c := NewCluster(client)
 
 	want := &kev1alpha.Cluster{
 		Name:        "test name",
