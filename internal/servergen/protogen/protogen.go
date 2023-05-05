@@ -55,7 +55,7 @@ func (p *Plugin) setCall(call *v1.Call, m *protogen.MethodDescriptor) {
 }
 
 func (p *Plugin) createCall(m *protogen.MethodDescriptor) *v1.Call {
-	accessor := fmt.Sprintf("Get%s", m.ResourceNameAsCreateMethod())
+	accessor := fmt.Sprintf("Get%s", m.ResourceName())
 	resp := &v1.Call{
 		Name:              m.GetName(),
 		MethodType:        v1.MethodType_METHOD_TYPE_CREATE,

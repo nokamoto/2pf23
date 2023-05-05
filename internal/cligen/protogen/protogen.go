@@ -100,12 +100,16 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 		var f func(*descriptorpb.FileDescriptorProto, *protogen.MethodDescriptor, *protogen.APIDescriptor) (*v1.Command, error)
 		switch m.Type() {
 		case v1.MethodType_METHOD_TYPE_CREATE:
-			resource = m.ResourceNameAsCreateMethod()
+			resource = m.ResourceName()
 			f = p.createCommand
 
 		case v1.MethodType_METHOD_TYPE_GET:
-			resource = m.ResourceNameAsGetMethod()
+			resource = m.ResourceName()
 			f = p.getCommand
+
+		case v1.MethodType_METHOD_TYPE_DELETE:
+			resource = m.ResourceName()
+			f = p.deleteCommand
 
 		default:
 			p.Debugf("skipped: unsupported method type: %s", m.Type())
@@ -133,19 +137,19 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	return resp, nil
 }
 
-func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
-	resource := m.ResourceNameAsGetMethod()
-	short := fmt.Sprintf("get is a command to get the %s", resource)
+func (p *Plugin) commandByName(method string, file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
+	resource := m.ResourceName()
+	short := fmt.Sprintf("%s is a command to %s the %s", method, method, resource)
 	return &v1.Command{
 		Api:           api.ServiceName(),
 		ApiVersion:    api.APIVersion(),
 		ApiImportPath: api.ImportPath(),
 		Package:       strings.ToLower(resource),
-		Use:           fmt.Sprintf("get %s-name", strings.ToLower(resource)),
+		Use:           fmt.Sprintf("%s %s-name", method, strings.ToLower(resource)),
 		Short:         short,
 		Long:          short,
 		Method:        m.GetName(),
-		MethodType:    v1.MethodType_METHOD_TYPE_GET,
+		MethodType:    m.Type(),
 		Request: &v1.RequestMessage{
 			Type: protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
 			Fields: []*v1.RequestMessageField{
@@ -158,8 +162,16 @@ func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, m *protogen.
 	}, nil
 }
 
+func (p *Plugin) deleteCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
+	return p.commandByName("delete", file, m, api)
+}
+
+func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
+	return p.commandByName("get", file, m, api)
+}
+
 func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
-	resource := m.ResourceNameAsCreateMethod()
+	resource := m.ResourceName()
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 
 	req, err := NewRequestMessageDescriptor(file).RequestMessage(m.GetInputType())

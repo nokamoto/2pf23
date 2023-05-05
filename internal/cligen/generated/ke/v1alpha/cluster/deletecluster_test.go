@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/2pf23/internal/cli/runtime/mock"
 	"github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
 	"github.com/nokamoto/2pf23/internal/util/helper"
@@ -15,11 +16,11 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-func Test_newGet(t *testing.T) {
+func Test_newDelete(t *testing.T) {
 	clientErr := errors.New("client error")
 	rpcErr := status.Errorf(codes.Unavailable, "rpc error")
 
-	testcases := []testcase[kev1alpha.Cluster]{
+	testcases := []testcase[empty.Empty]{
 		{
 			name: "ok",
 			args: "foo",
@@ -27,16 +28,12 @@ func Test_newGet(t *testing.T) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().GetCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.GetClusterRequest{
+					c.EXPECT().DeleteCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.DeleteClusterRequest{
 						Name: "foo",
-					})).Return(&kev1alpha.Cluster{
-						Name: "foo",
-					}, nil),
+					})).Return(&empty.Empty{}, nil),
 				)
 			},
-			expected: &kev1alpha.Cluster{
-				Name: "foo",
-			},
+			expected: &empty.Empty{},
 		},
 		{
 			name: "failed to get a client for ke.v1alpha",
@@ -50,24 +47,24 @@ func Test_newGet(t *testing.T) {
 			err: clientErr,
 		},
 		{
-			name: "failed to GetCluster",
+			name: "failed to DeleteCluster",
 			args: "foo",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().GetCluster(context.TODO(), gomock.Any()).Return(nil, rpcErr),
+					c.EXPECT().DeleteCluster(context.TODO(), gomock.Any()).Return(nil, rpcErr),
 				)
 			},
 			err: rpcErr,
 		},
 	}
 
-	run(t, testcases, newGetCluster, func(b []byte) (*kev1alpha.Cluster, error) {
-		var cluster kev1alpha.Cluster
-		if err := protojson.Unmarshal(b, &cluster); err != nil {
+	run(t, testcases, newDeleteCluster, func(b []byte) (*empty.Empty, error) {
+		var v empty.Empty
+		if err := protojson.Unmarshal(b, &v); err != nil {
 			return nil, err
 		}
-		return &cluster, nil
+		return &v, nil
 	})
 }

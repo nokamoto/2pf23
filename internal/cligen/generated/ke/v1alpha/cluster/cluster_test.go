@@ -11,23 +11,19 @@ import (
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	"github.com/nokamoto/2pf23/internal/cli/runtime/mock"
 	"github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
-	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
-type testcase struct {
+type testcase[T any] struct {
 	name     string
 	args     string
 	mock     func(*mockruntime.MockRuntime, *mock_kev1alpha.MockKeServiceClient)
-	expected *kev1alpha.Cluster
+	expected *T
 	err      error
 }
 
-type testcases []testcase
-
-func (tt testcases) run(t *testing.T, f func(runtime.Runtime) *cobra.Command) {
+func run[T any](t *testing.T, tt []testcase[T], f func(runtime.Runtime) *cobra.Command, unmarshal func([]byte) (*T, error)) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
@@ -59,12 +55,11 @@ func (tt testcases) run(t *testing.T, f func(runtime.Runtime) *cobra.Command) {
 				return
 			}
 
-			var actual kev1alpha.Cluster
-			if err := protojson.Unmarshal(stdout.Bytes(), &actual); err != nil {
+			actual, err := unmarshal(stdout.Bytes())
+			if err != nil {
 				t.Fatal(err)
 			}
-
-			if diff := cmp.Diff(tc.expected, &actual, protocmp.Transform()); diff != "" {
+			if diff := cmp.Diff(tc.expected, actual, protocmp.Transform()); diff != "" {
 				t.Errorf("diff: %s", diff)
 			}
 		})
