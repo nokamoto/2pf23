@@ -17,7 +17,7 @@ func main() {
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 3 {
-				cmd.Usage()
+				_ = cmd.Usage()
 				cmd.PrintErrln()
 				return fmt.Errorf("invalid arguments: %v", args)
 			}

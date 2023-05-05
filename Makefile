@@ -21,15 +21,19 @@ endef
 fast:
 	go test ./...
 
-all: proto mock testdata gen go
+test: proto mock testdata gen go
+
+lint: $(GOBIN)/golangci-lint
+	golangci-lint run
+
+all: proto mock testdata gen go lint
+
+$(GOBIN)/golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin
 
 $(GOBIN)/gofumpt:
 	go install mvdan.cc/gofumpt@latest
 	$(call versioning,gofumpt)
-
-$(GOBIN)/staticcheck:
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-	$(call versioning,staticcheck)
 
 $(GOBIN)/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -43,19 +47,13 @@ $(GOBIN)/buf:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	$(call versioning,buf)
 
-$(GOBIN)/mockgen:
-	go install github.com/golang/mock/mockgen@latest
-	$(call versioning,mockgen)
-
 $(GOBIN)/ko:
 	go install github.com/google/ko@latest
 	$(call versioning,ko)
 
-go: $(GOBIN)/gofumpt $(GOBIN)/staticcheck $(GOBIN)/mockgen
+go: $(GOBIN)/gofumpt $(GOBIN)/mockgen
 	go generate ./...
 	gofumpt -l -w .
-	go vet ./...
-	staticcheck ./...
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 	go mod tidy
 
@@ -68,7 +66,7 @@ cialpha:
 	go run ./build/ci/test/main.go
 
 mock: $(GOBIN)/mockgen
-	$(foreach file,$(API_GO_FILES),mockgen -source $(file) -destination internal/mock/$(file))
+	$(foreach file,$(API_GO_FILES),go run -mod=mod github.com/golang/mock/mockgen -source $(file) -destination internal/mock/$(file))
 
 .PHONY: build
 build: $(GOBIN)/ko

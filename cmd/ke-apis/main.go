@@ -76,7 +76,9 @@ func setupEnt(logger *zap.Logger) *ent.Client {
 // POSTGRESQL_PASSWORD: The password of the postgresql server. If not set, local is used.
 func main() {
 	logger := setupLogger()
-	defer logger.Sync()
+	defer func() {
+		_ = logger.Sync()
+	}()
 
 	client := setupEnt(logger)
 	defer client.Close()

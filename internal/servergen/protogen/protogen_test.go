@@ -118,7 +118,9 @@ func TestPlugin_Run(t *testing.T) {
 			}
 
 			var got pluginpb.CodeGeneratorResponse
-			proto.Unmarshal(buf.Bytes(), &got)
+			if err := proto.Unmarshal(buf.Bytes(), &got); err != nil {
+				t.Fatalf("failed to unmarshal: %v", err)
+			}
 			if diff := cmp.Diff(&got, tc.want, protocmp.Transform()); diff != "" {
 				t.Error(diff)
 			}

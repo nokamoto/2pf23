@@ -1,4 +1,4 @@
-//go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
 package ke
 
 import (
