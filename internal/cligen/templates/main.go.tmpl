@@ -34,11 +34,24 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 			if err != nil {
 				return fmt.Errorf("failed to create a client for {{.Command.Api}}.{{.Command.ApiVersion}}: %w", err)
 			}
+{{- if eq .Command.MethodType 4}}
+			var res {{.Command.Response.Type}}
+			setter := func(token string) *{{.Command.Request.Type}} {
+				return &{{.Command.Request.Type}}{
+					PageToken: token,
+				}
+			}
+			getter := func(v *{{.Command.Response.Type}}) {
+				res.{{.Command.Response.ListField}} = append(res.{{.Command.Response.ListField}}, v.{{.Command.Response.ListField}}...)
+			}
+			err = helper.ListAll(ctx, c.{{.Command.Method}}, setter, getter)
+{{- else}}
 			res, err := c.{{.Command.Method}}(ctx, {{.Command.Request | ToValue 3}})
+{{- end}}
 			if err != nil {
 				return fmt.Errorf("{{.Command.Api}}.{{.Command.ApiVersion}}: failed to {{.Command.Method}}: %w", err)
 			}
-			message, err := protojson.Marshal(res)
+			message, err := protojson.Marshal({{if eq .Command.MethodType 4}}&{{end}}res)
 			if err != nil {
 				return err
 			}

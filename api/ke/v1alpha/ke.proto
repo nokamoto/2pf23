@@ -23,6 +23,7 @@ service KeService {
   rpc CreateCluster(CreateClusterRequest) returns (Cluster) {}
   rpc GetCluster(GetClusterRequest) returns (Cluster) {}
   rpc DeleteCluster(DeleteClusterRequest) returns (google.protobuf.Empty) {}
+  rpc ListCluster(ListClusterRequest) returns (ListClusterResponse) {}
 }
 
 message CreateClusterRequest {
@@ -35,4 +36,14 @@ message GetClusterRequest {
 
 message DeleteClusterRequest {
   string name = 1;
+}
+
+message ListClusterRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListClusterResponse {
+  repeated Cluster clusters = 1;
+  string next_page_token = 2;
 }

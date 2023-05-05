@@ -110,6 +110,27 @@
                       }
                     ]
                   }
+                },
+                {
+                  "api": "ke",
+                  "apiVersion": "v1alpha",
+                  "apiImportPath": {
+                    "alias": "v1alpha",
+                    "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+                  },
+                  "package": "cluster",
+                  "use": "list",
+                  "short": "list is a command to list all Clusters",
+                  "long": "list is a command to list all Cluster",
+                  "method": "ListCluster",
+                  "methodType": "METHOD_TYPE_LIST",
+                  "request": {
+                    "type": "v1alpha.ListClusterRequest"
+                  },
+                  "response": {
+                    "type": "v1alpha.ListClusterResponse",
+                    "listField": "Clusters"
+                  }
                 }
               ]
             }
