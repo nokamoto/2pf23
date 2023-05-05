@@ -12,6 +12,9 @@ define ko
 
 endef
 
+fast:
+	go test ./...
+
 all: proto mock testdata gen go
 
 $(GOBIN)/gofumpt:
