@@ -14,7 +14,7 @@ endef
 
 define versioning
 	echo $1
-	$1 --version > build/tools/$1
+	$1 --version || $1 version > build/tools/$1
 	sha1sum build/tools/* | sha1sum > build/.tools
 endef
 
