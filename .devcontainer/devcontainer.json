@@ -12,7 +12,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "make tilt && make",
+	"postCreateCommand": "make tilt && make all",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
