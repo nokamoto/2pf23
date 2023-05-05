@@ -1,3 +1,3 @@
 package ent
 
-//go:generate ent generate ./schema
+//go:generate go run entc.go
