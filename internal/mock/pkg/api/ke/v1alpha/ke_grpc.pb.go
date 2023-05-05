@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	grpc "google.golang.org/grpc"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // MockKeServiceClient is a mock of KeServiceClient interface.
@@ -54,6 +55,26 @@ func (mr *MockKeServiceClientMockRecorder) CreateCluster(ctx, in interface{}, op
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockKeServiceClient)(nil).CreateCluster), varargs...)
+}
+
+// DeleteCluster mocks base method.
+func (m *MockKeServiceClient) DeleteCluster(ctx context.Context, in *kev1alpha.DeleteClusterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteCluster", varargs...)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCluster indicates an expected call of DeleteCluster.
+func (mr *MockKeServiceClientMockRecorder) DeleteCluster(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCluster", reflect.TypeOf((*MockKeServiceClient)(nil).DeleteCluster), varargs...)
 }
 
 // GetCluster mocks base method.
@@ -112,6 +133,21 @@ func (m *MockKeServiceServer) CreateCluster(arg0 context.Context, arg1 *kev1alph
 func (mr *MockKeServiceServerMockRecorder) CreateCluster(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockKeServiceServer)(nil).CreateCluster), arg0, arg1)
+}
+
+// DeleteCluster mocks base method.
+func (m *MockKeServiceServer) DeleteCluster(arg0 context.Context, arg1 *kev1alpha.DeleteClusterRequest) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCluster", arg0, arg1)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCluster indicates an expected call of DeleteCluster.
+func (mr *MockKeServiceServerMockRecorder) DeleteCluster(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCluster", reflect.TypeOf((*MockKeServiceServer)(nil).DeleteCluster), arg0, arg1)
 }
 
 // GetCluster mocks base method.

@@ -87,6 +87,29 @@
                       }
                     ]
                   }
+                },
+                {
+                  "api": "ke",
+                  "apiVersion": "v1alpha",
+                  "apiImportPath": {
+                    "alias": "v1alpha",
+                    "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+                  },
+                  "package": "cluster",
+                  "use": "delete cluster-name",
+                  "short": "delete is a command to delete the Cluster",
+                  "long": "delete is a command to delete the Cluster",
+                  "method": "DeleteCluster",
+                  "methodType": "METHOD_TYPE_DELETE",
+                  "request": {
+                    "type": "v1alpha.DeleteClusterRequest",
+                    "fields": [
+                      {
+                        "name": "Name",
+                        "value": "args[0]"
+                      }
+                    ]
+                  }
                 }
               ]
             }

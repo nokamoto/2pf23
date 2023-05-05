@@ -24,7 +24,7 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 		Long:  `{{.Command.Long}}`,
 {{- if eq .Command.MethodType 1 }}
 		Args:  cobra.ExactArgs(0),
-{{- else if eq .Command.MethodType 2 }}
+{{- else if or (eq .Command.MethodType 2) (eq .Command.MethodType 3) }}
 		Args:  cobra.ExactArgs(1),
 {{- end}}
 		RunE: func(cmd *cobra.Command, args []string) error {
