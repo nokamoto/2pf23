@@ -12,12 +12,6 @@ define ko
 
 endef
 
-define versioning
-	echo $1
-	$1 --version || $1 version > build/tools/$1
-	sha1sum build/tools/* | sha1sum > build/.tools
-endef
-
 fast:
 	go test ./...
 
@@ -26,30 +20,25 @@ test: proto mock testdata gen go
 lint: $(GOBIN)/golangci-lint
 	golangci-lint run
 
-all: proto mock testdata gen go lint
+all: test lint
 
 $(GOBIN)/golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin
 
 $(GOBIN)/gofumpt:
 	go install mvdan.cc/gofumpt@latest
-	$(call versioning,gofumpt)
 
 $(GOBIN)/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	$(call versioning,protoc-gen-go)
 
 $(GOBIN)/protoc-gen-go-grpc:
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	$(call versioning,protoc-gen-go-grpc)
 
 $(GOBIN)/buf:
 	go install github.com/bufbuild/buf/cmd/buf@latest
-	$(call versioning,buf)
 
 $(GOBIN)/ko:
 	go install github.com/google/ko@latest
-	$(call versioning,ko)
 
 go: $(GOBIN)/gofumpt $(GOBIN)/mockgen
 	go generate ./...
