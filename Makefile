@@ -12,6 +12,12 @@ define ko
 
 endef
 
+define versioning
+	echo $1
+	$1 --version > build/tools/$1
+	sha1sum build/tools/* | sha1sum > build/.tools
+endef
+
 fast:
 	go test ./...
 
@@ -19,29 +25,33 @@ all: proto mock testdata gen go
 
 $(GOBIN)/gofumpt:
 	go install mvdan.cc/gofumpt@latest
+	$(call versioning,gofumpt)
 
 $(GOBIN)/staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
-
-$(GOBIN)/ent:
-	go install entgo.io/ent/cmd/ent@latest
+	$(call versioning,staticcheck)
 
 $(GOBIN)/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	$(call versioning,protoc-gen-go)
 
 $(GOBIN)/protoc-gen-go-grpc:
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	$(call versioning,protoc-gen-go-grpc)
 
 $(GOBIN)/buf:
 	go install github.com/bufbuild/buf/cmd/buf@latest
+	$(call versioning,buf)
 
 $(GOBIN)/mockgen:
 	go install github.com/golang/mock/mockgen@latest
+	$(call versioning,mockgen)
 
 $(GOBIN)/ko:
 	go install github.com/google/ko@latest
+	$(call versioning,ko)
 
-go: $(GOBIN)/gofumpt $(GOBIN)/staticcheck $(GOBIN)/ent $(GOBIN)/mockgen
+go: $(GOBIN)/gofumpt $(GOBIN)/staticcheck $(GOBIN)/mockgen
 	go generate ./...
 	gofumpt -l -w .
 	go vet ./...
