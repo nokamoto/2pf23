@@ -53,7 +53,7 @@ func TestPlugin_Run(t *testing.T) {
 			expected: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create, get",
+			name: "create, get, delete",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -98,6 +98,10 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name:      proto.String("GetShelf"),
 										InputType: proto.String(".api.library.v1alpha.GetShelfRequest"),
+									},
+									{
+										Name:      proto.String("DeleteShelf"),
+										InputType: proto.String(".api.library.v1alpha.DeleteShelfRequest"),
 									},
 								},
 							},
@@ -176,6 +180,29 @@ func TestPlugin_Run(t *testing.T) {
 												MethodType: v1.MethodType_METHOD_TYPE_GET,
 												Request: &v1.RequestMessage{
 													Type: "v1alpha.GetShelfRequest",
+													Fields: []*v1.RequestMessageField{
+														{
+															Name:  "Name",
+															Value: "args[0]",
+														},
+													},
+												},
+											},
+											{
+												Api:        "library",
+												ApiVersion: "v1alpha",
+												ApiImportPath: &v1.ImportPath{
+													Alias: "v1alpha",
+													Path:  "github.com/library",
+												},
+												Package:    "shelf",
+												Use:        "delete shelf-name",
+												Short:      "delete is a command to delete the Shelf",
+												Long:       "delete is a command to delete the Shelf",
+												Method:     "DeleteShelf",
+												MethodType: v1.MethodType_METHOD_TYPE_DELETE,
+												Request: &v1.RequestMessage{
+													Type: "v1alpha.DeleteShelfRequest",
 													Fields: []*v1.RequestMessageField{
 														{
 															Name:  "Name",

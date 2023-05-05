@@ -7,6 +7,18 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
+const (
+	createPrefix = "Create"
+	getPrefix    = "Get"
+	deletePrefix = "Delete"
+)
+
+var prefixes = map[string]v1.MethodType{
+	createPrefix: v1.MethodType_METHOD_TYPE_CREATE,
+	getPrefix:    v1.MethodType_METHOD_TYPE_GET,
+	deletePrefix: v1.MethodType_METHOD_TYPE_DELETE,
+}
+
 // MethodDescriptor describes a gRPC method from a proto file.
 type MethodDescriptor struct {
 	*descriptorpb.MethodDescriptorProto
@@ -20,27 +32,22 @@ func NewMethodDescriptor(m *descriptorpb.MethodDescriptorProto) *MethodDescripto
 
 // Type returns a method type. It determines the type of the method from its name.
 func (m *MethodDescriptor) Type() v1.MethodType {
-	if strings.HasPrefix(m.GetName(), "Create") {
-		return v1.MethodType_METHOD_TYPE_CREATE
-	}
-	if strings.HasPrefix(m.GetName(), "Get") {
-		return v1.MethodType_METHOD_TYPE_GET
+	for prefix, methodType := range prefixes {
+		if strings.HasPrefix(m.GetName(), prefix) {
+			return methodType
+		}
 	}
 	return v1.MethodType_METHOD_TYPE_UNSPECIFIED
 }
 
-func (m *MethodDescriptor) resourceNameAs(s string) string {
-	return strings.TrimPrefix(m.GetName(), s)
-}
-
-// ResourceNameAsCreateMethod returns a resource name from a standard create method name.
-// For example, if the method name is `CreateFoo`, it returns `Foo`.
-func (m *MethodDescriptor) ResourceNameAsCreateMethod() string {
-	return m.resourceNameAs("Create")
-}
-
-// ResourceNameAsGetMethod returns a resource name from a standard get method name.
-// For example, if the method name is `GetFoo`, it returns `Foo`.
-func (m *MethodDescriptor) ResourceNameAsGetMethod() string {
-	return m.resourceNameAs("Get")
+// ResourceName returns a resource name from a method type.
+// For example, if the method type is `Create` and the method name is `CreateFoo`, it returns `Foo`.
+func (m *MethodDescriptor) ResourceName() string {
+	typ := m.Type()
+	for prefix, methodType := range prefixes {
+		if methodType == typ {
+			return strings.TrimPrefix(m.GetName(), prefix)
+		}
+	}
+	return ""
 }

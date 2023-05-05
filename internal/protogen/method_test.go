@@ -30,6 +30,13 @@ func TestMethodDescriptor_Type(t *testing.T) {
 			want: v1.MethodType_METHOD_TYPE_GET,
 		},
 		{
+			name: "delete",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("DeleteFoo"),
+			},
+			want: v1.MethodType_METHOD_TYPE_DELETE,
+		},
+		{
 			name: "unspecified",
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("SearchFoo"),
@@ -51,7 +58,6 @@ func TestMethodDescriptor_ResourceNameAs(t *testing.T) {
 	tests := []struct {
 		name   string
 		method *descriptorpb.MethodDescriptorProto
-		f      func(*MethodDescriptor) string
 		want   string
 	}{
 		{
@@ -59,7 +65,6 @@ func TestMethodDescriptor_ResourceNameAs(t *testing.T) {
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("CreateFoo"),
 			},
-			f:    (*MethodDescriptor).ResourceNameAsCreateMethod,
 			want: "Foo",
 		},
 		{
@@ -67,15 +72,28 @@ func TestMethodDescriptor_ResourceNameAs(t *testing.T) {
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("GetFoo"),
 			},
-			f:    (*MethodDescriptor).ResourceNameAsGetMethod,
 			want: "Foo",
+		},
+		{
+			name: "delete",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("DeleteFoo"),
+			},
+			want: "Foo",
+		},
+		{
+			name: "unspecified",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("SearchFoo"),
+			},
+			want: "",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := NewMethodDescriptor(tt.method)
-			if got := tt.f(m); got != tt.want {
-				t.Errorf("MethodDescriptor.ResourceNameAs = %v, want %v", got, tt.want)
+			if got := m.ResourceName(); got != tt.want {
+				t.Errorf("MethodDescriptor.ResourceName = %v, want %v", got, tt.want)
 			}
 		})
 	}
