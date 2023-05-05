@@ -40,7 +40,7 @@ $(GOBIN)/buf:
 $(GOBIN)/ko:
 	go install github.com/google/ko@latest
 
-go: $(GOBIN)/gofumpt $(GOBIN)/mockgen
+go: $(GOBIN)/gofumpt
 	go generate ./...
 	gofumpt -l -w .
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
@@ -54,7 +54,7 @@ proto: $(GOBIN)/protoc-gen-go $(GOBIN)/protoc-gen-go-grpc $(GOBIN)/buf
 cialpha:
 	go run ./build/ci/test/main.go
 
-mock: $(GOBIN)/mockgen
+mock:
 	$(foreach file,$(API_GO_FILES),go run -mod=mod github.com/golang/mock/mockgen -source $(file) -destination internal/mock/$(file))
 
 .PHONY: build
