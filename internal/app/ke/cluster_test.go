@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/2pf23/internal/app"
 	"github.com/nokamoto/2pf23/internal/app/ke/mock"
@@ -28,9 +29,7 @@ func run[T1 any, T2 any](t *testing.T, f func(*Cluster, context.Context, T1) (T2
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			rt := mockke.NewMockruntime(ctrl)
-			sut := &Cluster{
-				rt: rt,
-			}
+			sut := NewCluster(rt)
 			if tt.mock != nil {
 				tt.mock(rt)
 			}
@@ -129,4 +128,36 @@ func TestCluster_Get(t *testing.T) {
 	}
 
 	run(t, (*Cluster).Get, tests)
+}
+
+func TestCluster_Delete(t *testing.T) {
+	runtimeError := errors.New("runtime error")
+	name := "projects/unspecified/clusters/cluster-id"
+	tests := []testcase[string, *empty.Empty]{
+		{
+			name: "ok",
+			req:  name,
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), name).Return(nil)
+			},
+			want: &empty.Empty{},
+		},
+		{
+			name: "not found",
+			req:  name,
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(infra.ErrNotFound)
+			},
+			err: app.ErrNotFound,
+		},
+		{
+			name: "runtime error",
+			req:  name,
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(runtimeError)
+			},
+			err: runtimeError,
+		},
+	}
+	run(t, (*Cluster).Delete, tests)
 }

@@ -48,3 +48,16 @@ func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, err
 		NumNodes:    int32(res.NumNodes),
 	}, nil
 }
+
+// Delete deletes a cluster by name.
+// If the cluster does not exist, it returns infra.ErrNotFound.
+func (c *Cluster) Delete(ctx context.Context, name string) error {
+	res, err := c.client.Delete().Where(cluster.Name(name)).Exec(ctx)
+	if res == 0 || ent.IsNotFound(err) {
+		return infra.ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}

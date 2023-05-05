@@ -49,6 +49,7 @@ func (p *Plugin) codeGeneratorRequest(req *pluginpb.CodeGeneratorRequest) ([]*v1
 }
 
 func (p *Plugin) setCall(call *v1.Call, m *protogen.MethodDescriptor) {
+	call.Name = m.GetName()
 	call.RequestType = protogen.GoTypeNameFromFullyQualified(m.GetInputType())
 	call.ResponseType = protogen.GoTypeNameFromFullyQualified(m.GetOutputType())
 	call.ResourceType = protogen.GoTypeNameFromFullyQualified(m.GetOutputType())
@@ -57,7 +58,6 @@ func (p *Plugin) setCall(call *v1.Call, m *protogen.MethodDescriptor) {
 func (p *Plugin) createCall(m *protogen.MethodDescriptor) *v1.Call {
 	accessor := fmt.Sprintf("Get%s", m.ResourceName())
 	resp := &v1.Call{
-		Name:              m.GetName(),
 		MethodType:        v1.MethodType_METHOD_TYPE_CREATE,
 		GetResourceMethod: accessor,
 	}
@@ -67,10 +67,19 @@ func (p *Plugin) createCall(m *protogen.MethodDescriptor) *v1.Call {
 
 func (p *Plugin) getCall(m *protogen.MethodDescriptor) *v1.Call {
 	resp := &v1.Call{
-		Name:       m.GetName(),
 		MethodType: v1.MethodType_METHOD_TYPE_GET,
 	}
 	p.setCall(resp, m)
+	return resp
+}
+
+func (p *Plugin) deleteCall(m *protogen.MethodDescriptor) *v1.Call {
+	resp := &v1.Call{
+		Name:         m.GetName(),
+		MethodType:   v1.MethodType_METHOD_TYPE_DELETE,
+		RequestType:  protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
+		ResponseType: "empty.Empty",
+	}
 	return resp
 }
 
@@ -90,6 +99,9 @@ func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descrip
 
 		case v1.MethodType_METHOD_TYPE_GET:
 			resp.Calls = append(resp.Calls, p.getCall(m))
+
+		case v1.MethodType_METHOD_TYPE_DELETE:
+			resp.Calls = append(resp.Calls, p.deleteCall(m))
 		}
 	}
 	return resp, nil

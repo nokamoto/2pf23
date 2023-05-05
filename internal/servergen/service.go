@@ -56,6 +56,16 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 		})
 	}
 
+	for _, call := range svc.GetCalls() {
+		if call.GetMethodType() == v1.MethodType_METHOD_TYPE_DELETE {
+			imports = append(imports, &v1.ImportPath{
+				Alias: "empty",
+				Path:  "github.com/golang/protobuf/ptypes/empty",
+			})
+			break
+		}
+	}
+
 	sort.Slice(imports, func(i, j int) bool {
 		return imports[i].Path < imports[j].Path
 	})

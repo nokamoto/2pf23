@@ -37,7 +37,7 @@ func TestPlugin_Run(t *testing.T) {
 			want: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create, get",
+			name: "create, get, delete",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -59,6 +59,11 @@ func TestPlugin_Run(t *testing.T) {
 										Name:       proto.String("GetCluster"),
 										InputType:  proto.String(".api.ke.v1alpha.GetClusterRequest"),
 										OutputType: proto.String(".api.ke.v1alpha.Cluster"),
+									},
+									{
+										Name:       proto.String("DeleteCluster"),
+										InputType:  proto.String(".api.ke.v1alpha.DeleteClusterRequest"),
+										OutputType: proto.String(".google.protobuf.Empty"),
 									},
 								},
 							},
@@ -93,6 +98,12 @@ func TestPlugin_Run(t *testing.T) {
 									RequestType:  "v1alpha.GetClusterRequest",
 									ResponseType: "v1alpha.Cluster",
 									ResourceType: "v1alpha.Cluster",
+								},
+								{
+									Name:         "DeleteCluster",
+									MethodType:   v1.MethodType_METHOD_TYPE_DELETE,
+									RequestType:  "v1alpha.DeleteClusterRequest",
+									ResponseType: "empty.Empty",
 								},
 							},
 						}),

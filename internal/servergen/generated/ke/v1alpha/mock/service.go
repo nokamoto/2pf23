@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 )
 
@@ -48,6 +49,21 @@ func (m *Mockruntime) Create(ctx context.Context, resource *kev1alpha.Cluster) (
 func (mr *MockruntimeMockRecorder) Create(ctx, resource interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*Mockruntime)(nil).Create), ctx, resource)
+}
+
+// Delete mocks base method.
+func (m *Mockruntime) Delete(ctx context.Context, name string) (*empty.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, name)
+	ret0, _ := ret[0].(*empty.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockruntimeMockRecorder) Delete(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*Mockruntime)(nil).Delete), ctx, name)
 }
 
 // Get mocks base method.
