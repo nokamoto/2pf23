@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-//go:generate mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
+//go:generate go run -mod=mod github.com/golang/mock/mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
 type runtime interface {
 	Create(ctx context.Context, resource *kev1alpha.Cluster) (*kev1alpha.Cluster, error)
 	Get(ctx context.Context, name string) (*kev1alpha.Cluster, error)
