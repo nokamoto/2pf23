@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.ke.v1alpha;
 
 import "api/option/v1/options.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha;kev1alpha";
 
@@ -21,6 +22,7 @@ message Cluster {
 service KeService {
   rpc CreateCluster(CreateClusterRequest) returns (Cluster) {}
   rpc GetCluster(GetClusterRequest) returns (Cluster) {}
+  rpc DeleteCluster(DeleteClusterRequest) returns (google.protobuf.Empty) {}
 }
 
 message CreateClusterRequest {
@@ -28,5 +30,9 @@ message CreateClusterRequest {
 }
 
 message GetClusterRequest {
+  string name = 1;
+}
+
+message DeleteClusterRequest {
   string name = 1;
 }

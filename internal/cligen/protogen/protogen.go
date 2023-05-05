@@ -95,9 +95,26 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	}
 	resources := map[string][]*v1.Command{}
 	for _, method := range service.GetMethod() {
-		resource, cmd, err := p.methodDescriptorProto(method, file, api)
+		m := protogen.NewMethodDescriptor(method)
+		var resource string
+		var f func(*descriptorpb.FileDescriptorProto, *protogen.MethodDescriptor, *protogen.APIDescriptor) (*v1.Command, error)
+		switch m.Type() {
+		case v1.MethodType_METHOD_TYPE_CREATE:
+			resource = m.ResourceNameAsCreateMethod()
+			f = p.createCommand
+
+		case v1.MethodType_METHOD_TYPE_GET:
+			resource = m.ResourceNameAsGetMethod()
+			f = p.getCommand
+
+		default:
+			p.Debugf("skipped: unsupported method type: %s", m.Type())
+			continue
+		}
+		resource = strings.ToLower(resource)
+		cmd, err := f(file, m, api)
 		if err != nil {
-			return nil, fmt.Errorf("failed to generate method: %w", err)
+			return nil, fmt.Errorf("failed to generate command: %w", err)
 		}
 		if _, ok := resources[resource]; !ok {
 			resources[resource] = []*v1.Command{}
@@ -116,31 +133,7 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 	return resp, nil
 }
 
-func (p *Plugin) methodDescriptorProto(method *descriptorpb.MethodDescriptorProto, file *descriptorpb.FileDescriptorProto, api *protogen.APIDescriptor) (string, *v1.Command, error) {
-	m := protogen.NewMethodDescriptor(method)
-	switch m.Type() {
-	case v1.MethodType_METHOD_TYPE_CREATE:
-		resource := strings.ToLower(m.ResourceNameAsCreateMethod())
-		cmd, err := p.createCommand(file, method, api)
-		if err != nil {
-			return "", nil, fmt.Errorf("failed to create command: %w", err)
-		}
-		return resource, cmd, nil
-
-	case v1.MethodType_METHOD_TYPE_GET:
-		resource := strings.ToLower(m.ResourceNameAsGetMethod())
-		cmd, err := p.getCommand(file, method, api)
-		if err != nil {
-			return "", nil, fmt.Errorf("failed to get command: %w", err)
-		}
-		return resource, cmd, nil
-	}
-
-	return "", nil, fmt.Errorf("unsupported method: %s", method.GetName())
-}
-
-func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, api *protogen.APIDescriptor) (*v1.Command, error) {
-	m := protogen.NewMethodDescriptor(method)
+func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
 	resource := m.ResourceNameAsGetMethod()
 	short := fmt.Sprintf("get is a command to get the %s", resource)
 	return &v1.Command{
@@ -151,10 +144,10 @@ func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, method *desc
 		Use:           fmt.Sprintf("get %s-name", strings.ToLower(resource)),
 		Short:         short,
 		Long:          short,
-		Method:        method.GetName(),
+		Method:        m.GetName(),
 		MethodType:    v1.MethodType_METHOD_TYPE_GET,
 		Request: &v1.RequestMessage{
-			Type: protogen.GoTypeNameFromFullyQualified(method.GetInputType()),
+			Type: protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
 			Fields: []*v1.RequestMessageField{
 				{
 					Name:  "Name",
@@ -165,12 +158,11 @@ func (p *Plugin) getCommand(file *descriptorpb.FileDescriptorProto, method *desc
 	}, nil
 }
 
-func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *descriptorpb.MethodDescriptorProto, api *protogen.APIDescriptor) (*v1.Command, error) {
-	m := protogen.NewMethodDescriptor(method)
+func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
 	resource := m.ResourceNameAsCreateMethod()
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 
-	req, err := NewRequestMessageDescriptor(file).RequestMessage(*method.InputType)
+	req, err := NewRequestMessageDescriptor(file).RequestMessage(m.GetInputType())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}
@@ -183,7 +175,7 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, method *d
 		Use:           "create",
 		Short:         short,
 		Long:          short,
-		Method:        method.GetName(),
+		Method:        m.GetName(),
 		MethodType:    v1.MethodType_METHOD_TYPE_CREATE,
 		Request:       req.Message,
 		StringFlags:   req.StringFlags,
