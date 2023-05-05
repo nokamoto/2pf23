@@ -2,5 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^Makefile$"],
+      "matchStrings": ["go install (?<depName>[^@]+?)@(?<currentValue>.+)\n"],
+      "datasourceTemplate": "go"
+    }
   ]
 }

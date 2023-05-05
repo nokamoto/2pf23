@@ -20,25 +20,25 @@ test: proto mock testdata gen go
 lint: $(GOBIN)/golangci-lint
 	golangci-lint run
 
-all: test lint
+all: test lint build
 
 $(GOBIN)/golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin
 
 $(GOBIN)/gofumpt:
-	go install mvdan.cc/gofumpt@latest
+	go install mvdan.cc/gofumpt@v0.5.0
 
 $(GOBIN)/protoc-gen-go:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.30.0
 
 $(GOBIN)/protoc-gen-go-grpc:
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
 $(GOBIN)/buf:
-	go install github.com/bufbuild/buf/cmd/buf@latest
+	go install github.com/bufbuild/buf/cmd/buf@v1.17.0
 
 $(GOBIN)/ko:
-	go install github.com/google/ko@latest
+	go install github.com/google/ko@v0.13.0
 
 go: $(GOBIN)/gofumpt
 	go generate ./...
