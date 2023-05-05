@@ -23,6 +23,10 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: './go.mod'
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-${{ hashFiles('**/Makefile') }}
       - run: make test
       - run: git diff --exit-code
       - uses: codecov/codecov-action@v3
