@@ -48,4 +48,16 @@ func TestCluster_Create(t *testing.T) {
 	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Errorf("(-want, +got)\n%s", diff)
 	}
+
+	// delete
+	err = c.Delete(ctx, want.Name)
+	if err != nil {
+		t.Fatalf("failed deleting cluster: %v", err)
+	}
+
+	// already deleted
+	err = c.Delete(ctx, want.Name)
+	if !errors.Is(err, infra.ErrNotFound) {
+		t.Fatalf("expected ErrNotFound but got %v", err)
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/2pf23/internal/app"
 	mockv1alpha "github.com/nokamoto/2pf23/internal/servergen/generated/ke/v1alpha/mock"
@@ -138,4 +139,41 @@ func Test_GetCluster(t *testing.T) {
 		},
 	}
 	run(t, (*service).GetCluster, testcases)
+}
+
+func Test_DeleteCluster(t *testing.T) {
+	testcases := []testcase[kev1alpha.DeleteClusterRequest, empty.Empty]{
+		{
+			name: "ok",
+			req: &kev1alpha.DeleteClusterRequest{
+				Name: "foo",
+			},
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), "foo").Return(&empty.Empty{}, nil)
+			},
+			expected: &empty.Empty{},
+		},
+		{
+			name: "invalid argument",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "not found",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+		{
+			name: "unknown error",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil, errors.New("unknown"))
+			},
+			code: codes.Unknown,
+		},
+	}
+	run(t, (*service).DeleteCluster, testcases)
 }

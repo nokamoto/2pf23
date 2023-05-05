@@ -21,6 +21,12 @@
       "request_type": "kev1alpha.GetClusterRequest",
       "response_type": "kev1alpha.Cluster",
       "resource_type": "kev1alpha.Cluster"
+    },
+    {
+      "name": "DeleteCluster",
+      "method_type": "METHOD_TYPE_DELETE",
+      "request_type": "kev1alpha.DeleteClusterRequest",
+      "response_type": "empty.Empty"
     }
   ]
 }

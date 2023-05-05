@@ -18,6 +18,8 @@ type runtime interface {
 	Create(ctx context.Context, resource *{{.ResourceType}}) (*{{.ResourceType}}, error)
 {{- else if eq .MethodType 2}}
 	Get(ctx context.Context, name string) (*{{.ResourceType}}, error)
+{{- else if eq .MethodType 3}}
+	Delete(ctx context.Context, name string) (*{{.ResponseType}}, error)
 {{- end}}
 {{- end}}
 }
@@ -43,6 +45,8 @@ func (s *service) {{.Name}}(ctx context.Context, req *{{.RequestType}}) (*{{.Res
 	res, err := s.rt.Create(ctx, req.{{.GetResourceMethod}}())
 {{- else if eq .MethodType 2}}
 	res, err := s.rt.Get(ctx, req.GetName())
+{{- else if eq .MethodType 3}}
+	res, err := s.rt.Delete(ctx, req.GetName())
 {{- end}}
 	return helper.ErrorOr(logger, res, err)
 }
