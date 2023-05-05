@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -23,3 +27,14 @@ jobs:
       - run: make all
       - run: git diff --exit-code
       - uses: codecov/codecov-action@v3
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: './go.mod'
+      - name: make build (ko.local)
+        run: make build
+        env:
+          KO_DOCKER_REPO: ko.local
