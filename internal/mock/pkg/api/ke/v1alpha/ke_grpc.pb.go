@@ -97,6 +97,26 @@ func (mr *MockKeServiceClientMockRecorder) GetCluster(ctx, in interface{}, opts 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCluster", reflect.TypeOf((*MockKeServiceClient)(nil).GetCluster), varargs...)
 }
 
+// ListCluster mocks base method.
+func (m *MockKeServiceClient) ListCluster(ctx context.Context, in *kev1alpha.ListClusterRequest, opts ...grpc.CallOption) (*kev1alpha.ListClusterResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListCluster", varargs...)
+	ret0, _ := ret[0].(*kev1alpha.ListClusterResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCluster indicates an expected call of ListCluster.
+func (mr *MockKeServiceClientMockRecorder) ListCluster(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCluster", reflect.TypeOf((*MockKeServiceClient)(nil).ListCluster), varargs...)
+}
+
 // MockKeServiceServer is a mock of KeServiceServer interface.
 type MockKeServiceServer struct {
 	ctrl     *gomock.Controller
@@ -163,6 +183,21 @@ func (m *MockKeServiceServer) GetCluster(arg0 context.Context, arg1 *kev1alpha.G
 func (mr *MockKeServiceServerMockRecorder) GetCluster(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCluster", reflect.TypeOf((*MockKeServiceServer)(nil).GetCluster), arg0, arg1)
+}
+
+// ListCluster mocks base method.
+func (m *MockKeServiceServer) ListCluster(arg0 context.Context, arg1 *kev1alpha.ListClusterRequest) (*kev1alpha.ListClusterResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListCluster", arg0, arg1)
+	ret0, _ := ret[0].(*kev1alpha.ListClusterResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCluster indicates an expected call of ListCluster.
+func (mr *MockKeServiceServerMockRecorder) ListCluster(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCluster", reflect.TypeOf((*MockKeServiceServer)(nil).ListCluster), arg0, arg1)
 }
 
 // mustEmbedUnimplementedKeServiceServer mocks base method.

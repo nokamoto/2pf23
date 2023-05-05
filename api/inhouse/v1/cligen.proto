@@ -63,6 +63,21 @@ message RequestMessage {
   repeated RequestMessage children = 4;
 }
 
+// ResponseMessage represents golang struct.
+//
+// ```
+// var cluster *v1alpha.ListClusterResponse
+// cluster.Clusters = append(cluster.Clusters, cluster.Clusters...)
+// ```
+message ResponseMessage {
+  // type is the type of the response.
+  // e.g. v1alpha.ListClusterResponse
+  string type = 1;
+  // list_field is the field name of the resource list.
+  // e.g. Clusters
+  string list_field = 2;
+}
+
 // Command represents golang code to call a single gRPC method.
 message Command {
   // api is the name of the gRPC API.
@@ -91,10 +106,12 @@ message Command {
   MethodType method_type = 9;
   // request is the request message passed to the gRPC method at runtime.
   RequestMessage request = 11;
+  // response is the response message returned from the gRPC method at runtime.
+  ResponseMessage response = 12;
   // string_flags is the list of string flags of the command.
-  repeated Flag string_flags = 12;
+  repeated Flag string_flags = 13;
   // int32_flags is the list of number flags of the command.
-  repeated Flag int32_flags = 13;
+  repeated Flag int32_flags = 14;
 }
 
 // Package represents golang codes hierarchy and root command.
