@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	empty "github.com/golang/protobuf/ptypes/empty"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 )
 
@@ -79,4 +80,20 @@ func (m *Mockruntime) Get(ctx context.Context, name string) (*kev1alpha.Cluster,
 func (mr *MockruntimeMockRecorder) Get(ctx, name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*Mockruntime)(nil).Get), ctx, name)
+}
+
+// List mocks base method.
+func (m *Mockruntime) List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", ctx, pageSize, page)
+	ret0, _ := ret[0].([]*kev1alpha.Cluster)
+	ret1, _ := ret[1].(*v1.Pagination)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// List indicates an expected call of List.
+func (mr *MockruntimeMockRecorder) List(ctx, pageSize, page interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*Mockruntime)(nil).List), ctx, pageSize, page)
 }

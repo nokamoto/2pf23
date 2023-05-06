@@ -8,6 +8,7 @@ import (
 import (
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/2pf23/internal/server/helper"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
 )
@@ -17,6 +18,7 @@ type runtime interface {
 	Create(ctx context.Context, resource *kev1alpha.Cluster) (*kev1alpha.Cluster, error)
 	Get(ctx context.Context, name string) (*kev1alpha.Cluster, error)
 	Delete(ctx context.Context, name string) (*empty.Empty, error)
+	List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error)
 }
 
 type service struct {
@@ -50,5 +52,27 @@ func (s *service) DeleteCluster(ctx context.Context, req *kev1alpha.DeleteCluste
 	logger := s.logger.With(zap.String("method", "DeleteCluster"), zap.Any("request", req))
 	logger.Debug("request received")
 	res, err := s.rt.Delete(ctx, req.GetName())
+	return helper.ErrorOr(logger, res, err)
+}
+
+func (s *service) ListCluster(ctx context.Context, req *kev1alpha.ListClusterRequest) (*kev1alpha.ListClusterResponse, error) {
+	logger := s.logger.With(zap.String("method", "ListCluster"), zap.Any("request", req))
+	logger.Debug("request received")
+	page, err := helper.Pagination(req)
+	if err != nil {
+		return helper.ErrorOr[kev1alpha.ListClusterResponse](logger, nil, err)
+	}
+	resources, page, err := s.rt.List(ctx, req.GetPageSize(), page)
+	if err != nil {
+		return helper.ErrorOr[kev1alpha.ListClusterResponse](logger, nil, err)
+	}
+	token, err := helper.PageToken(page)
+	if err != nil {
+		return helper.ErrorOr[kev1alpha.ListClusterResponse](logger, nil, err)
+	}
+	res := &kev1alpha.ListClusterResponse{
+		Clusters:      resources,
+		NextPageToken: token,
+	}
 	return helper.ErrorOr(logger, res, err)
 }

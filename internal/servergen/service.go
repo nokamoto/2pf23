@@ -56,14 +56,26 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 		})
 	}
 
+	var delete, list bool
 	for _, call := range svc.GetCalls() {
 		if call.GetMethodType() == v1.MethodType_METHOD_TYPE_DELETE {
-			imports = append(imports, &v1.ImportPath{
-				Alias: "empty",
-				Path:  "github.com/golang/protobuf/ptypes/empty",
-			})
-			break
+			delete = true
 		}
+		if call.GetMethodType() == v1.MethodType_METHOD_TYPE_LIST {
+			list = true
+		}
+	}
+	if delete {
+		imports = append(imports, &v1.ImportPath{
+			Alias: "empty",
+			Path:  "github.com/golang/protobuf/ptypes/empty",
+		})
+	}
+	if list {
+		imports = append(imports, &v1.ImportPath{
+			Alias: "v1",
+			Path:  "github.com/nokamoto/2pf23/pkg/api/inhouse/v1",
+		})
 	}
 
 	sort.Slice(imports, func(i, j int) bool {
