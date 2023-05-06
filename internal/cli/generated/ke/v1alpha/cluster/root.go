@@ -15,5 +15,6 @@ func NewRoot(rt runtime.Runtime) *cobra.Command {
 	cmd.AddCommand(newCreateCluster(rt))
 	cmd.AddCommand(newGetCluster(rt))
 	cmd.AddCommand(newDeleteCluster(rt))
+	cmd.AddCommand(newListCluster(rt))
 	return cmd
 }
