@@ -6,6 +6,8 @@ import (
 
 	"github.com/nokamoto/2pf23/internal/protogen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -111,6 +113,10 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 			resource = m.ResourceName()
 			f = p.deleteCommand
 
+		case v1.MethodType_METHOD_TYPE_LIST:
+			resource = m.ResourceName()
+			f = p.listCommand
+
 		default:
 			p.Debugf("skipped: unsupported method type: %s", m.Type())
 			continue
@@ -140,26 +146,68 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 func (p *Plugin) commandByName(method string, file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
 	resource := m.ResourceName()
 	short := fmt.Sprintf("%s is a command to %s the %s", method, method, resource)
+	cmd := p.baseCommand(file, m, api)
+	cmd.Use = fmt.Sprintf("%s %s-name", method, strings.ToLower(resource))
+	cmd.Short = short
+	cmd.Long = short
+	cmd.Request = &v1.RequestMessage{
+		Type: protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
+		Fields: []*v1.RequestMessageField{
+			{
+				Name:  "Name",
+				Value: "args[0]",
+			},
+		},
+	}
+	return cmd, nil
+}
+
+func (p *Plugin) baseCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) *v1.Command {
+	resource := m.ResourceName()
 	return &v1.Command{
 		Api:           api.ServiceName(),
 		ApiVersion:    api.APIVersion(),
 		ApiImportPath: api.ImportPath(),
 		Package:       strings.ToLower(resource),
-		Use:           fmt.Sprintf("%s %s-name", method, strings.ToLower(resource)),
-		Short:         short,
-		Long:          short,
 		Method:        m.GetName(),
 		MethodType:    m.Type(),
-		Request: &v1.RequestMessage{
-			Type: protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
-			Fields: []*v1.RequestMessageField{
-				{
-					Name:  "Name",
-					Value: "args[0]",
-				},
-			},
-		},
-	}, nil
+	}
+}
+
+func (p *Plugin) listCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
+	var listField string
+	for _, typ := range file.GetMessageType() {
+		if strings.HasSuffix(m.GetOutputType(), fmt.Sprintf(".%s", typ.GetName())) {
+			if size := len(typ.GetField()); size != 2 {
+				return nil, fmt.Errorf("unexpected number of fields (%d) in %s", size, m.GetOutputType())
+			}
+			for _, field := range typ.GetField() {
+				if name := field.GetJsonName(); name != "nextPageToken" {
+					listField = name
+					break
+				}
+			}
+			break
+		}
+	}
+	if listField == "" {
+		return nil, fmt.Errorf("list field not found in %s", m.GetOutputType())
+	}
+	listField = cases.Title(language.English, cases.NoLower).String(listField)
+
+	short := fmt.Sprintf("list is a command to list all %s", listField)
+	cmd := p.baseCommand(file, m, api)
+	cmd.Short = short
+	cmd.Long = short
+	cmd.Use = "list"
+	cmd.Request = &v1.RequestMessage{
+		Type: protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
+	}
+	cmd.Response = &v1.ResponseMessage{
+		Type:      protogen.GoTypeNameFromFullyQualified(m.GetOutputType()),
+		ListField: listField,
+	}
+	return cmd, nil
 }
 
 func (p *Plugin) deleteCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
@@ -179,20 +227,15 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, m *protog
 		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}
 
-	return &v1.Command{
-		Api:           api.ServiceName(),
-		ApiVersion:    api.APIVersion(),
-		ApiImportPath: api.ImportPath(),
-		Package:       strings.ToLower(resource),
-		Use:           "create",
-		Short:         short,
-		Long:          short,
-		Method:        m.GetName(),
-		MethodType:    v1.MethodType_METHOD_TYPE_CREATE,
-		Request:       req.Message,
-		StringFlags:   req.StringFlags,
-		Int32Flags:    req.Int32Flags,
-	}, nil
+	cmd := p.baseCommand(file, m, api)
+	cmd.Short = short
+	cmd.Long = short
+	cmd.Use = "create"
+	cmd.Request = req.Message
+	cmd.StringFlags = req.StringFlags
+	cmd.Int32Flags = req.Int32Flags
+
+	return cmd, nil
 }
 
 func (p *Plugin) codeGeneratorResponse(pkg *v1.Package) (*pluginpb.CodeGeneratorResponse, error) {

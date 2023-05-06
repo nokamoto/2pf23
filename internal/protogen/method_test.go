@@ -37,6 +37,13 @@ func TestMethodDescriptor_Type(t *testing.T) {
 			want: v1.MethodType_METHOD_TYPE_DELETE,
 		},
 		{
+			name: "list",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("ListFoo"),
+			},
+			want: v1.MethodType_METHOD_TYPE_LIST,
+		},
+		{
 			name: "unspecified",
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("SearchFoo"),
@@ -54,7 +61,7 @@ func TestMethodDescriptor_Type(t *testing.T) {
 	}
 }
 
-func TestMethodDescriptor_ResourceNameAs(t *testing.T) {
+func TestMethodDescriptor_ResourceName(t *testing.T) {
 	tests := []struct {
 		name   string
 		method *descriptorpb.MethodDescriptorProto
@@ -78,6 +85,13 @@ func TestMethodDescriptor_ResourceNameAs(t *testing.T) {
 			name: "delete",
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("DeleteFoo"),
+			},
+			want: "Foo",
+		},
+		{
+			name: "list",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("ListFoo"),
 			},
 			want: "Foo",
 		},

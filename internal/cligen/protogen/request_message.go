@@ -47,7 +47,7 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 				}
 
 				flag := &v1.Flag{
-					Name:        *field.JsonName,
+					Name:        field.GetJsonName(),
 					DisplayName: strings.ReplaceAll(field.GetName(), "_", "-"),
 					Value:       "",
 				}
@@ -55,7 +55,7 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 					flag.Usage = proto.GetExtension(field.GetOptions(), optionv1.E_Resource_Usage).(string)
 				}
 
-				goFieldName := cases.Title(language.English, cases.NoLower).String(*field.JsonName)
+				goFieldName := cases.Title(language.English, cases.NoLower).String(field.GetJsonName())
 
 				goField := &v1.RequestMessageField{
 					Name:  goFieldName,

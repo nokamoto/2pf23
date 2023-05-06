@@ -53,7 +53,7 @@ func TestPlugin_Run(t *testing.T) {
 			expected: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create, get, delete",
+			name: "create, get, delete, list",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -87,6 +87,18 @@ func TestPlugin_Run(t *testing.T) {
 									},
 								},
 							},
+							{
+								Name: proto.String("ListShelfResponse"),
+								Field: []*descriptorpb.FieldDescriptorProto{
+									{
+										JsonName: proto.String("shelves"),
+									},
+
+									{
+										JsonName: proto.String("nextPageToken"),
+									},
+								},
+							},
 						},
 						Service: []*descriptorpb.ServiceDescriptorProto{
 							{
@@ -102,6 +114,11 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name:      proto.String("DeleteShelf"),
 										InputType: proto.String(".api.library.v1alpha.DeleteShelfRequest"),
+									},
+									{
+										Name:       proto.String("ListShelf"),
+										InputType:  proto.String(".api.library.v1alpha.ListShelfRequest"),
+										OutputType: proto.String(".api.library.v1alpha.ListShelfResponse"),
 									},
 								},
 							},
@@ -209,6 +226,27 @@ func TestPlugin_Run(t *testing.T) {
 															Value: "args[0]",
 														},
 													},
+												},
+											},
+											{
+												Api:        "library",
+												ApiVersion: "v1alpha",
+												ApiImportPath: &v1.ImportPath{
+													Alias: "v1alpha",
+													Path:  "github.com/library",
+												},
+												Package:    "shelf",
+												Use:        "list",
+												Short:      "list is a command to list all Shelves",
+												Long:       "list is a command to list all Shelves",
+												Method:     "ListShelf",
+												MethodType: v1.MethodType_METHOD_TYPE_LIST,
+												Request: &v1.RequestMessage{
+													Type: "v1alpha.ListShelfRequest",
+												},
+												Response: &v1.ResponseMessage{
+													Type:      "v1alpha.ListShelfResponse",
+													ListField: "Shelves",
 												},
 											},
 										},
