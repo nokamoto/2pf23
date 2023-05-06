@@ -9,8 +9,10 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/2pf23/internal/app"
+	helperapi "github.com/nokamoto/2pf23/internal/server/helper"
 	mockv1alpha "github.com/nokamoto/2pf23/internal/servergen/generated/ke/v1alpha/mock"
 	"github.com/nokamoto/2pf23/internal/util/helper"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc/codes"
@@ -176,4 +178,91 @@ func Test_DeleteCluster(t *testing.T) {
 		},
 	}
 	run(t, (*service).DeleteCluster, testcases)
+}
+
+func Test_ListCluster(t *testing.T) {
+	pageSize := int32(30)
+	page := &v1.Pagination{
+		Cursor: 100,
+	}
+	token, err := helperapi.PageToken(page)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testcases := []testcase[kev1alpha.ListClusterRequest, kev1alpha.ListClusterResponse]{
+		{
+			name: "ok",
+			req: &kev1alpha.ListClusterRequest{
+				PageSize: pageSize,
+			},
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), pageSize, nil).Return([]*kev1alpha.Cluster{
+					{
+						Name:        "foo",
+						DisplayName: "test",
+					},
+				}, nil, nil)
+			},
+			expected: &kev1alpha.ListClusterResponse{
+				Clusters: []*kev1alpha.Cluster{
+					{
+						Name:        "foo",
+						DisplayName: "test",
+					},
+				},
+			},
+		},
+		{
+			name: "ok with page token",
+			req: &kev1alpha.ListClusterRequest{
+				PageSize:  pageSize,
+				PageToken: token,
+			},
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), pageSize, helper.ProtoEqual(page)).Return([]*kev1alpha.Cluster{
+					{
+						Name:        "foo",
+						DisplayName: "test",
+					},
+				}, nil, nil)
+			},
+			expected: &kev1alpha.ListClusterResponse{
+				Clusters: []*kev1alpha.Cluster{
+					{
+						Name:        "foo",
+						DisplayName: "test",
+					},
+				},
+			},
+		},
+		{
+			name: "invalid page token",
+			req: &kev1alpha.ListClusterRequest{
+				PageToken: "invalid",
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "invalid argument",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, app.ErrInvalidArgument)
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "not found",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, app.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+		{
+			name: "unknown error",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, errors.New("unknown"))
+			},
+			code: codes.Unknown,
+		},
+	}
+	run(t, (*service).ListCluster, testcases)
 }

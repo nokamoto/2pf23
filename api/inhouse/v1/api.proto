@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package api.inhouse.v1;
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
+
+// Pagination is the pagination information for a page token.
+// The page token is base64 encoded string of the serialized Pagination message.
+message Pagination {
+  // The cursor is the cursor of the page. It is the index of the first item in the page.
+  int64 cursor = 1;
+}

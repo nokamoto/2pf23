@@ -25,6 +25,9 @@ message Call {
   // get_resource_method is the name of the method to get the resource from the request.
   // e.g. GetCluster
   string get_resource_method = 6;
+  // list_field is the name of the field to set the resource list to the response.
+  // e.g. Clusters
+  string list_field = 7;
 }
 
 // Service represents golang code to receive gRPC requests.

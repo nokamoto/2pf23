@@ -20,6 +20,8 @@ type runtime interface {
 	Get(ctx context.Context, name string) (*{{.ResourceType}}, error)
 {{- else if eq .MethodType 3}}
 	Delete(ctx context.Context, name string) (*{{.ResponseType}}, error)
+{{- else if eq .MethodType 4}}
+	List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*{{.ResourceType}}, *v1.Pagination, error)
 {{- end}}
 {{- end}}
 }
@@ -47,6 +49,23 @@ func (s *service) {{.Name}}(ctx context.Context, req *{{.RequestType}}) (*{{.Res
 	res, err := s.rt.Get(ctx, req.GetName())
 {{- else if eq .MethodType 3}}
 	res, err := s.rt.Delete(ctx, req.GetName())
+{{- else if eq .MethodType 4}}
+	page, err := helper.Pagination(req)
+	if err != nil {
+		return helper.ErrorOr[{{.ResponseType}}](logger, nil, err)
+	}
+	resources, page, err := s.rt.List(ctx, req.GetPageSize(), page)
+	if err != nil {
+		return helper.ErrorOr[{{.ResponseType}}](logger, nil, err)
+	}
+	token, err := helper.PageToken(page)
+	if err != nil {
+		return helper.ErrorOr[{{.ResponseType}}](logger, nil, err)
+	}
+	res := &{{.ResponseType}}{
+		{{.ListField}}: resources,
+		NextPageToken: token,
+	}
 {{- end}}
 	return helper.ErrorOr(logger, res, err)
 }
