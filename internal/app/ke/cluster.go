@@ -90,9 +90,9 @@ func (c *Cluster) Delete(ctx context.Context, name string) (*empty.Empty, error)
 
 // List returns a list of clusters and next page.
 //
-// If pageSize is 0, it returns 30 clusters.
+// If pageSize is 0 or greater than 30, it is set to 30.
 func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error) {
-	if pageSize == 0 {
+	if pageSize == 0 || pageSize > 30 {
 		pageSize = 30
 	}
 	if pageSize < 0 {

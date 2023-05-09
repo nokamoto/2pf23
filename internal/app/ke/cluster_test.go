@@ -3,6 +3,7 @@ package ke
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -12,6 +13,7 @@ import (
 	"github.com/nokamoto/2pf23/internal/app/ke/mock"
 	"github.com/nokamoto/2pf23/internal/infra"
 	"github.com/nokamoto/2pf23/internal/util/helper"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"google.golang.org/protobuf/testing/protocmp"
 )
@@ -160,4 +162,96 @@ func TestCluster_Delete(t *testing.T) {
 		},
 	}
 	run(t, (*Cluster).Delete, tests)
+}
+
+func TestCluster_List(t *testing.T) {
+	type testcase struct {
+		name     string
+		pageSize int32
+		mock     func(*mockke.Mockruntime)
+		want     []*kev1alpha.Cluster
+		wantPage *v1.Pagination
+		err      error
+	}
+
+	testPageSize := func(pageSize int32, want int32) testcase {
+		any1, any2 := []*kev1alpha.Cluster{}, &v1.Pagination{}
+		return testcase{
+			name:     fmt.Sprintf("page size %d", pageSize),
+			pageSize: pageSize,
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), want, gomock.Any()).Return(any1, any2, nil)
+			},
+			want:     any1,
+			wantPage: any2,
+		}
+	}
+
+	runtimeError := errors.New("runtime error")
+	page := &v1.Pagination{}
+	tests := []testcase{
+		{
+			name:     "ok",
+			pageSize: 10,
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), int32(10), page).Return(
+					[]*kev1alpha.Cluster{
+						{
+							Name: "projects/unspecified/clusters/cluster-id",
+						},
+					},
+					&v1.Pagination{
+						Cursor: 11,
+					},
+					nil,
+				)
+			},
+			want: []*kev1alpha.Cluster{
+				{
+					Name: "projects/unspecified/clusters/cluster-id",
+				},
+			},
+			wantPage: &v1.Pagination{
+				Cursor: 11,
+			},
+		},
+		testPageSize(0, 30),
+		testPageSize(29, 29),
+		testPageSize(30, 30),
+		testPageSize(31, 30),
+		{
+			name:     "page size is negative",
+			pageSize: -1,
+			err:      app.ErrInvalidArgument,
+		},
+		{
+			name: "runtime error",
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, runtimeError)
+			},
+			err: runtimeError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			rt := mockke.NewMockruntime(ctrl)
+			if tt.mock != nil {
+				tt.mock(rt)
+			}
+			sut := NewCluster(rt)
+
+			got, gotPage, err := sut.List(context.TODO(), tt.pageSize, page)
+			if !errors.Is(err, tt.err) {
+				t.Errorf("error = %v, wantErr %v", err, tt.err)
+			}
+			if diff := cmp.Diff(got, tt.want, protocmp.Transform()); diff != "" {
+				t.Error(diff)
+			}
+			if diff := cmp.Diff(gotPage, tt.wantPage, protocmp.Transform()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
 }
