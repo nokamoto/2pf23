@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 )
 
@@ -76,6 +77,22 @@ func (m *Mockruntime) Get(arg0 context.Context, arg1 string) (*kev1alpha.Cluster
 func (mr *MockruntimeMockRecorder) Get(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*Mockruntime)(nil).Get), arg0, arg1)
+}
+
+// List mocks base method.
+func (m *Mockruntime) List(arg0 context.Context, arg1 int32, arg2 *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]*kev1alpha.Cluster)
+	ret1, _ := ret[1].(*v1.Pagination)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// List indicates an expected call of List.
+func (mr *MockruntimeMockRecorder) List(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*Mockruntime)(nil).List), arg0, arg1, arg2)
 }
 
 // NewID mocks base method.

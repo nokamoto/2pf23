@@ -83,6 +83,23 @@ func (p *Plugin) deleteCall(m *protogen.MethodDescriptor) *v1.Call {
 	return resp
 }
 
+func (p *Plugin) listCall(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Call, error) {
+	resp := &v1.Call{
+		Name:         m.GetName(),
+		MethodType:   v1.MethodType_METHOD_TYPE_LIST,
+		RequestType:  protogen.GoTypeNameFromFullyQualified(m.GetInputType()),
+		ResponseType: protogen.GoTypeNameFromFullyQualified(m.GetOutputType()),
+		ResourceType: fmt.Sprintf("%s.%s", api.APIVersion(), m.ResourceName()),
+	}
+	listResponse := protogen.NewListResponseDescriptor(file, m.MethodDescriptorProto)
+	listField, err := listResponse.ListField()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get list field: %w", err)
+	}
+	resp.ListField = listField
+	return resp, nil
+}
+
 func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Service, error) {
 	api := protogen.NewAPIDescriptor(file)
 	resp := &v1.Service{
@@ -102,6 +119,13 @@ func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descrip
 
 		case v1.MethodType_METHOD_TYPE_DELETE:
 			resp.Calls = append(resp.Calls, p.deleteCall(m))
+
+		case v1.MethodType_METHOD_TYPE_LIST:
+			call, err := p.listCall(file, m, api)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate list call: %w", err)
+			}
+			resp.Calls = append(resp.Calls, call)
 		}
 	}
 	return resp, nil
