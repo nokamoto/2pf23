@@ -31,11 +31,11 @@ type ClusterMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *int64
 	name          *string
 	display_name  *string
-	num_nodes     *int
-	addnum_nodes  *int
+	num_nodes     *int32
+	addnum_nodes  *int32
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Cluster, error)
@@ -62,7 +62,7 @@ func newClusterMutation(c config, op Op, opts ...clusterOption) *ClusterMutation
 }
 
 // withClusterID sets the ID field of the mutation.
-func withClusterID(id int) clusterOption {
+func withClusterID(id int64) clusterOption {
 	return func(m *ClusterMutation) {
 		var (
 			err   error
@@ -112,9 +112,15 @@ func (m ClusterMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Cluster entities.
+func (m *ClusterMutation) SetID(id int64) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ClusterMutation) ID() (id int, exists bool) {
+func (m *ClusterMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -125,12 +131,12 @@ func (m *ClusterMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ClusterMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ClusterMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -213,13 +219,13 @@ func (m *ClusterMutation) ResetDisplayName() {
 }
 
 // SetNumNodes sets the "num_nodes" field.
-func (m *ClusterMutation) SetNumNodes(i int) {
+func (m *ClusterMutation) SetNumNodes(i int32) {
 	m.num_nodes = &i
 	m.addnum_nodes = nil
 }
 
 // NumNodes returns the value of the "num_nodes" field in the mutation.
-func (m *ClusterMutation) NumNodes() (r int, exists bool) {
+func (m *ClusterMutation) NumNodes() (r int32, exists bool) {
 	v := m.num_nodes
 	if v == nil {
 		return
@@ -230,7 +236,7 @@ func (m *ClusterMutation) NumNodes() (r int, exists bool) {
 // OldNumNodes returns the old "num_nodes" field's value of the Cluster entity.
 // If the Cluster object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ClusterMutation) OldNumNodes(ctx context.Context) (v int, err error) {
+func (m *ClusterMutation) OldNumNodes(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldNumNodes is only allowed on UpdateOne operations")
 	}
@@ -245,7 +251,7 @@ func (m *ClusterMutation) OldNumNodes(ctx context.Context) (v int, err error) {
 }
 
 // AddNumNodes adds i to the "num_nodes" field.
-func (m *ClusterMutation) AddNumNodes(i int) {
+func (m *ClusterMutation) AddNumNodes(i int32) {
 	if m.addnum_nodes != nil {
 		*m.addnum_nodes += i
 	} else {
@@ -254,7 +260,7 @@ func (m *ClusterMutation) AddNumNodes(i int) {
 }
 
 // AddedNumNodes returns the value that was added to the "num_nodes" field in this mutation.
-func (m *ClusterMutation) AddedNumNodes() (r int, exists bool) {
+func (m *ClusterMutation) AddedNumNodes() (r int32, exists bool) {
 	v := m.addnum_nodes
 	if v == nil {
 		return
@@ -365,7 +371,7 @@ func (m *ClusterMutation) SetField(name string, value ent.Value) error {
 		m.SetDisplayName(v)
 		return nil
 	case cluster.FieldNumNodes:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -402,7 +408,7 @@ func (m *ClusterMutation) AddedField(name string) (ent.Value, bool) {
 func (m *ClusterMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case cluster.FieldNumNodes:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

@@ -8,47 +8,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Cluster {
+func ID(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Cluster {
+func IDEQ(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Cluster {
+func IDNEQ(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Cluster {
+func IDIn(ids ...int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Cluster {
+func IDNotIn(ids ...int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Cluster {
+func IDGT(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Cluster {
+func IDGTE(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Cluster {
+func IDLT(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Cluster {
+func IDLTE(id int64) predicate.Cluster {
 	return predicate.Cluster(sql.FieldLTE(FieldID, id))
 }
 
@@ -63,7 +63,7 @@ func DisplayName(v string) predicate.Cluster {
 }
 
 // NumNodes applies equality check predicate on the "num_nodes" field. It's identical to NumNodesEQ.
-func NumNodes(v int) predicate.Cluster {
+func NumNodes(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldEQ(FieldNumNodes, v))
 }
 
@@ -198,42 +198,42 @@ func DisplayNameContainsFold(v string) predicate.Cluster {
 }
 
 // NumNodesEQ applies the EQ predicate on the "num_nodes" field.
-func NumNodesEQ(v int) predicate.Cluster {
+func NumNodesEQ(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldEQ(FieldNumNodes, v))
 }
 
 // NumNodesNEQ applies the NEQ predicate on the "num_nodes" field.
-func NumNodesNEQ(v int) predicate.Cluster {
+func NumNodesNEQ(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldNEQ(FieldNumNodes, v))
 }
 
 // NumNodesIn applies the In predicate on the "num_nodes" field.
-func NumNodesIn(vs ...int) predicate.Cluster {
+func NumNodesIn(vs ...int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldIn(FieldNumNodes, vs...))
 }
 
 // NumNodesNotIn applies the NotIn predicate on the "num_nodes" field.
-func NumNodesNotIn(vs ...int) predicate.Cluster {
+func NumNodesNotIn(vs ...int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldNotIn(FieldNumNodes, vs...))
 }
 
 // NumNodesGT applies the GT predicate on the "num_nodes" field.
-func NumNodesGT(v int) predicate.Cluster {
+func NumNodesGT(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldGT(FieldNumNodes, v))
 }
 
 // NumNodesGTE applies the GTE predicate on the "num_nodes" field.
-func NumNodesGTE(v int) predicate.Cluster {
+func NumNodesGTE(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldGTE(FieldNumNodes, v))
 }
 
 // NumNodesLT applies the LT predicate on the "num_nodes" field.
-func NumNodesLT(v int) predicate.Cluster {
+func NumNodesLT(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldLT(FieldNumNodes, v))
 }
 
 // NumNodesLTE applies the LTE predicate on the "num_nodes" field.
-func NumNodesLTE(v int) predicate.Cluster {
+func NumNodesLTE(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldLTE(FieldNumNodes, v))
 }
 

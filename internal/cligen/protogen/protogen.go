@@ -6,8 +6,6 @@ import (
 
 	"github.com/nokamoto/2pf23/internal/protogen"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -175,25 +173,11 @@ func (p *Plugin) baseCommand(file *descriptorpb.FileDescriptorProto, m *protogen
 }
 
 func (p *Plugin) listCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
-	var listField string
-	for _, typ := range file.GetMessageType() {
-		if strings.HasSuffix(m.GetOutputType(), fmt.Sprintf(".%s", typ.GetName())) {
-			if size := len(typ.GetField()); size != 2 {
-				return nil, fmt.Errorf("unexpected number of fields (%d) in %s", size, m.GetOutputType())
-			}
-			for _, field := range typ.GetField() {
-				if name := field.GetJsonName(); name != "nextPageToken" {
-					listField = name
-					break
-				}
-			}
-			break
-		}
+	listResponse := protogen.NewListResponseDescriptor(file, m.MethodDescriptorProto)
+	listField, err := listResponse.ListField()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get list field: %w", err)
 	}
-	if listField == "" {
-		return nil, fmt.Errorf("list field not found in %s", m.GetOutputType())
-	}
-	listField = cases.Title(language.English, cases.NoLower).String(listField)
 
 	short := fmt.Sprintf("list is a command to list all %s", listField)
 	cmd := p.baseCommand(file, m, api)

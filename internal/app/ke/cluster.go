@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/2pf23/internal/app"
 	"github.com/nokamoto/2pf23/internal/infra"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 )
 
@@ -17,6 +18,7 @@ type runtime interface {
 	Create(context.Context, *kev1alpha.Cluster) error
 	Get(context.Context, string) (*kev1alpha.Cluster, error)
 	Delete(context.Context, string) error
+	List(context.Context, int32, *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error)
 }
 
 const (
@@ -84,4 +86,22 @@ func (c *Cluster) Delete(ctx context.Context, name string) (*empty.Empty, error)
 		return nil, err
 	}
 	return &empty.Empty{}, nil
+}
+
+// List returns a list of clusters and next page.
+//
+// If pageSize is 0 or greater than 30, it is set to 30.
+func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error) {
+	if pageSize == 0 || pageSize > 30 {
+		pageSize = 30
+	}
+	if pageSize < 0 {
+		return nil, nil, fmt.Errorf("%w: pageSize must be greater than or equal to 0", app.ErrInvalidArgument)
+	}
+
+	res, next, err := c.rt.List(ctx, pageSize, page)
+	if err != nil {
+		return nil, nil, err
+	}
+	return res, next, nil
 }

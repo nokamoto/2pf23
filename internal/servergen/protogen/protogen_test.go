@@ -37,7 +37,7 @@ func TestPlugin_Run(t *testing.T) {
 			want: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create, get, delete",
+			name: "create, get, delete, list",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -45,6 +45,20 @@ func TestPlugin_Run(t *testing.T) {
 						Package: proto.String("api.ke.v1alpha"),
 						Options: &descriptorpb.FileOptions{
 							GoPackage: proto.String("com.example.ke.v1alpha;kev1alpha"),
+						},
+						MessageType: []*descriptorpb.DescriptorProto{
+							{
+								Name: proto.String("ListClusterResponse"),
+								Field: []*descriptorpb.FieldDescriptorProto{
+									{
+										Name:     proto.String("clusters"),
+										JsonName: proto.String("clusters"),
+									},
+									{
+										Name: proto.String("next_page_token"),
+									},
+								},
+							},
 						},
 						Service: []*descriptorpb.ServiceDescriptorProto{
 							{
@@ -64,6 +78,11 @@ func TestPlugin_Run(t *testing.T) {
 										Name:       proto.String("DeleteCluster"),
 										InputType:  proto.String(".api.ke.v1alpha.DeleteClusterRequest"),
 										OutputType: proto.String(".google.protobuf.Empty"),
+									},
+									{
+										Name:       proto.String("ListCluster"),
+										InputType:  proto.String(".api.ke.v1alpha.ListClusterRequest"),
+										OutputType: proto.String(".api.ke.v1alpha.ListClusterResponse"),
 									},
 								},
 							},
@@ -104,6 +123,14 @@ func TestPlugin_Run(t *testing.T) {
 									MethodType:   v1.MethodType_METHOD_TYPE_DELETE,
 									RequestType:  "v1alpha.DeleteClusterRequest",
 									ResponseType: "empty.Empty",
+								},
+								{
+									Name:         "ListCluster",
+									MethodType:   v1.MethodType_METHOD_TYPE_LIST,
+									RequestType:  "v1alpha.ListClusterRequest",
+									ResponseType: "v1alpha.ListClusterResponse",
+									ResourceType: "v1alpha.Cluster",
+									ListField:    "Clusters",
 								},
 							},
 						}),

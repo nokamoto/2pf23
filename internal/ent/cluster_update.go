@@ -40,14 +40,14 @@ func (cu *ClusterUpdate) SetDisplayName(s string) *ClusterUpdate {
 }
 
 // SetNumNodes sets the "num_nodes" field.
-func (cu *ClusterUpdate) SetNumNodes(i int) *ClusterUpdate {
+func (cu *ClusterUpdate) SetNumNodes(i int32) *ClusterUpdate {
 	cu.mutation.ResetNumNodes()
 	cu.mutation.SetNumNodes(i)
 	return cu
 }
 
 // AddNumNodes adds i to the "num_nodes" field.
-func (cu *ClusterUpdate) AddNumNodes(i int) *ClusterUpdate {
+func (cu *ClusterUpdate) AddNumNodes(i int32) *ClusterUpdate {
 	cu.mutation.AddNumNodes(i)
 	return cu
 }
@@ -103,7 +103,7 @@ func (cu *ClusterUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(cluster.Table, cluster.Columns, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(cluster.Table, cluster.Columns, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt64))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -118,10 +118,10 @@ func (cu *ClusterUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(cluster.FieldDisplayName, field.TypeString, value)
 	}
 	if value, ok := cu.mutation.NumNodes(); ok {
-		_spec.SetField(cluster.FieldNumNodes, field.TypeInt, value)
+		_spec.SetField(cluster.FieldNumNodes, field.TypeInt32, value)
 	}
 	if value, ok := cu.mutation.AddedNumNodes(); ok {
-		_spec.AddField(cluster.FieldNumNodes, field.TypeInt, value)
+		_spec.AddField(cluster.FieldNumNodes, field.TypeInt32, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -156,14 +156,14 @@ func (cuo *ClusterUpdateOne) SetDisplayName(s string) *ClusterUpdateOne {
 }
 
 // SetNumNodes sets the "num_nodes" field.
-func (cuo *ClusterUpdateOne) SetNumNodes(i int) *ClusterUpdateOne {
+func (cuo *ClusterUpdateOne) SetNumNodes(i int32) *ClusterUpdateOne {
 	cuo.mutation.ResetNumNodes()
 	cuo.mutation.SetNumNodes(i)
 	return cuo
 }
 
 // AddNumNodes adds i to the "num_nodes" field.
-func (cuo *ClusterUpdateOne) AddNumNodes(i int) *ClusterUpdateOne {
+func (cuo *ClusterUpdateOne) AddNumNodes(i int32) *ClusterUpdateOne {
 	cuo.mutation.AddNumNodes(i)
 	return cuo
 }
@@ -232,7 +232,7 @@ func (cuo *ClusterUpdateOne) sqlSave(ctx context.Context) (_node *Cluster, err e
 	if err := cuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(cluster.Table, cluster.Columns, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(cluster.Table, cluster.Columns, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt64))
 	id, ok := cuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Cluster.id" for update`)}
@@ -264,10 +264,10 @@ func (cuo *ClusterUpdateOne) sqlSave(ctx context.Context) (_node *Cluster, err e
 		_spec.SetField(cluster.FieldDisplayName, field.TypeString, value)
 	}
 	if value, ok := cuo.mutation.NumNodes(); ok {
-		_spec.SetField(cluster.FieldNumNodes, field.TypeInt, value)
+		_spec.SetField(cluster.FieldNumNodes, field.TypeInt32, value)
 	}
 	if value, ok := cuo.mutation.AddedNumNodes(); ok {
-		_spec.AddField(cluster.FieldNumNodes, field.TypeInt, value)
+		_spec.AddField(cluster.FieldNumNodes, field.TypeInt32, value)
 	}
 	_node = &Cluster{config: cuo.config}
 	_spec.Assign = _node.assignValues

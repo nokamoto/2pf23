@@ -81,8 +81,8 @@ func (cq *ClusterQuery) FirstX(ctx context.Context) *Cluster {
 
 // FirstID returns the first Cluster ID from the query.
 // Returns a *NotFoundError when no Cluster ID was found.
-func (cq *ClusterQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cq *ClusterQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = cq.Limit(1).IDs(setContextOp(ctx, cq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -94,7 +94,7 @@ func (cq *ClusterQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (cq *ClusterQuery) FirstIDX(ctx context.Context) int {
+func (cq *ClusterQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := cq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -132,8 +132,8 @@ func (cq *ClusterQuery) OnlyX(ctx context.Context) *Cluster {
 // OnlyID is like Only, but returns the only Cluster ID in the query.
 // Returns a *NotSingularError when more than one Cluster ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (cq *ClusterQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cq *ClusterQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = cq.Limit(2).IDs(setContextOp(ctx, cq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -149,7 +149,7 @@ func (cq *ClusterQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (cq *ClusterQuery) OnlyIDX(ctx context.Context) int {
+func (cq *ClusterQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := cq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -177,7 +177,7 @@ func (cq *ClusterQuery) AllX(ctx context.Context) []*Cluster {
 }
 
 // IDs executes the query and returns a list of Cluster IDs.
-func (cq *ClusterQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (cq *ClusterQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if cq.ctx.Unique == nil && cq.path != nil {
 		cq.Unique(true)
 	}
@@ -189,7 +189,7 @@ func (cq *ClusterQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (cq *ClusterQuery) IDsX(ctx context.Context) []int {
+func (cq *ClusterQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := cq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -364,7 +364,7 @@ func (cq *ClusterQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (cq *ClusterQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(cluster.Table, cluster.Columns, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(cluster.Table, cluster.Columns, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt64))
 	_spec.From = cq.sql
 	if unique := cq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

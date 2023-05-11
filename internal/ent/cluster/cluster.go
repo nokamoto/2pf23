@@ -43,7 +43,7 @@ var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// NumNodesValidator is a validator for the "num_nodes" field. It is called by the builders before save.
-	NumNodesValidator func(int) error
+	NumNodesValidator func(int32) error
 )
 
 // OrderOption defines the ordering options for the Cluster queries.

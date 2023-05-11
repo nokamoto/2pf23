@@ -7,6 +7,7 @@ import (
 	"github.com/nokamoto/2pf23/internal/ent"
 	"github.com/nokamoto/2pf23/internal/ent/cluster"
 	"github.com/nokamoto/2pf23/internal/infra"
+	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 )
 
@@ -20,11 +21,19 @@ func NewCluster(client *ent.Client) *Cluster {
 	}
 }
 
+func (c *Cluster) proto(x *ent.Cluster) *kev1alpha.Cluster {
+	return &kev1alpha.Cluster{
+		Name:        x.Name,
+		DisplayName: x.DisplayName,
+		NumNodes:    x.NumNodes,
+	}
+}
+
 func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) error {
 	_, err := c.client.Create().
 		SetName(cluster.GetName()).
 		SetDisplayName(cluster.GetDisplayName()).
-		SetNumNodes(int(cluster.GetNumNodes())).
+		SetNumNodes(cluster.GetNumNodes()).
 		Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed saving cluster: %w", err)
@@ -42,11 +51,7 @@ func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, err
 	if err != nil {
 		return nil, err
 	}
-	return &kev1alpha.Cluster{
-		Name:        res.Name,
-		DisplayName: res.DisplayName,
-		NumNodes:    int32(res.NumNodes),
-	}, nil
+	return c.proto(res), nil
 }
 
 // Delete deletes a cluster by name.
@@ -60,4 +65,27 @@ func (c *Cluster) Delete(ctx context.Context, name string) error {
 		return err
 	}
 	return nil
+}
+
+// List returns a list of clusters and next page.
+//
+// If the page is nil, it returns the first page.
+// If next page does not exist, it returns nil.
+func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error) {
+	res, err := c.client.Query().Limit(int(pageSize + 1)).Where(cluster.IDGTE(page.GetCursor())).All(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	var next *v1.Pagination
+	if len(res) == int(pageSize)+1 {
+		next = &v1.Pagination{
+			Cursor: res[pageSize].ID,
+		}
+		res = res[:pageSize]
+	}
+	var clusters []*kev1alpha.Cluster
+	for _, x := range res {
+		clusters = append(clusters, c.proto(x))
+	}
+	return clusters, next, nil
 }

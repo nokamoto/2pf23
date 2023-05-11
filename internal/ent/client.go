@@ -233,7 +233,7 @@ func (c *ClusterClient) UpdateOne(cl *Cluster) *ClusterUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ClusterClient) UpdateOneID(id int) *ClusterUpdateOne {
+func (c *ClusterClient) UpdateOneID(id int64) *ClusterUpdateOne {
 	mutation := newClusterMutation(c.config, OpUpdateOne, withClusterID(id))
 	return &ClusterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -250,7 +250,7 @@ func (c *ClusterClient) DeleteOne(cl *Cluster) *ClusterDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ClusterClient) DeleteOneID(id int) *ClusterDeleteOne {
+func (c *ClusterClient) DeleteOneID(id int64) *ClusterDeleteOne {
 	builder := c.Delete().Where(cluster.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -267,12 +267,12 @@ func (c *ClusterClient) Query() *ClusterQuery {
 }
 
 // Get returns a Cluster entity by its id.
-func (c *ClusterClient) Get(ctx context.Context, id int) (*Cluster, error) {
+func (c *ClusterClient) Get(ctx context.Context, id int64) (*Cluster, error) {
 	return c.Query().Where(cluster.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ClusterClient) GetX(ctx context.Context, id int) *Cluster {
+func (c *ClusterClient) GetX(ctx context.Context, id int64) *Cluster {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
