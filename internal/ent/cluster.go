@@ -15,13 +15,13 @@ import (
 type Cluster struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
 	// NumNodes holds the value of the "num_nodes" field.
-	NumNodes     int `json:"num_nodes,omitempty"`
+	NumNodes     int32 `json:"num_nodes,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -54,7 +54,7 @@ func (c *Cluster) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			c.ID = int(value.Int64)
+			c.ID = int64(value.Int64)
 		case cluster.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -71,7 +71,7 @@ func (c *Cluster) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field num_nodes", values[i])
 			} else if value.Valid {
-				c.NumNodes = int(value.Int64)
+				c.NumNodes = int32(value.Int64)
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])

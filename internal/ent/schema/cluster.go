@@ -13,9 +13,10 @@ type Cluster struct {
 // Fields of the Cluster.
 func (Cluster) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int64("id"),
 		field.Text("name").NotEmpty().Unique(),
 		field.Text("display_name"),
-		field.Int("num_nodes").Positive(),
+		field.Int32("num_nodes").NonNegative(),
 	}
 }
 

@@ -32,8 +32,14 @@ func (cc *ClusterCreate) SetDisplayName(s string) *ClusterCreate {
 }
 
 // SetNumNodes sets the "num_nodes" field.
-func (cc *ClusterCreate) SetNumNodes(i int) *ClusterCreate {
+func (cc *ClusterCreate) SetNumNodes(i int32) *ClusterCreate {
 	cc.mutation.SetNumNodes(i)
+	return cc
+}
+
+// SetID sets the "id" field.
+func (cc *ClusterCreate) SetID(i int64) *ClusterCreate {
+	cc.mutation.SetID(i)
 	return cc
 }
 
@@ -104,8 +110,10 @@ func (cc *ClusterCreate) sqlSave(ctx context.Context) (*Cluster, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int64(id)
+	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
 	return _node, nil
@@ -114,8 +122,12 @@ func (cc *ClusterCreate) sqlSave(ctx context.Context) (*Cluster, error) {
 func (cc *ClusterCreate) createSpec() (*Cluster, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Cluster{config: cc.config}
-		_spec = sqlgraph.NewCreateSpec(cluster.Table, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(cluster.Table, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt64))
 	)
+	if id, ok := cc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.SetField(cluster.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -125,7 +137,7 @@ func (cc *ClusterCreate) createSpec() (*Cluster, *sqlgraph.CreateSpec) {
 		_node.DisplayName = value
 	}
 	if value, ok := cc.mutation.NumNodes(); ok {
-		_spec.SetField(cluster.FieldNumNodes, field.TypeInt, value)
+		_spec.SetField(cluster.FieldNumNodes, field.TypeInt32, value)
 		_node.NumNodes = value
 	}
 	return _node, _spec
@@ -171,9 +183,9 @@ func (ccb *ClusterCreateBulk) Save(ctx context.Context) ([]*Cluster, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

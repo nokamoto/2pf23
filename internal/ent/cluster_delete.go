@@ -40,7 +40,7 @@ func (cd *ClusterDelete) ExecX(ctx context.Context) int {
 }
 
 func (cd *ClusterDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(cluster.Table, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(cluster.Table, sqlgraph.NewFieldSpec(cluster.FieldID, field.TypeInt64))
 	if ps := cd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
