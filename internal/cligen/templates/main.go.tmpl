@@ -48,6 +48,16 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 {{- else}}
 {{- if eq .Command.MethodType 5}}
 			var paths []string
+{{- range .Command.StringFlags}}
+			if cmd.Flags().Changed("{{.DisplayName}}") {
+				paths = append(paths, "{{.Path}}")
+			}
+{{- end}}
+{{- range .Command.Int32Flags}}
+			if cmd.Flags().Changed("{{.DisplayName}}") {
+				paths = append(paths, "{{.Path}}")
+			}
+{{- end}}
 			mask, err := fieldmaskpb.New(&v1alpha.Cluster{}, paths...)
 			if err != nil {
 				return fmt.Errorf("failed to create a field mask: %w", err)

@@ -29,6 +29,12 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 				return fmt.Errorf("failed to create a client for ke.v1alpha: %w", err)
 			}
 			var paths []string
+			if cmd.Flags().Changed("display-name") {
+				paths = append(paths, "display_name")
+			}
+			if cmd.Flags().Changed("num-nodes") {
+				paths = append(paths, "num_nodes")
+			}
 			mask, err := fieldmaskpb.New(&v1alpha.Cluster{}, paths...)
 			if err != nil {
 				return fmt.Errorf("failed to create a field mask: %w", err)
@@ -36,6 +42,7 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 			res, err := c.UpdateCluster(ctx, &v1alpha.UpdateClusterRequest{
 				UpdateMask: mask,
 				Cluster: &v1alpha.Cluster{
+					Name:        args[0],
 					DisplayName: displayName,
 					NumNodes:    numNodes,
 				},

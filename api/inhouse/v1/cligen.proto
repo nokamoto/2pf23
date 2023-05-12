@@ -25,6 +25,9 @@ message Flag {
   // usage is the usage string of the flag.
   // e.g. usage string
   string usage = 4;
+  // path is the field mask path of the flag.
+  // e.g. display_name
+  string path = 5;
 }
 
 // RequestMessageField represents golang struct field value.

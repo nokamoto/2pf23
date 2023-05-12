@@ -159,6 +159,10 @@
                         "type": "v1alpha.Cluster",
                         "fields": [
                           {
+                            "name": "Name",
+                            "value": "args[0]"
+                          },
+                          {
                             "name": "DisplayName",
                             "value": "displayName"
                           },
@@ -174,14 +178,16 @@
                     {
                       "name": "displayName",
                       "displayName": "display-name",
-                      "usage": "The display name of the cluster."
+                      "usage": "The display name of the cluster.",
+                      "path": "display_name"
                     }
                   ],
                   "int32Flags": [
                     {
                       "name": "numNodes",
                       "displayName": "num-nodes",
-                      "value": "0"
+                      "value": "0",
+                      "path": "num_nodes"
                     }
                   ]
                 }
