@@ -9,5 +9,6 @@
       "matchStrings": ["go install (?<depName>[^@]+?)@(?<currentValue>.+)\n"],
       "datasourceTemplate": "go"
     }
-  ]
+  ],
+  "postUpdateOptions": ["gomodTidy"]
 }
