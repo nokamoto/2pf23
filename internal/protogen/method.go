@@ -12,6 +12,7 @@ const (
 	getPrefix    = "Get"
 	deletePrefix = "Delete"
 	listPrefix   = "List"
+	updatePrefix = "Update"
 )
 
 var prefixes = map[string]v1.MethodType{
@@ -19,6 +20,7 @@ var prefixes = map[string]v1.MethodType{
 	getPrefix:    v1.MethodType_METHOD_TYPE_GET,
 	deletePrefix: v1.MethodType_METHOD_TYPE_DELETE,
 	listPrefix:   v1.MethodType_METHOD_TYPE_LIST,
+	updatePrefix: v1.MethodType_METHOD_TYPE_UPDATE,
 }
 
 // MethodDescriptor describes a gRPC method from a proto file.

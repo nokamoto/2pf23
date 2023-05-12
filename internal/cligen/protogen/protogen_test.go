@@ -53,7 +53,7 @@ func TestPlugin_Run(t *testing.T) {
 			expected: &pluginpb.CodeGeneratorResponse{},
 		},
 		{
-			name: "create, get, delete, list",
+			name: "create, get, delete, list, update",
 			req: &pluginpb.CodeGeneratorRequest{
 				Parameter: proto.String("multiline"),
 				ProtoFile: []*descriptorpb.FileDescriptorProto{
@@ -74,6 +74,9 @@ func TestPlugin_Run(t *testing.T) {
 										},
 										"display name usage",
 									),
+									{
+										Name: proto.String("name"),
+									},
 								},
 							},
 							{
@@ -99,6 +102,20 @@ func TestPlugin_Run(t *testing.T) {
 									},
 								},
 							},
+							{
+								Name: proto.String("UpdateShelfRequest"),
+								Field: []*descriptorpb.FieldDescriptorProto{
+									{
+										Name:     proto.String("shelf"),
+										JsonName: proto.String("shelf"),
+										Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+										TypeName: proto.String(".api.library.v1alpha.Shelf"),
+									},
+									{
+										Name: proto.String("update_mask"),
+									},
+								},
+							},
 						},
 						Service: []*descriptorpb.ServiceDescriptorProto{
 							{
@@ -119,6 +136,10 @@ func TestPlugin_Run(t *testing.T) {
 										Name:       proto.String("ListShelf"),
 										InputType:  proto.String(".api.library.v1alpha.ListShelfRequest"),
 										OutputType: proto.String(".api.library.v1alpha.ListShelfResponse"),
+									},
+									{
+										Name:      proto.String("UpdateShelf"),
+										InputType: proto.String(".api.library.v1alpha.UpdateShelfRequest"),
 									},
 								},
 							},
@@ -247,6 +268,53 @@ func TestPlugin_Run(t *testing.T) {
 												Response: &v1.ResponseMessage{
 													Type:      "v1alpha.ListShelfResponse",
 													ListField: "Shelves",
+												},
+											},
+											{
+												Api:        "library",
+												ApiVersion: "v1alpha",
+												ApiImportPath: &v1.ImportPath{
+													Alias: "v1alpha",
+													Path:  "github.com/library",
+												},
+												Package:    "shelf",
+												Use:        "update shelf-name",
+												Short:      "update is a command to update the Shelf",
+												Long:       "update is a command to update the Shelf",
+												Method:     "UpdateShelf",
+												MethodType: v1.MethodType_METHOD_TYPE_UPDATE,
+												Request: &v1.RequestMessage{
+													Type: "v1alpha.UpdateShelfRequest",
+													Fields: []*v1.RequestMessageField{
+														{
+															Name:  "UpdateMask",
+															Value: "mask",
+														},
+													},
+													Children: []*v1.RequestMessage{
+														{
+															Name: "Shelf",
+															Type: "v1alpha.Shelf",
+															Fields: []*v1.RequestMessageField{
+																{
+																	Name:  "DisplayName",
+																	Value: "displayName",
+																},
+																{
+																	Name:  "Name",
+																	Value: "args[0]",
+																},
+															},
+														},
+													},
+												},
+												StringFlags: []*v1.Flag{
+													{
+														Name:        "displayName",
+														DisplayName: "display-name",
+														Usage:       "display name usage",
+														Path:        "display_name",
+													},
 												},
 											},
 										},
