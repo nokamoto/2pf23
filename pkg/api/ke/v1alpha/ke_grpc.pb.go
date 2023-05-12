@@ -24,6 +24,7 @@ const (
 	KeService_GetCluster_FullMethodName    = "/api.ke.v1alpha.KeService/GetCluster"
 	KeService_DeleteCluster_FullMethodName = "/api.ke.v1alpha.KeService/DeleteCluster"
 	KeService_ListCluster_FullMethodName   = "/api.ke.v1alpha.KeService/ListCluster"
+	KeService_UpdateCluster_FullMethodName = "/api.ke.v1alpha.KeService/UpdateCluster"
 )
 
 // KeServiceClient is the client API for KeService service.
@@ -34,6 +35,7 @@ type KeServiceClient interface {
 	GetCluster(ctx context.Context, in *GetClusterRequest, opts ...grpc.CallOption) (*Cluster, error)
 	DeleteCluster(ctx context.Context, in *DeleteClusterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListCluster(ctx context.Context, in *ListClusterRequest, opts ...grpc.CallOption) (*ListClusterResponse, error)
+	UpdateCluster(ctx context.Context, in *UpdateClusterRequest, opts ...grpc.CallOption) (*Cluster, error)
 }
 
 type keServiceClient struct {
@@ -80,6 +82,15 @@ func (c *keServiceClient) ListCluster(ctx context.Context, in *ListClusterReques
 	return out, nil
 }
 
+func (c *keServiceClient) UpdateCluster(ctx context.Context, in *UpdateClusterRequest, opts ...grpc.CallOption) (*Cluster, error) {
+	out := new(Cluster)
+	err := c.cc.Invoke(ctx, KeService_UpdateCluster_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KeServiceServer is the server API for KeService service.
 // All implementations must embed UnimplementedKeServiceServer
 // for forward compatibility
@@ -88,6 +99,7 @@ type KeServiceServer interface {
 	GetCluster(context.Context, *GetClusterRequest) (*Cluster, error)
 	DeleteCluster(context.Context, *DeleteClusterRequest) (*emptypb.Empty, error)
 	ListCluster(context.Context, *ListClusterRequest) (*ListClusterResponse, error)
+	UpdateCluster(context.Context, *UpdateClusterRequest) (*Cluster, error)
 	mustEmbedUnimplementedKeServiceServer()
 }
 
@@ -106,6 +118,9 @@ func (UnimplementedKeServiceServer) DeleteCluster(context.Context, *DeleteCluste
 }
 func (UnimplementedKeServiceServer) ListCluster(context.Context, *ListClusterRequest) (*ListClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCluster not implemented")
+}
+func (UnimplementedKeServiceServer) UpdateCluster(context.Context, *UpdateClusterRequest) (*Cluster, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCluster not implemented")
 }
 func (UnimplementedKeServiceServer) mustEmbedUnimplementedKeServiceServer() {}
 
@@ -192,6 +207,24 @@ func _KeService_ListCluster_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KeService_UpdateCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeServiceServer).UpdateCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeService_UpdateCluster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeServiceServer).UpdateCluster(ctx, req.(*UpdateClusterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KeService_ServiceDesc is the grpc.ServiceDesc for KeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -214,6 +247,10 @@ var KeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCluster",
 			Handler:    _KeService_ListCluster_Handler,
+		},
+		{
+			MethodName: "UpdateCluster",
+			Handler:    _KeService_UpdateCluster_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
