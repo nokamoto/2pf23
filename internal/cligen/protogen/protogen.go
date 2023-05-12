@@ -115,6 +115,10 @@ func (p *Plugin) serviceDescriptorProto(service *descriptorpb.ServiceDescriptorP
 			resource = m.ResourceName()
 			f = p.listCommand
 
+		case v1.MethodType_METHOD_TYPE_UPDATE:
+			resource = m.ResourceName()
+			f = p.updateCommand
+
 		default:
 			p.Debugf("skipped: unsupported method type: %s", m.Type())
 			continue
@@ -172,6 +176,26 @@ func (p *Plugin) baseCommand(file *descriptorpb.FileDescriptorProto, m *protogen
 	}
 }
 
+func (p *Plugin) updateCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
+	resource := m.ResourceName()
+	short := fmt.Sprintf("update is a command to update the %s", resource)
+
+	req, err := NewRequestMessageDescriptor(file).RequestMessage(m.GetInputType(), true, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request message: %w", err)
+	}
+
+	cmd := p.baseCommand(file, m, api)
+	cmd.Short = short
+	cmd.Long = short
+	cmd.Use = fmt.Sprintf("update %s-name", strings.ToLower(resource))
+	cmd.Request = req.Message
+	cmd.StringFlags = req.StringFlags
+	cmd.Int32Flags = req.Int32Flags
+
+	return cmd, nil
+}
+
 func (p *Plugin) listCommand(file *descriptorpb.FileDescriptorProto, m *protogen.MethodDescriptor, api *protogen.APIDescriptor) (*v1.Command, error) {
 	listResponse := protogen.NewListResponseDescriptor(file, m.MethodDescriptorProto)
 	listField, err := listResponse.ListField()
@@ -206,7 +230,7 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, m *protog
 	resource := m.ResourceName()
 	short := fmt.Sprintf("create is a command to create a new %s", resource)
 
-	req, err := NewRequestMessageDescriptor(file).RequestMessage(m.GetInputType())
+	req, err := NewRequestMessageDescriptor(file).RequestMessage(m.GetInputType(), false, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request message: %w", err)
 	}

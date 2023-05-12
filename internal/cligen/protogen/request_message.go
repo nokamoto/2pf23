@@ -30,7 +30,7 @@ func NewRequestMessageDescriptor(file *descriptorpb.FileDescriptorProto) *Reques
 	return &RequestMessageDescriptor{file: file}
 }
 
-func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.RequestMessage, error) {
+func (r *RequestMessageDescriptor) requestMessage(typ string, name string, withName bool, withPath bool) (*v1.RequestMessage, error) {
 	resp := &v1.RequestMessage{
 		Type: protogen.GoTypeNameFromFullyQualified(typ),
 		Name: name,
@@ -42,7 +42,19 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 		if found = typ == goType; found {
 			for _, field := range message.GetField() {
 				if field.GetName() == "name" {
-					// `name` is output only field
+					if withName {
+						resp.Fields = append(resp.Fields, &v1.RequestMessageField{
+							Name:  "Name",
+							Value: "args[0]",
+						})
+					}
+					continue
+				}
+				if field.GetName() == "update_mask" {
+					resp.Fields = append(resp.Fields, &v1.RequestMessageField{
+						Name:  "UpdateMask",
+						Value: "mask",
+					})
 					continue
 				}
 
@@ -53,6 +65,9 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 				}
 				if proto.HasExtension(field.GetOptions(), optionv1.E_Resource_Usage) {
 					flag.Usage = proto.GetExtension(field.GetOptions(), optionv1.E_Resource_Usage).(string)
+				}
+				if withPath {
+					flag.Path = field.GetName()
 				}
 
 				goFieldName := cases.Title(language.English, cases.NoLower).String(field.GetJsonName())
@@ -74,7 +89,7 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 					r.StringFlags = append(r.StringFlags, flag)
 
 				case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
-					sub, err := r.requestMessage(field.GetTypeName(), goFieldName)
+					sub, err := r.requestMessage(field.GetTypeName(), goFieldName, withName, withPath)
 					if err != nil {
 						return nil, fmt.Errorf("failed to create field request message: %w", err)
 					}
@@ -99,8 +114,8 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string) (*v1.
 //
 // typ is a type of the request message. It is resolved in the same way as FieldDescriptorProto.type_name, but must refer to a message type.
 // (e.g. ".com.example.FooRequest")
-func (r *RequestMessageDescriptor) RequestMessage(typ string) (*RequestMessageDescriptor, error) {
-	res, err := r.requestMessage(typ, "")
+func (r *RequestMessageDescriptor) RequestMessage(typ string, withName bool, withPath bool) (*RequestMessageDescriptor, error) {
+	res, err := r.requestMessage(typ, "", withName, withPath)
 	if err != nil {
 		r.Int32Flags = nil
 		r.StringFlags = nil

@@ -44,6 +44,13 @@ func TestMethodDescriptor_Type(t *testing.T) {
 			want: v1.MethodType_METHOD_TYPE_LIST,
 		},
 		{
+			name: "update",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("UpdateFoo"),
+			},
+			want: v1.MethodType_METHOD_TYPE_UPDATE,
+		},
+		{
 			name: "unspecified",
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("SearchFoo"),
@@ -92,6 +99,13 @@ func TestMethodDescriptor_ResourceName(t *testing.T) {
 			name: "list",
 			method: &descriptorpb.MethodDescriptorProto{
 				Name: proto.String("ListFoo"),
+			},
+			want: "Foo",
+		},
+		{
+			name: "update",
+			method: &descriptorpb.MethodDescriptorProto{
+				Name: proto.String("UpdateFoo"),
 			},
 			want: "Foo",
 		},
