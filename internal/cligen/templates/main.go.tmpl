@@ -22,9 +22,9 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 		Use:   "{{.Command.Use}}",
 		Short: "{{.Command.Short}}",
 		Long:  `{{.Command.Long}}`,
-{{- if eq .Command.MethodType 1 }}
+{{- if .ExactArgs0}}
 		Args:  cobra.ExactArgs(0),
-{{- else if or (eq .Command.MethodType 2) (eq .Command.MethodType 3) }}
+{{- else if .ExactArgs1}}
 		Args:  cobra.ExactArgs(1),
 {{- end}}
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -46,6 +46,13 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 			}
 			err = helper.ListAll(ctx, c.{{.Command.Method}}, setter, getter)
 {{- else}}
+{{- if eq .Command.MethodType 5}}
+			var paths []string
+			mask, err := fieldmaskpb.New(&v1alpha.Cluster{}, paths...)
+			if err != nil {
+				return fmt.Errorf("failed to create a field mask: %w", err)
+			}
+{{- end}}
 			res, err := c.{{.Command.Method}}(ctx, {{.Command.Request | ToValue 3}})
 {{- end}}
 			if err != nil {

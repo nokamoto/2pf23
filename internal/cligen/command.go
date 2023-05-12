@@ -51,9 +51,11 @@ func newImports(imports ...*v1.ImportPath) []*v1.ImportPath {
 }
 
 type commandArg struct {
-	Runtime runtimeArg
-	Imports []*v1.ImportPath
-	Command *v1.Command
+	Runtime    runtimeArg
+	Imports    []*v1.ImportPath
+	Command    *v1.Command
+	ExactArgs0 bool
+	ExactArgs1 bool
 }
 
 type rootArg struct {
@@ -148,10 +150,22 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 			Path:  "github.com/nokamoto/2pf23/internal/cli/helper",
 		})
 	}
+	if cmd.GetMethodType() == v1.MethodType_METHOD_TYPE_UPDATE {
+		imports = append(imports, &v1.ImportPath{
+			Path: "google.golang.org/protobuf/types/known/fieldmaskpb",
+		})
+	}
+
+	var arg0 bool
+	if typ := cmd.GetMethodType(); typ == v1.MethodType_METHOD_TYPE_LIST || typ == v1.MethodType_METHOD_TYPE_CREATE {
+		arg0 = true
+	}
 
 	return p.main.Execute(out, commandArg{
-		Runtime: newRuntimeArg(),
-		Imports: newImports(imports...),
-		Command: cmd,
+		Runtime:    newRuntimeArg(),
+		Imports:    newImports(imports...),
+		Command:    cmd,
+		ExactArgs0: arg0,
+		ExactArgs1: !arg0,
 	})
 }

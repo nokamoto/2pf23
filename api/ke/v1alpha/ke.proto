@@ -4,6 +4,7 @@ package api.ke.v1alpha;
 
 import "api/option/v1/options.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 
 option go_package = "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha;kev1alpha";
 
@@ -24,6 +25,7 @@ service KeService {
   rpc GetCluster(GetClusterRequest) returns (Cluster) {}
   rpc DeleteCluster(DeleteClusterRequest) returns (google.protobuf.Empty) {}
   rpc ListCluster(ListClusterRequest) returns (ListClusterResponse) {}
+  rpc UpdateCluster(UpdateClusterRequest) returns (Cluster) {}
 }
 
 message CreateClusterRequest {
@@ -46,4 +48,9 @@ message ListClusterRequest {
 message ListClusterResponse {
   repeated Cluster clusters = 1;
   string next_page_token = 2;
+}
+
+message UpdateClusterRequest {
+  Cluster cluster = 2;
+  google.protobuf.FieldMask update_mask = 3;
 }

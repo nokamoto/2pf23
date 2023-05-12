@@ -18,6 +18,7 @@ func newListCluster(rt runtime.Runtime) *cobra.Command {
 		Use:   "list",
 		Short: "list is a command to list all Clusters",
 		Long:  `list is a command to list all Cluster`,
+		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			ctx := rt.Context(cmd)

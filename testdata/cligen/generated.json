@@ -131,6 +131,59 @@
                     "type": "v1alpha.ListClusterResponse",
                     "listField": "Clusters"
                   }
+                },
+                {
+                  "api": "ke",
+                  "apiVersion": "v1alpha",
+                  "apiImportPath": {
+                    "alias": "v1alpha",
+                    "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+                  },
+                  "package": "cluster",
+                  "use": "update cluster-name",
+                  "short": "update is a command to update the Cluster",
+                  "long": "update is a command to update the Cluster",
+                  "method": "UpdateCluster",
+                  "methodType": "METHOD_TYPE_UPDATE",
+                  "request": {
+                    "type": "v1alpha.UpdateClusterRequest",
+                    "fields": [
+                      {
+                        "name": "UpdateMask",
+                        "value": "mask"
+                      }
+                    ],
+                    "children": [
+                      {
+                        "name": "Cluster",
+                        "type": "v1alpha.Cluster",
+                        "fields": [
+                          {
+                            "name": "DisplayName",
+                            "value": "displayName"
+                          },
+                          {
+                            "name": "NumNodes",
+                            "value": "numNodes"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "stringFlags": [
+                    {
+                      "name": "displayName",
+                      "displayName": "display-name",
+                      "usage": "The display name of the cluster."
+                    }
+                  ],
+                  "int32Flags": [
+                    {
+                      "name": "numNodes",
+                      "displayName": "num-nodes",
+                      "value": "0"
+                    }
+                  ]
                 }
               ]
             }
