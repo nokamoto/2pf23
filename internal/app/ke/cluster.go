@@ -15,7 +15,7 @@ import (
 
 type runtime interface {
 	NewID() string
-	Create(context.Context, *kev1alpha.Cluster) error
+	Create(context.Context, *kev1alpha.Cluster) (*kev1alpha.Cluster, error)
 	Get(context.Context, string) (*kev1alpha.Cluster, error)
 	Delete(context.Context, string) error
 	List(context.Context, int32, *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error)
@@ -54,12 +54,12 @@ func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) (*kev1
 
 	cluster.Name = c.generateName()
 
-	err := c.rt.Create(ctx, cluster)
+	got, err := c.rt.Create(ctx, cluster)
 	if err != nil {
 		return nil, err
 	}
 
-	return cluster, nil
+	return got, nil
 }
 
 // Get returns a cluster by name.
