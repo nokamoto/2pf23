@@ -4,20 +4,23 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mennanov/fmutils"
 	"github.com/nokamoto/2pf23/internal/ent"
-	"github.com/nokamoto/2pf23/internal/ent/cluster"
+	entcluster "github.com/nokamoto/2pf23/internal/ent/cluster"
 	"github.com/nokamoto/2pf23/internal/infra"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type Cluster struct {
-	client *ent.ClusterClient
+	client *ent.Client
 }
 
 func NewCluster(client *ent.Client) *Cluster {
 	return &Cluster{
-		client: client.Cluster,
+		client: client,
 	}
 }
 
@@ -29,22 +32,27 @@ func (c *Cluster) proto(x *ent.Cluster) *kev1alpha.Cluster {
 	}
 }
 
-func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) error {
-	_, err := c.client.Create().
+// Create creates a cluster.
+// If the cluster already exists, it returns infra.ErrAlreadyExists.
+func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) (*kev1alpha.Cluster, error) {
+	res, err := c.client.Cluster.Create().
 		SetName(cluster.GetName()).
 		SetDisplayName(cluster.GetDisplayName()).
 		SetNumNodes(cluster.GetNumNodes()).
 		Save(ctx)
-	if err != nil {
-		return fmt.Errorf("failed saving cluster: %w", err)
+	if ent.IsConstraintError(err) {
+		return nil, fmt.Errorf("%w: %s", infra.ErrAlreadyExists, cluster.GetName())
 	}
-	return nil
+	if err != nil {
+		return nil, fmt.Errorf("failed saving cluster: %w", err)
+	}
+	return c.proto(res), nil
 }
 
 // Get returns a cluster by name.
 // If the cluster does not exist, it returns infra.ErrNotFound.
 func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, error) {
-	res, err := c.client.Query().Where(cluster.Name(name)).Only(ctx)
+	res, err := c.client.Cluster.Query().Where(entcluster.Name(name)).Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, infra.ErrNotFound
 	}
@@ -57,7 +65,7 @@ func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, err
 // Delete deletes a cluster by name.
 // If the cluster does not exist, it returns infra.ErrNotFound.
 func (c *Cluster) Delete(ctx context.Context, name string) error {
-	res, err := c.client.Delete().Where(cluster.Name(name)).Exec(ctx)
+	res, err := c.client.Cluster.Delete().Where(entcluster.Name(name)).Exec(ctx)
 	if res == 0 || ent.IsNotFound(err) {
 		return infra.ErrNotFound
 	}
@@ -72,7 +80,7 @@ func (c *Cluster) Delete(ctx context.Context, name string) error {
 // If the page is nil, it returns the first page.
 // If next page does not exist, it returns nil.
 func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error) {
-	res, err := c.client.Query().Limit(int(pageSize + 1)).Where(cluster.IDGTE(page.GetCursor())).All(ctx)
+	res, err := c.client.Cluster.Query().Limit(int(pageSize + 1)).Where(entcluster.IDGTE(page.GetCursor())).All(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -88,4 +96,41 @@ func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination)
 		clusters = append(clusters, c.proto(x))
 	}
 	return clusters, next, nil
+}
+
+// Update updates a cluster.
+//
+// If the cluster does not exist, it returns infra.ErrNotFound.
+// If the mask is invalid, it returns infra.ErrInvalidArgument.
+func (c *Cluster) Update(ctx context.Context, cluster *kev1alpha.Cluster, mask *fieldmaskpb.FieldMask) (*kev1alpha.Cluster, error) {
+	name := cluster.GetName()
+	rollback := func(tx *ent.Tx, err error) error {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%w: with rollback error: %v", err, rerr)
+		}
+		return err
+	}
+	mask.Normalize()
+	if !mask.IsValid(cluster) {
+		return nil, fmt.Errorf("%w: invalid mask: %v", infra.ErrInvalidArgument, mask)
+	}
+	fmutils.Filter(cluster, mask.GetPaths())
+	tx, err := c.client.Tx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	got, err := tx.Cluster.Query().Where(entcluster.Name(name)).Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, rollback(tx, fmt.Errorf("%w: %s", infra.ErrNotFound, cluster.GetName()))
+	}
+	if err != nil {
+		return nil, rollback(tx, err)
+	}
+	updated := c.proto(got)
+	proto.Merge(updated, cluster)
+	got, err = tx.Cluster.UpdateOneID(got.ID).SetDisplayName(updated.GetDisplayName()).SetNumNodes(updated.GetNumNodes()).Save(ctx)
+	if err != nil {
+		return nil, rollback(tx, err)
+	}
+	return c.proto(got), nil
 }

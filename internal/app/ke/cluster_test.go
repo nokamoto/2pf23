@@ -61,7 +61,10 @@ func TestCluster_Create(t *testing.T) {
 					rt.EXPECT().Create(gomock.Any(), helper.ProtoEqual(&kev1alpha.Cluster{
 						Name:     "projects/unspecified/clusters/new-id",
 						NumNodes: 3,
-					})).Return(nil),
+					})).Return(&kev1alpha.Cluster{
+						Name:     "projects/unspecified/clusters/new-id",
+						NumNodes: 3,
+					}, nil),
 				)
 			},
 			want: &kev1alpha.Cluster{
@@ -82,7 +85,7 @@ func TestCluster_Create(t *testing.T) {
 			mock: func(rt *mockke.Mockruntime) {
 				gomock.InOrder(
 					rt.EXPECT().NewID().Return("new-id"),
-					rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(runtimeError),
+					rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, runtimeError),
 				)
 			},
 			err: runtimeError,
