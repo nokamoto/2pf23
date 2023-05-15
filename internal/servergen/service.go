@@ -56,13 +56,16 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 		})
 	}
 
-	var delete, list bool
+	var delete, list, update bool
 	for _, call := range svc.GetCalls() {
 		if call.GetMethodType() == v1.MethodType_METHOD_TYPE_DELETE {
 			delete = true
 		}
 		if call.GetMethodType() == v1.MethodType_METHOD_TYPE_LIST {
 			list = true
+		}
+		if call.GetMethodType() == v1.MethodType_METHOD_TYPE_UPDATE {
+			update = true
 		}
 	}
 	if delete {
@@ -75,6 +78,11 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 		imports = append(imports, &v1.ImportPath{
 			Alias: "v1",
 			Path:  "github.com/nokamoto/2pf23/pkg/api/inhouse/v1",
+		})
+	}
+	if update {
+		imports = append(imports, &v1.ImportPath{
+			Path: "google.golang.org/protobuf/types/known/fieldmaskpb",
 		})
 	}
 

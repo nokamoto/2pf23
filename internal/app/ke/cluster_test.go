@@ -16,6 +16,7 @@ import (
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type testcase[T1 any, T2 any] struct {
@@ -253,6 +254,132 @@ func TestCluster_List(t *testing.T) {
 				t.Error(diff)
 			}
 			if diff := cmp.Diff(gotPage, tt.wantPage, protocmp.Transform()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
+func TestCluster_Update(t *testing.T) {
+	type testcase struct {
+		name string
+		req  *kev1alpha.Cluster
+		mask *fieldmaskpb.FieldMask
+		mock func(*mockke.Mockruntime)
+		want *kev1alpha.Cluster
+		err  error
+	}
+
+	runtimeError := errors.New("runtime error")
+
+	tests := []testcase{
+		{
+			name: "ok",
+			req: &kev1alpha.Cluster{
+				Name:        "projects/unspecified/clusters/cluster-id",
+				DisplayName: "cluster-name",
+			},
+			mask: &fieldmaskpb.FieldMask{
+				Paths: []string{"display_name"},
+			},
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().Update(gomock.Any(), helper.ProtoEqual(
+					&kev1alpha.Cluster{
+						Name:        "projects/unspecified/clusters/cluster-id",
+						DisplayName: "cluster-name",
+					},
+				), helper.ProtoEqual(&fieldmaskpb.FieldMask{
+					Paths: []string{"display_name"},
+				})).Return(&kev1alpha.Cluster{
+					Name:        "projects/unspecified/clusters/cluster-id",
+					DisplayName: "cluster-name",
+					NumNodes:    3,
+				}, nil)
+			},
+			want: &kev1alpha.Cluster{
+				Name:        "projects/unspecified/clusters/cluster-id",
+				DisplayName: "cluster-name",
+				NumNodes:    3,
+			},
+		},
+		{
+			name: "invalid mask",
+			mask: &fieldmaskpb.FieldMask{
+				Paths: []string{"invalid"},
+			},
+			err: app.ErrInvalidArgument,
+		},
+		{
+			name: "invalid argument if num nodes is zero",
+			req:  &kev1alpha.Cluster{},
+			mask: &fieldmaskpb.FieldMask{
+				Paths: []string{"num_nodes"},
+			},
+			err: app.ErrInvalidArgument,
+		},
+		{
+			name: "invalid argument if num nodes is greater than 5",
+			req: &kev1alpha.Cluster{
+				NumNodes: 6,
+			},
+			mask: &fieldmaskpb.FieldMask{
+				Paths: []string{"num_nodes"},
+			},
+			err: app.ErrInvalidArgument,
+		},
+		{
+			name: "empty field mask",
+			req: &kev1alpha.Cluster{
+				Name:        "projects/unspecified/clusters/cluster-id",
+				DisplayName: "cluster-name",
+			},
+			mask: &fieldmaskpb.FieldMask{},
+			err:  app.ErrInvalidArgument,
+		},
+		{
+			name: "not found",
+			req: &kev1alpha.Cluster{
+				Name:        "projects/unspecified/clusters/cluster-id",
+				DisplayName: "cluster-name",
+			},
+			mask: &fieldmaskpb.FieldMask{
+				Paths: []string{"display_name"},
+			},
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, infra.ErrNotFound)
+			},
+			err: app.ErrNotFound,
+		},
+		{
+			name: "runtime error",
+			req: &kev1alpha.Cluster{
+				Name:        "projects/unspecified/clusters/cluster-id",
+				DisplayName: "cluster-name",
+			},
+			mask: &fieldmaskpb.FieldMask{
+				Paths: []string{"display_name"},
+			},
+			mock: func(rt *mockke.Mockruntime) {
+				rt.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, runtimeError)
+			},
+			err: runtimeError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			rt := mockke.NewMockruntime(ctrl)
+			if tt.mock != nil {
+				tt.mock(rt)
+			}
+			sut := NewCluster(rt)
+
+			got, err := sut.Update(context.TODO(), tt.req, tt.mask)
+			if !errors.Is(err, tt.err) {
+				t.Errorf("error = %v, wantErr %v", err, tt.err)
+			}
+			if diff := cmp.Diff(got, tt.want, protocmp.Transform()); diff != "" {
 				t.Error(diff)
 			}
 		})

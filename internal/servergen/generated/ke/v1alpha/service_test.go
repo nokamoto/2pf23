@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type testcase[T1 any, T2 any] struct {
@@ -265,4 +266,53 @@ func Test_ListCluster(t *testing.T) {
 		},
 	}
 	run(t, (*service).ListCluster, testcases)
+}
+
+func Test_UpdateCluster(t *testing.T) {
+	tests := []testcase[kev1alpha.UpdateClusterRequest, kev1alpha.Cluster]{
+		{
+			name: "ok",
+			req: &kev1alpha.UpdateClusterRequest{
+				Cluster: &kev1alpha.Cluster{
+					Name:        "foo",
+					DisplayName: "test",
+				},
+				UpdateMask: &fieldmaskpb.FieldMask{
+					Paths: []string{"display_name"},
+				},
+			},
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Update(gomock.Any(), helper.ProtoEqual(&kev1alpha.Cluster{
+					Name:        "foo",
+					DisplayName: "test",
+				}), helper.ProtoEqual(&fieldmaskpb.FieldMask{
+					Paths: []string{"display_name"},
+				})).Return(&kev1alpha.Cluster{
+					Name:        "foo",
+					DisplayName: "test",
+					NumNodes:    3,
+				}, nil)
+			},
+			expected: &kev1alpha.Cluster{
+				Name:        "foo",
+				DisplayName: "test",
+				NumNodes:    3,
+			},
+		},
+		{
+			name: "invalid argument",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "not found",
+			mock: func(rt *mockv1alpha.Mockruntime) {
+				rt.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+	}
+	run(t, (*service).UpdateCluster, tests)
 }
