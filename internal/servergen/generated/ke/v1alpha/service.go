@@ -11,6 +11,7 @@ import (
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen -source=$GOFILE -package=mock$GOPACKAGE -destination=mock/$GOFILE
@@ -19,6 +20,7 @@ type runtime interface {
 	Get(ctx context.Context, name string) (*kev1alpha.Cluster, error)
 	Delete(ctx context.Context, name string) (*empty.Empty, error)
 	List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error)
+	Update(ctx context.Context, resource *kev1alpha.Cluster, mask *fieldmaskpb.FieldMask) (*kev1alpha.Cluster, error)
 }
 
 type service struct {
@@ -74,5 +76,12 @@ func (s *service) ListCluster(ctx context.Context, req *kev1alpha.ListClusterReq
 		Clusters:      resources,
 		NextPageToken: token,
 	}
+	return helper.ErrorOr(logger, res, err)
+}
+
+func (s *service) UpdateCluster(ctx context.Context, req *kev1alpha.UpdateClusterRequest) (*kev1alpha.Cluster, error) {
+	logger := s.logger.With(zap.String("method", "UpdateCluster"), zap.Any("request", req))
+	logger.Debug("request received")
+	res, err := s.rt.Update(ctx, req.GetCluster(), req.GetUpdateMask())
 	return helper.ErrorOr(logger, res, err)
 }

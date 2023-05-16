@@ -100,6 +100,16 @@ func (p *Plugin) listCall(file *descriptorpb.FileDescriptorProto, m *protogen.Me
 	return resp, nil
 }
 
+func (p *Plugin) updateCall(m *protogen.MethodDescriptor) *v1.Call {
+	accessor := fmt.Sprintf("Get%s", m.ResourceName())
+	resp := &v1.Call{
+		MethodType:        v1.MethodType_METHOD_TYPE_UPDATE,
+		GetResourceMethod: accessor,
+	}
+	p.setCall(resp, m)
+	return resp
+}
+
 func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Service, error) {
 	api := protogen.NewAPIDescriptor(file)
 	resp := &v1.Service{
@@ -126,6 +136,9 @@ func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descrip
 				return nil, fmt.Errorf("failed to generate list call: %w", err)
 			}
 			resp.Calls = append(resp.Calls, call)
+
+		case v1.MethodType_METHOD_TYPE_UPDATE:
+			resp.Calls = append(resp.Calls, p.updateCall(m))
 		}
 	}
 	return resp, nil

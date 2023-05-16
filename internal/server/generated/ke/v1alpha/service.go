@@ -11,6 +11,7 @@ import (
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type runtime interface {
@@ -18,6 +19,7 @@ type runtime interface {
 	Get(ctx context.Context, name string) (*v1alpha.Cluster, error)
 	Delete(ctx context.Context, name string) (*empty.Empty, error)
 	List(ctx context.Context, pageSize int32, page *v1.Pagination) ([]*v1alpha.Cluster, *v1.Pagination, error)
+	Update(ctx context.Context, resource *v1alpha.Cluster, mask *fieldmaskpb.FieldMask) (*v1alpha.Cluster, error)
 }
 
 type service struct {
@@ -73,5 +75,12 @@ func (s *service) ListCluster(ctx context.Context, req *v1alpha.ListClusterReque
 		Clusters:      resources,
 		NextPageToken: token,
 	}
+	return helper.ErrorOr(logger, res, err)
+}
+
+func (s *service) UpdateCluster(ctx context.Context, req *v1alpha.UpdateClusterRequest) (*v1alpha.Cluster, error) {
+	logger := s.logger.With(zap.String("method", "UpdateCluster"), zap.Any("request", req))
+	logger.Debug("request received")
+	res, err := s.rt.Update(ctx, req.GetCluster(), req.GetUpdateMask())
 	return helper.ErrorOr(logger, res, err)
 }

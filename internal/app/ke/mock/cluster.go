@@ -11,6 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 // Mockruntime is a mock of runtime interface.
@@ -108,4 +109,19 @@ func (m *Mockruntime) NewID() string {
 func (mr *MockruntimeMockRecorder) NewID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewID", reflect.TypeOf((*Mockruntime)(nil).NewID))
+}
+
+// Update mocks base method.
+func (m *Mockruntime) Update(arg0 context.Context, arg1 *kev1alpha.Cluster, arg2 *fieldmaskpb.FieldMask) (*kev1alpha.Cluster, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*kev1alpha.Cluster)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockruntimeMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*Mockruntime)(nil).Update), arg0, arg1, arg2)
 }

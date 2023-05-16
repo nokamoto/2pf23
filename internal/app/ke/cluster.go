@@ -11,6 +11,8 @@ import (
 	"github.com/nokamoto/2pf23/internal/infra"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"golang.org/x/exp/slices"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type runtime interface {
@@ -19,6 +21,7 @@ type runtime interface {
 	Get(context.Context, string) (*kev1alpha.Cluster, error)
 	Delete(context.Context, string) error
 	List(context.Context, int32, *v1.Pagination) ([]*kev1alpha.Cluster, *v1.Pagination, error)
+	Update(context.Context, *kev1alpha.Cluster, *fieldmaskpb.FieldMask) (*kev1alpha.Cluster, error)
 }
 
 const (
@@ -44,6 +47,8 @@ func (c *Cluster) generateName() string {
 // Create creates a new cluster.
 //
 // The unique name of the cluster is generated automatically by the application. The name is returned in the response.
+// If the num_nodes is 0, it is set to 3.
+// If the num_nodes is greater than 5, it returns app.ErrInvalidArgument.
 func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) (*kev1alpha.Cluster, error) {
 	if cluster.GetNumNodes() == 0 {
 		cluster.NumNodes = defaultNumNodes
@@ -104,4 +109,37 @@ func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination)
 		return nil, nil, err
 	}
 	return res, next, nil
+}
+
+// Update updates a cluster by name.
+//
+// If the cluster does not exist, it returns app.ErrNotFound.
+// If the mask is invalid, it returns app.ErrInvalidArgument.
+// If the num_nodes is invalid, it returns app.ErrInvalidArgument.
+func (c *Cluster) Update(ctx context.Context, cluster *kev1alpha.Cluster, mask *fieldmaskpb.FieldMask) (*kev1alpha.Cluster, error) {
+	if len(mask.GetPaths()) == 0 {
+		return nil, fmt.Errorf("%w: empty field mask", app.ErrInvalidArgument)
+	}
+
+	mask.Normalize()
+	if !mask.IsValid(cluster) {
+		return nil, fmt.Errorf("%w: %v", app.ErrInvalidArgument, mask)
+	}
+
+	if cluster.GetNumNodes() == 0 && slices.Contains(mask.GetPaths(), "num_nodes") {
+		return nil, fmt.Errorf("%w: num_nodes must be greater than 0", app.ErrInvalidArgument)
+	}
+	if cluster.GetNumNodes() > 5 {
+		return nil, fmt.Errorf("%w: num_nodes must be less than or equal to 5", app.ErrInvalidArgument)
+	}
+
+	got, err := c.rt.Update(ctx, cluster, mask)
+	if errors.Is(err, infra.ErrNotFound) {
+		return nil, fmt.Errorf("%w: %s", app.ErrNotFound, cluster.GetName())
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return got, err
 }

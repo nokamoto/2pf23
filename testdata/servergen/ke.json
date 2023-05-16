@@ -35,6 +35,14 @@
       "response_type": "kev1alpha.ListClusterResponse",
       "resource_type": "kev1alpha.Cluster",
       "list_field": "Clusters"
+    },
+    {
+      "name": "UpdateCluster",
+      "method_type": "METHOD_TYPE_UPDATE",
+      "request_type": "kev1alpha.UpdateClusterRequest",
+      "response_type": "kev1alpha.Cluster",
+      "resource_type": "kev1alpha.Cluster",
+      "get_resource_method": "GetCluster"
     }
   ]
 }

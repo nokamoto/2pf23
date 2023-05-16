@@ -12,6 +12,7 @@ import (
 	empty "github.com/golang/protobuf/ptypes/empty"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 // Mockruntime is a mock of runtime interface.
@@ -96,4 +97,19 @@ func (m *Mockruntime) List(ctx context.Context, pageSize int32, page *v1.Paginat
 func (mr *MockruntimeMockRecorder) List(ctx, pageSize, page interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*Mockruntime)(nil).List), ctx, pageSize, page)
+}
+
+// Update mocks base method.
+func (m *Mockruntime) Update(ctx context.Context, resource *kev1alpha.Cluster, mask *fieldmaskpb.FieldMask) (*kev1alpha.Cluster, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", ctx, resource, mask)
+	ret0, _ := ret[0].(*kev1alpha.Cluster)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockruntimeMockRecorder) Update(ctx, resource, mask interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*Mockruntime)(nil).Update), ctx, resource, mask)
 }
