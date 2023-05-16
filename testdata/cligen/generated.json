@@ -45,6 +45,10 @@
                           {
                             "name": "NumNodes",
                             "value": "numNodes"
+                          },
+                          {
+                            "name": "MachineType",
+                            "value": "machineType"
                           }
                         ]
                       }
@@ -62,6 +66,23 @@
                       "name": "numNodes",
                       "displayName": "num-nodes",
                       "value": "0"
+                    }
+                  ],
+                  "enumFlags": [
+                    {
+                      "name": "machineType",
+                      "type": "v1alpha.MachineType",
+                      "displayName": "machine-type",
+                      "values": [
+                        {
+                          "name": "v1alpha.MACHINE_TYPE_UNSPECIFIED",
+                          "displayName": "unspecified"
+                        },
+                        {
+                          "name": "v1alpha.MACHINE_TYPE_STANDARD",
+                          "displayName": "standard"
+                        }
+                      ]
                     }
                   ]
                 },

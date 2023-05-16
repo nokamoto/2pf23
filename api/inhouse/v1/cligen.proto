@@ -30,6 +30,26 @@ message Flag {
   string path = 5;
 }
 
+// EnumValue represents enum value.
+message EnumValue {
+  // name is the variable name.
+  // e.g. MACHINE_TYPE_UNSPECIFIED
+  string name = 1;
+  // display_name is the display name of the enum value.
+  // e.g. unspecified
+  string display_name = 2;
+}
+
+// EnumFlag represents command line flag of enum.
+message EnumFlag {
+  string name = 1;
+  string type = 2;
+  string display_name = 3;
+  string usage = 4;
+  string path = 5;
+  repeated EnumValue values = 6;
+}
+
 // RequestMessageField represents golang struct field value.
 //
 // ```
@@ -115,6 +135,8 @@ message Command {
   repeated Flag string_flags = 13;
   // int32_flags is the list of number flags of the command.
   repeated Flag int32_flags = 14;
+  // enum_flags is the list of enum flags of the command.
+  repeated EnumFlag enum_flags = 15;
 }
 
 // Package represents golang codes hierarchy and root command.

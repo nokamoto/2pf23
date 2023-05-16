@@ -18,6 +18,9 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 {{- range .Command.Int32Flags}}
 	var {{.Name}} int32
 {{- end}}
+{{- range .Command.EnumFlags}}
+	var {{.Name}} {{.Type}}
+{{- end}}
 	cmd := &cobra.Command{
 		Use:   "{{.Command.Use}}",
 		Short: "{{.Command.Short}}",

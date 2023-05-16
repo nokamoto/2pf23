@@ -192,6 +192,7 @@ func (p *Plugin) updateCommand(file *descriptorpb.FileDescriptorProto, m *protog
 	cmd.Request = req.Message
 	cmd.StringFlags = req.StringFlags
 	cmd.Int32Flags = req.Int32Flags
+	cmd.EnumFlags = req.EnumFlags
 
 	return cmd, nil
 }
@@ -242,6 +243,7 @@ func (p *Plugin) createCommand(file *descriptorpb.FileDescriptorProto, m *protog
 	cmd.Request = req.Message
 	cmd.StringFlags = req.StringFlags
 	cmd.Int32Flags = req.Int32Flags
+	cmd.EnumFlags = req.EnumFlags
 
 	return cmd, nil
 }
