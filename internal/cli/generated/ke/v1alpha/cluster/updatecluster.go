@@ -16,6 +16,7 @@ import (
 func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 	var displayName string
 	var numNodes int32
+	var machineType v1alpha.MachineType
 	cmd := &cobra.Command{
 		Use:   "update cluster-name",
 		Short: "update is a command to update the Cluster",
@@ -45,6 +46,7 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 					Name:        args[0],
 					DisplayName: displayName,
 					NumNodes:    numNodes,
+					MachineType: machineType,
 				},
 			})
 			if err != nil {

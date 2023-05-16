@@ -77,6 +77,12 @@ func TestPlugin_Run(t *testing.T) {
 									{
 										Name: proto.String("name"),
 									},
+									{
+										Name:     proto.String("category"),
+										JsonName: proto.String("category"),
+										Type:     descriptorpb.FieldDescriptorProto_TYPE_ENUM.Enum(),
+										TypeName: proto.String(".api.library.v1alpha.ShelfCategory"),
+									},
 								},
 							},
 							{
@@ -191,6 +197,10 @@ func TestPlugin_Run(t *testing.T) {
 																	Name:  "DisplayName",
 																	Value: "displayName",
 																},
+																{
+																	Name:  "Category",
+																	Value: "category",
+																},
 															},
 														},
 													},
@@ -200,6 +210,13 @@ func TestPlugin_Run(t *testing.T) {
 														Name:        "displayName",
 														DisplayName: "display-name",
 														Usage:       "display name usage",
+													},
+												},
+												EnumFlags: []*v1.EnumFlag{
+													{
+														Name:        "category",
+														DisplayName: "category",
+														Type:        "v1alpha.ShelfCategory",
 													},
 												},
 											},
@@ -304,6 +321,10 @@ func TestPlugin_Run(t *testing.T) {
 																	Name:  "Name",
 																	Value: "args[0]",
 																},
+																{
+																	Name:  "Category",
+																	Value: "category",
+																},
 															},
 														},
 													},
@@ -314,6 +335,13 @@ func TestPlugin_Run(t *testing.T) {
 														DisplayName: "display-name",
 														Usage:       "display name usage",
 														Path:        "display_name",
+													},
+												},
+												EnumFlags: []*v1.EnumFlag{
+													{
+														Name:        "category",
+														DisplayName: "category",
+														Type:        "v1alpha.ShelfCategory",
 													},
 												},
 											},

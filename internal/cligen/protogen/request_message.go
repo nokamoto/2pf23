@@ -22,6 +22,8 @@ type RequestMessageDescriptor struct {
 	StringFlags []*v1.Flag
 	// Int32Flags is a list of number flags.
 	Int32Flags []*v1.Flag
+	// EnumFlags is a list of enum flags.
+	EnumFlags []*v1.EnumFlag
 	// Message is a construct of a request message.
 	Message *v1.RequestMessage
 }
@@ -87,6 +89,14 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string, withN
 					flag.Value = ""
 					resp.Fields = append(resp.Fields, goField)
 					r.StringFlags = append(r.StringFlags, flag)
+
+				case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
+					resp.Fields = append(resp.Fields, goField)
+					r.EnumFlags = append(r.EnumFlags, &v1.EnumFlag{
+						Name:        flag.GetName(),
+						DisplayName: flag.GetDisplayName(),
+						Type:        protogen.GoTypeNameFromFullyQualified(field.GetTypeName()),
+					})
 
 				case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
 					sub, err := r.requestMessage(field.GetTypeName(), goFieldName, withName, withPath)

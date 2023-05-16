@@ -8,6 +8,14 @@ import "google/protobuf/field_mask.proto";
 
 option go_package = "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha;kev1alpha";
 
+// MachineType is a type of machine.
+enum MachineType {
+  MACHINE_TYPE_UNSPECIFIED = 0;
+  MACHINE_TYPE_STANDARD = 1;
+  MACHINE_TYPE_HIGHMEM = 2;
+  MACHINE_TYPE_HIGHCPU = 3;
+}
+
 message Cluster {
   // The name of the cluster. This is used to identify the cluster in the API.
   // This is a read-only property.
@@ -18,6 +26,8 @@ message Cluster {
   // The number of worker nodes in the cluster.
   // If unspecified during cluster creation, the default value is 3.
   int32 num_nodes = 3 [(api.option.v1.Resource.usage) = "The number of worker nodes in the cluster."];
+  // The type of machine.
+  MachineType machine_type = 4 [(api.option.v1.Resource.usage) = "The type of machine."];
 }
 
 service KeService {
