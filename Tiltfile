@@ -12,4 +12,4 @@ helm_resource(
 
 # https://github.com/tilt-dev/tilt-extensions/tree/master/ko
 load('ext://ko', 'ko_build')
-ko_build('ke-apis', './cmd/ke-apis')
+ko_build('ke-apis', './cmd/ke-apis', deps = ['cmd', 'pkg', 'internal'], ignore = ['*/*/*_test.go'])
