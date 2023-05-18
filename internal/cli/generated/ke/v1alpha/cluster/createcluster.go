@@ -3,9 +3,11 @@ package cluster
 
 import (
 	"fmt"
+	"strings"
 )
 
 import (
+	helper "github.com/nokamoto/2pf23/internal/cli/helper"
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
@@ -15,7 +17,7 @@ import (
 func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 	var displayName string
 	var numNodes int32
-	var machineType v1alpha.MachineType
+	machineType := helper.NewEnumFlag[v1alpha.MachineType](v1alpha.MachineType_name, v1alpha.MachineType_value)
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create is a command to create a new Cluster",
@@ -32,7 +34,7 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 				Cluster: &v1alpha.Cluster{
 					DisplayName: displayName,
 					NumNodes:    numNodes,
-					MachineType: machineType,
+					MachineType: machineType.Value(),
 				},
 			})
 			if err != nil {
@@ -48,5 +50,7 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&displayName, "display-name", "", "The display name of the cluster.")
 	cmd.Flags().Int32Var(&numNodes, "num-nodes", 0, "The number of worker nodes in the cluster.")
+	cmd.Flags().Var(machineType, "machine-type", fmt.Sprintf("The type of machine. [%s]", strings.Join(machineType.Names(), ", ")))
+	cmd.RegisterFlagCompletionFunc("machine-type", machineType.CompletionFunc())
 	return cmd
 }

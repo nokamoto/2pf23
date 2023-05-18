@@ -53,6 +53,7 @@ func newImports(imports ...*v1.ImportPath) []*v1.ImportPath {
 type commandArg struct {
 	Runtime    runtimeArg
 	Imports    []*v1.ImportPath
+	GoImports  []*v1.ImportPath
 	Command    *v1.Command
 	ExactArgs0 bool
 	ExactArgs1 bool
@@ -136,7 +137,7 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 	if err := initTemplate(&p.main, "templates/main.go.tmpl"); err != nil {
 		return err
 	}
-	var imports []*v1.ImportPath
+	var goImports, imports []*v1.ImportPath
 	if cmd.ApiImportPath != nil {
 		imports = append(imports, cmd.ApiImportPath)
 	}
@@ -144,7 +145,12 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 		Path: "google.golang.org/protobuf/encoding/protojson",
 	})
 
-	if cmd.GetMethodType() == v1.MethodType_METHOD_TYPE_LIST {
+	if len(cmd.EnumFlags) != 0 {
+		goImports = append(goImports, &v1.ImportPath{
+			Path: "strings",
+		})
+	}
+	if len(cmd.EnumFlags) != 0 || cmd.GetMethodType() == v1.MethodType_METHOD_TYPE_LIST {
 		imports = append(imports, &v1.ImportPath{
 			Alias: "helper",
 			Path:  "github.com/nokamoto/2pf23/internal/cli/helper",
@@ -164,6 +170,7 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 	return p.main.Execute(out, commandArg{
 		Runtime:    newRuntimeArg(),
 		Imports:    newImports(imports...),
+		GoImports:  goImports,
 		Command:    cmd,
 		ExactArgs0: arg0,
 		ExactArgs1: !arg0,

@@ -58,6 +58,9 @@ func Test_newCreate(t *testing.T) {
 		set("--num-nodes 3", &kev1alpha.Cluster{
 			NumNodes: 3,
 		}),
+		set("--machine-type MACHINE_TYPE_STANDARD", &kev1alpha.Cluster{
+			MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
+		}),
 		{
 			name: "failed to create a client for ke.v1alpha",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {

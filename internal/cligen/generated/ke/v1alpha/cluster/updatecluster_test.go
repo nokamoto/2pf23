@@ -50,7 +50,7 @@ func Test_newUpdateCluster(t *testing.T) {
 		},
 		{
 			name: "update fields",
-			args: "foo --display-name bar --num-nodes 3",
+			args: "foo --display-name bar --num-nodes 3 --machine-type MACHINE_TYPE_STANDARD",
 			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
@@ -60,12 +60,14 @@ func Test_newUpdateCluster(t *testing.T) {
 							Name:        "foo",
 							DisplayName: "bar",
 							NumNodes:    3,
+							MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 						},
-						UpdateMask: mask("display_name", "num_nodes"),
+						UpdateMask: mask("display_name", "num_nodes", "machine_type"),
 					})).Return(&kev1alpha.Cluster{
 						Name:        "foo",
 						DisplayName: "bar",
 						NumNodes:    3,
+						MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 					}, nil),
 				)
 			},
@@ -73,6 +75,28 @@ func Test_newUpdateCluster(t *testing.T) {
 				Name:        "foo",
 				DisplayName: "bar",
 				NumNodes:    3,
+				MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
+			},
+		},
+		{
+			name: "update fields with default values",
+			args: "foo --num-nodes 0 --machine-type MACHINE_TYPE_UNSPECIFIED",
+			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+				gomock.InOrder(
+					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
+					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
+					c.EXPECT().UpdateCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.UpdateClusterRequest{
+						Cluster: &kev1alpha.Cluster{
+							Name: "foo",
+						},
+						UpdateMask: mask("num_nodes", "machine_type"),
+					})).Return(&kev1alpha.Cluster{
+						Name: "foo",
+					}, nil),
+				)
+			},
+			expected: &kev1alpha.Cluster{
+				Name: "foo",
 			},
 		},
 		{

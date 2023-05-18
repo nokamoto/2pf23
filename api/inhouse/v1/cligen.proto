@@ -23,31 +23,28 @@ message Flag {
   // e.g. default value
   string value = 3;
   // usage is the usage string of the flag.
-  // e.g. usage string
   string usage = 4;
   // path is the field mask path of the flag.
   // e.g. display_name
   string path = 5;
 }
 
-// EnumValue represents enum value.
-message EnumValue {
-  // name is the variable name.
-  // e.g. MACHINE_TYPE_UNSPECIFIED
-  string name = 1;
-  // display_name is the display name of the enum value.
-  // e.g. unspecified
-  string display_name = 2;
-}
-
 // EnumFlag represents command line flag of enum.
 message EnumFlag {
+  // name is the variable name.
+  // e.g. machineType
   string name = 1;
+  // type is the enum type.
+  // e.g. v1alpha.MachineType
   string type = 2;
+  // display_name is the display name of the flag.
+  // e.g. machine-type
   string display_name = 3;
+  // usage is the usage string of the flag.
   string usage = 4;
+  // path is the field mask path of the flag.
+  // e.g. machine_type
   string path = 5;
-  repeated EnumValue values = 6;
 }
 
 // RequestMessageField represents golang struct field value.

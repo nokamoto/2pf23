@@ -91,11 +91,15 @@ func (r *RequestMessageDescriptor) requestMessage(typ string, name string, withN
 					r.StringFlags = append(r.StringFlags, flag)
 
 				case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
-					resp.Fields = append(resp.Fields, goField)
+					resp.Fields = append(resp.Fields, &v1.RequestMessageField{
+						Name:  goFieldName,
+						Value: fmt.Sprintf("%s.Value()", flag.Name),
+					})
 					r.EnumFlags = append(r.EnumFlags, &v1.EnumFlag{
 						Name:        flag.GetName(),
 						DisplayName: flag.GetDisplayName(),
 						Type:        protogen.GoTypeNameFromFullyQualified(field.GetTypeName()),
+						Usage:       flag.GetUsage(),
 					})
 
 				case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
