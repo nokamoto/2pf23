@@ -48,7 +48,7 @@
                           },
                           {
                             "name": "MachineType",
-                            "value": "machineType"
+                            "value": "machineType.Value()"
                           }
                         ]
                       }
@@ -72,17 +72,7 @@
                     {
                       "name": "machineType",
                       "type": "v1alpha.MachineType",
-                      "displayName": "machine-type",
-                      "values": [
-                        {
-                          "name": "v1alpha.MACHINE_TYPE_UNSPECIFIED",
-                          "displayName": "unspecified"
-                        },
-                        {
-                          "name": "v1alpha.MACHINE_TYPE_STANDARD",
-                          "displayName": "standard"
-                        }
-                      ]
+                      "displayName": "machine-type"
                     }
                   ]
                 },
@@ -190,6 +180,10 @@
                           {
                             "name": "NumNodes",
                             "value": "numNodes"
+                          },
+                          {
+                            "name": "MachineType",
+                            "value": "machineType.Value()"
                           }
                         ]
                       }
@@ -209,6 +203,14 @@
                       "displayName": "num-nodes",
                       "value": "0",
                       "path": "num_nodes"
+                    }
+                  ],
+                  "enumFlags": [
+                    {
+                      "name": "machineType",
+                      "type": "v1alpha.MachineType",
+                      "displayName": "machine-type",
+                      "path": "machine_type"
                     }
                   ]
                 }

@@ -3,9 +3,11 @@ package cluster
 
 import (
 	"fmt"
+	"strings"
 )
 
 import (
+	helper "github.com/nokamoto/2pf23/internal/cli/helper"
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
@@ -16,6 +18,7 @@ import (
 func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 	var displayName string
 	var numNodes int32
+	machineType := helper.NewEnumFlag[v1alpha.MachineType](v1alpha.MachineType_name, v1alpha.MachineType_value)
 	cmd := &cobra.Command{
 		Use:   "update cluster-name",
 		Short: "update is a command to update the Cluster",
@@ -35,6 +38,9 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 			if cmd.Flags().Changed("num-nodes") {
 				paths = append(paths, "num_nodes")
 			}
+			if cmd.Flags().Changed("machine-type") {
+				paths = append(paths, "machine_type")
+			}
 			mask, err := fieldmaskpb.New(&v1alpha.Cluster{}, paths...)
 			if err != nil {
 				return fmt.Errorf("failed to create a field mask: %w", err)
@@ -45,6 +51,7 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 					Name:        args[0],
 					DisplayName: displayName,
 					NumNodes:    numNodes,
+					MachineType: machineType.Value(),
 				},
 			})
 			if err != nil {
@@ -60,5 +67,7 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&displayName, "display-name", "", "The display name of the cluster.")
 	cmd.Flags().Int32Var(&numNodes, "num-nodes", 0, "")
+	cmd.Flags().Var(machineType, "machine-type", fmt.Sprintf(" [%s]", strings.Join(machineType.Names(), ", ")))
+	cmd.RegisterFlagCompletionFunc("machine-type", machineType.CompletionFunc())
 	return cmd
 }

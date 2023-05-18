@@ -3,6 +3,9 @@ package {{.Command.Package}}
 
 import (
 	"fmt"
+{{- range .GoImports}}
+	"{{.Path}}"
+{{- end}}
 )
 
 import (
@@ -19,7 +22,7 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 	var {{.Name}} int32
 {{- end}}
 {{- range .Command.EnumFlags}}
-	var {{.Name}} {{.Type}}
+	{{.Name}} := helper.NewEnumFlag[{{.Type}}]({{.Type}}_name, {{.Type}}_value)
 {{- end}}
 	cmd := &cobra.Command{
 		Use:   "{{.Command.Use}}",
@@ -61,6 +64,11 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 				paths = append(paths, "{{.Path}}")
 			}
 {{- end}}
+{{- range .Command.EnumFlags}}
+			if cmd.Flags().Changed("{{.DisplayName}}") {
+				paths = append(paths, "{{.Path}}")
+			}
+{{- end}}
 			mask, err := fieldmaskpb.New(&v1alpha.Cluster{}, paths...)
 			if err != nil {
 				return fmt.Errorf("failed to create a field mask: %w", err)
@@ -84,6 +92,10 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 {{- end}}
 {{- range .Command.Int32Flags}}
 	cmd.Flags().Int32Var(&{{.Name}}, "{{.DisplayName}}", {{.Value}}, "{{.Usage}}")
+{{- end}}
+{{- range .Command.EnumFlags}}
+	cmd.Flags().Var({{.Name}}, "{{.DisplayName}}", fmt.Sprintf("{{.Usage}} [%s]", strings.Join({{.Name}}.Names(), ", ")))
+	cmd.RegisterFlagCompletionFunc("{{.DisplayName}}", {{.Name}}.CompletionFunc())
 {{- end}}
 	return cmd
 }

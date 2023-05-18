@@ -199,7 +199,7 @@ func TestPlugin_Run(t *testing.T) {
 																},
 																{
 																	Name:  "Category",
-																	Value: "category",
+																	Value: "category.Value()",
 																},
 															},
 														},
@@ -323,7 +323,7 @@ func TestPlugin_Run(t *testing.T) {
 																},
 																{
 																	Name:  "Category",
-																	Value: "category",
+																	Value: "category.Value()",
 																},
 															},
 														},
