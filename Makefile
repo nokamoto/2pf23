@@ -59,6 +59,7 @@ build: $(GOBIN)/ko
 
 .PHONY: testdata
 testdata:
+	go run ./cmd/tools ent testdata/generator/ent internal/generator/ent/generated
 	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated github.com/nokamoto/2pf23/internal/cligen/generated
 	go run ./cmd/server-gen/main.go testdata/servergen internal/servergen/generated --mock
 
