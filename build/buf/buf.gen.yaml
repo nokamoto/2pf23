@@ -8,3 +8,7 @@ plugins:
     out: pkg
     opt:
       - paths=source_relative
+  - plugin: connect-go
+    out: pkg
+    opt:
+      - paths=source_relative

@@ -49,6 +49,7 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 	static := []string{
 		"go.uber.org/zap",
 		"github.com/nokamoto/2pf23/internal/server/helper",
+		"github.com/bufbuild/connect-go",
 	}
 	for _, s := range static {
 		imports = append(imports, &v1.ImportPath{

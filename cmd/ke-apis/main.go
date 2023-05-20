@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
+	"net/http"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -13,10 +13,11 @@ import (
 	"github.com/nokamoto/2pf23/internal/ent"
 	keinfra "github.com/nokamoto/2pf23/internal/infra/postgresql/ke"
 	v1alphaservice "github.com/nokamoto/2pf23/internal/server/generated/ke/v1alpha"
-	v1alphaapi "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha/kev1alphaconnect"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"google.golang.org/grpc"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 type runtime struct {
@@ -86,18 +87,18 @@ func main() {
 	rt := &runtime{
 		Cluster: keinfra.NewCluster(client),
 	}
+	app := ke.NewCluster(rt)
+	svc := v1alphaservice.NewService(logger, app)
 
 	port := envOr("GRPC_PORT", "9000")
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	mux := http.NewServeMux()
+	path, handler := kev1alphaconnect.NewKeServiceHandler(svc)
+	mux.Handle(path, handler)
+	err := http.ListenAndServe(
+		fmt.Sprintf(":%s", port),
+		h2c.NewHandler(mux, &http2.Server{}),
+	)
 	if err != nil {
-		logger.Fatal("failed to listen", zap.Error(err))
-	}
-
-	s := grpc.NewServer()
-	v1alphaapi.RegisterKeServiceServer(s, v1alphaservice.NewService(logger, ke.NewCluster(rt)))
-
-	logger.Info("server listening", zap.String("address", lis.Addr().String()))
-	if err := s.Serve(lis); err != nil {
-		logger.Fatal("failed to serve", zap.Error(err))
+		logger.Fatal("failed to listen and serve", zap.Error(err))
 	}
 }

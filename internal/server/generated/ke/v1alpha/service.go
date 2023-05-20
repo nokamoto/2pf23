@@ -6,6 +6,7 @@ import (
 )
 
 import (
+	"github.com/bufbuild/connect-go"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/2pf23/internal/server/helper"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
@@ -35,35 +36,35 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 	}
 }
 
-func (s *service) CreateCluster(ctx context.Context, req *v1alpha.CreateClusterRequest) (*v1alpha.Cluster, error) {
+func (s *service) CreateCluster(ctx context.Context, req *connect.Request[v1alpha.CreateClusterRequest]) (*connect.Response[v1alpha.Cluster], error) {
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Create(ctx, req.GetCluster())
-	return helper.ErrorOr(logger, res, err)
+	res, err := s.rt.Create(ctx, helper.GetMsg(req).GetCluster())
+	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
-func (s *service) GetCluster(ctx context.Context, req *v1alpha.GetClusterRequest) (*v1alpha.Cluster, error) {
+func (s *service) GetCluster(ctx context.Context, req *connect.Request[v1alpha.GetClusterRequest]) (*connect.Response[v1alpha.Cluster], error) {
 	logger := s.logger.With(zap.String("method", "GetCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Get(ctx, req.GetName())
-	return helper.ErrorOr(logger, res, err)
+	res, err := s.rt.Get(ctx, helper.GetMsg(req).GetName())
+	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
-func (s *service) DeleteCluster(ctx context.Context, req *v1alpha.DeleteClusterRequest) (*empty.Empty, error) {
+func (s *service) DeleteCluster(ctx context.Context, req *connect.Request[v1alpha.DeleteClusterRequest]) (*connect.Response[empty.Empty], error) {
 	logger := s.logger.With(zap.String("method", "DeleteCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Delete(ctx, req.GetName())
-	return helper.ErrorOr(logger, res, err)
+	res, err := s.rt.Delete(ctx, helper.GetMsg(req).GetName())
+	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
-func (s *service) ListCluster(ctx context.Context, req *v1alpha.ListClusterRequest) (*v1alpha.ListClusterResponse, error) {
+func (s *service) ListCluster(ctx context.Context, req *connect.Request[v1alpha.ListClusterRequest]) (*connect.Response[v1alpha.ListClusterResponse], error) {
 	logger := s.logger.With(zap.String("method", "ListCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	page, err := helper.Pagination(req)
+	page, err := helper.Pagination(helper.GetMsg(req))
 	if err != nil {
 		return helper.ErrorOr[v1alpha.ListClusterResponse](logger, nil, err)
 	}
-	resources, page, err := s.rt.List(ctx, req.GetPageSize(), page)
+	resources, page, err := s.rt.List(ctx, helper.GetMsg(req).GetPageSize(), page)
 	if err != nil {
 		return helper.ErrorOr[v1alpha.ListClusterResponse](logger, nil, err)
 	}
@@ -75,12 +76,12 @@ func (s *service) ListCluster(ctx context.Context, req *v1alpha.ListClusterReque
 		Clusters:      resources,
 		NextPageToken: token,
 	}
-	return helper.ErrorOr(logger, res, err)
+	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
-func (s *service) UpdateCluster(ctx context.Context, req *v1alpha.UpdateClusterRequest) (*v1alpha.Cluster, error) {
+func (s *service) UpdateCluster(ctx context.Context, req *connect.Request[v1alpha.UpdateClusterRequest]) (*connect.Response[v1alpha.Cluster], error) {
 	logger := s.logger.With(zap.String("method", "UpdateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Update(ctx, req.GetCluster(), req.GetUpdateMask())
-	return helper.ErrorOr(logger, res, err)
+	res, err := s.rt.Update(ctx, helper.GetMsg(req).GetCluster(), helper.GetMsg(req).GetUpdateMask())
+	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
