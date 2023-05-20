@@ -45,7 +45,7 @@ go: $(GOBIN)/gofumpt
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 	go mod tidy
 
-proto: $(GOBIN)/protoc-gen-go $(GOBIN)/protoc-gen-go-grpc $(GOBIN)/buf $(GOBIN)/protoc-gen-connect-go
+proto: $(GOBIN)/protoc-gen-go $(GOBIN)/buf $(GOBIN)/protoc-gen-connect-go
 	buf lint --config build/buf/buf.yaml --error-format=json
 	buf format --config build/buf/buf.yaml -w
 	buf generate --template build/buf/buf.gen.yaml
