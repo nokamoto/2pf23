@@ -9,6 +9,7 @@ import (
 	"github.com/bufbuild/connect-go"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/2pf23/internal/server/helper"
+	helperapi "github.com/nokamoto/2pf23/internal/util/helper"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap"
@@ -40,32 +41,32 @@ func NewService(logger *zap.Logger, rt runtime) *service {
 func (s *service) CreateCluster(ctx context.Context, req *connect.Request[kev1alpha.CreateClusterRequest]) (*connect.Response[kev1alpha.Cluster], error) {
 	logger := s.logger.With(zap.String("method", "CreateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Create(ctx, helper.GetMsg(req).GetCluster())
+	res, err := s.rt.Create(ctx, helperapi.GetMsg(req).GetCluster())
 	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
 func (s *service) GetCluster(ctx context.Context, req *connect.Request[kev1alpha.GetClusterRequest]) (*connect.Response[kev1alpha.Cluster], error) {
 	logger := s.logger.With(zap.String("method", "GetCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Get(ctx, helper.GetMsg(req).GetName())
+	res, err := s.rt.Get(ctx, helperapi.GetMsg(req).GetName())
 	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
 func (s *service) DeleteCluster(ctx context.Context, req *connect.Request[kev1alpha.DeleteClusterRequest]) (*connect.Response[empty.Empty], error) {
 	logger := s.logger.With(zap.String("method", "DeleteCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Delete(ctx, helper.GetMsg(req).GetName())
+	res, err := s.rt.Delete(ctx, helperapi.GetMsg(req).GetName())
 	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }
 
 func (s *service) ListCluster(ctx context.Context, req *connect.Request[kev1alpha.ListClusterRequest]) (*connect.Response[kev1alpha.ListClusterResponse], error) {
 	logger := s.logger.With(zap.String("method", "ListCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	page, err := helper.Pagination(helper.GetMsg(req))
+	page, err := helper.Pagination(helperapi.GetMsg(req))
 	if err != nil {
 		return helper.ErrorOr[kev1alpha.ListClusterResponse](logger, nil, err)
 	}
-	resources, page, err := s.rt.List(ctx, helper.GetMsg(req).GetPageSize(), page)
+	resources, page, err := s.rt.List(ctx, helperapi.GetMsg(req).GetPageSize(), page)
 	if err != nil {
 		return helper.ErrorOr[kev1alpha.ListClusterResponse](logger, nil, err)
 	}
@@ -83,6 +84,6 @@ func (s *service) ListCluster(ctx context.Context, req *connect.Request[kev1alph
 func (s *service) UpdateCluster(ctx context.Context, req *connect.Request[kev1alpha.UpdateClusterRequest]) (*connect.Response[kev1alpha.Cluster], error) {
 	logger := s.logger.With(zap.String("method", "UpdateCluster"), zap.Any("request", req))
 	logger.Debug("request received")
-	res, err := s.rt.Update(ctx, helper.GetMsg(req).GetCluster(), helper.GetMsg(req).GetUpdateMask())
+	res, err := s.rt.Update(ctx, helperapi.GetMsg(req).GetCluster(), helperapi.GetMsg(req).GetUpdateMask())
 	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }

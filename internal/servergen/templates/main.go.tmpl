@@ -46,17 +46,17 @@ func (s *service) {{.Name}}(ctx context.Context, req *connect.Request[{{.Request
 	logger := s.logger.With(zap.String("method", "{{.Name}}"), zap.Any("request", req))
 	logger.Debug("request received")
 {{- if eq .MethodType 1}}
-	res, err := s.rt.Create(ctx, helper.GetMsg(req).{{.GetResourceMethod}}())
+	res, err := s.rt.Create(ctx, helperapi.GetMsg(req).{{.GetResourceMethod}}())
 {{- else if eq .MethodType 2}}
-	res, err := s.rt.Get(ctx, helper.GetMsg(req).GetName())
+	res, err := s.rt.Get(ctx, helperapi.GetMsg(req).GetName())
 {{- else if eq .MethodType 3}}
-	res, err := s.rt.Delete(ctx, helper.GetMsg(req).GetName())
+	res, err := s.rt.Delete(ctx, helperapi.GetMsg(req).GetName())
 {{- else if eq .MethodType 4}}
-	page, err := helper.Pagination(helper.GetMsg(req))
+	page, err := helper.Pagination(helperapi.GetMsg(req))
 	if err != nil {
 		return helper.ErrorOr[{{.ResponseType}}](logger, nil, err)
 	}
-	resources, page, err := s.rt.List(ctx, helper.GetMsg(req).GetPageSize(), page)
+	resources, page, err := s.rt.List(ctx, helperapi.GetMsg(req).GetPageSize(), page)
 	if err != nil {
 		return helper.ErrorOr[{{.ResponseType}}](logger, nil, err)
 	}
@@ -69,7 +69,7 @@ func (s *service) {{.Name}}(ctx context.Context, req *connect.Request[{{.Request
 		NextPageToken: token,
 	}
 {{- else if eq .MethodType 5}}
-	res, err := s.rt.Update(ctx, helper.GetMsg(req).{{.GetResourceMethod}}(), helper.GetMsg(req).GetUpdateMask())
+	res, err := s.rt.Update(ctx, helperapi.GetMsg(req).{{.GetResourceMethod}}(), helperapi.GetMsg(req).GetUpdateMask())
 {{- end}}
 	return helper.ErrorOr(logger, connect.NewResponse(res), err)
 }

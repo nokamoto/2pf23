@@ -42,11 +42,11 @@ func run[T1 any, T2 any](t *testing.T, f func(*service, context.Context, *connec
 
 			res, err := f(s, context.TODO(), connect.NewRequest(tc.req))
 
-			if code := helperapi.CodeOf(err); code != tc.code {
+			if code := helper.CodeOf(err); code != tc.code {
 				t.Errorf("expected %v, got %v", tc.code, code)
 			}
 
-			if diff := cmp.Diff(helperapi.GetResponseMsg(res), tc.expected, protocmp.Transform()); diff != "" {
+			if diff := cmp.Diff(helper.GetResponseMsg(res), tc.expected, protocmp.Transform()); diff != "" {
 				t.Errorf("differs: (-want +got)\n%s", diff)
 			}
 		})

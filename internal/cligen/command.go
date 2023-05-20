@@ -141,9 +141,12 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 	if cmd.ApiImportPath != nil {
 		imports = append(imports, cmd.ApiImportPath)
 	}
-	imports = append(imports, &v1.ImportPath{
-		Path: "google.golang.org/protobuf/encoding/protojson",
-	})
+	imports = append(
+		imports,
+		&v1.ImportPath{
+			Path: "google.golang.org/protobuf/encoding/protojson",
+		},
+	)
 
 	if len(cmd.EnumFlags) != 0 {
 		goImports = append(goImports, &v1.ImportPath{
@@ -155,6 +158,17 @@ func (p *Printer) PrintCommand(out io.Writer, cmd *v1.Command) error {
 			Alias: "helper",
 			Path:  "github.com/nokamoto/2pf23/internal/cli/helper",
 		})
+	}
+	if cmd.GetMethodType() != v1.MethodType_METHOD_TYPE_LIST {
+		imports = append(
+			imports,
+			&v1.ImportPath{
+				Path: "github.com/bufbuild/connect-go",
+			},
+			&v1.ImportPath{
+				Alias: "helperapi",
+				Path:  "github.com/nokamoto/2pf23/internal/util/helper",
+			})
 	}
 	if cmd.GetMethodType() == v1.MethodType_METHOD_TYPE_UPDATE {
 		imports = append(imports, &v1.ImportPath{

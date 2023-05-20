@@ -5,10 +5,11 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/bufbuild/connect-go"
 	"github.com/golang/mock/gomock"
 	"github.com/nokamoto/2pf23/internal/cli/runtime/mock"
-	"github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
 	"github.com/nokamoto/2pf23/internal/util/helper"
+	"github.com/nokamoto/2pf23/internal/util/helper/mock"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -23,15 +24,15 @@ func Test_newGet(t *testing.T) {
 		{
 			name: "ok",
 			args: "foo",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().GetCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.GetClusterRequest{
+					c.EXPECT().GetCluster(context.TODO(), helper.ConnectEqual(&kev1alpha.GetClusterRequest{
 						Name: "foo",
-					})).Return(&kev1alpha.Cluster{
+					})).Return(connect.NewResponse(&kev1alpha.Cluster{
 						Name: "foo",
-					}, nil),
+					}), nil),
 				)
 			},
 			expected: &kev1alpha.Cluster{
@@ -41,7 +42,7 @@ func Test_newGet(t *testing.T) {
 		{
 			name: "failed to get a client for ke.v1alpha",
 			args: "foo",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(nil, clientErr),
@@ -52,7 +53,7 @@ func Test_newGet(t *testing.T) {
 		{
 			name: "failed to GetCluster",
 			args: "foo",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),

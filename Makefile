@@ -1,4 +1,3 @@
-API_GO_FILES = $(shell find pkg/api -name '*grpc.pb.go')
 COMMANDS = pf ke-apis
 GOBIN = $(shell go env GOPATH)/bin
 
@@ -15,7 +14,7 @@ endef
 fast:
 	go test ./...
 
-test: proto mock testdata gen go
+test: proto testdata gen go
 
 lint: $(GOBIN)/golangci-lint
 	golangci-lint run
@@ -56,9 +55,6 @@ proto: $(GOBIN)/protoc-gen-go $(GOBIN)/protoc-gen-go-grpc $(GOBIN)/buf $(GOBIN)/
 
 cialpha:
 	go run ./build/ci/test/main.go
-
-mock:
-	$(foreach file,$(API_GO_FILES),go run -mod=mod github.com/golang/mock/mockgen -source $(file) -destination internal/mock/$(file))
 
 .PHONY: build
 build: $(GOBIN)/ko

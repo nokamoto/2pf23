@@ -7,8 +7,10 @@ import (
 )
 
 import (
+	"github.com/bufbuild/connect-go"
 	helper "github.com/nokamoto/2pf23/internal/cli/helper"
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
+	helperapi "github.com/nokamoto/2pf23/internal/util/helper"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -30,17 +32,17 @@ func newCreateCluster(rt runtime.Runtime) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to create a client for ke.v1alpha: %w", err)
 			}
-			res, err := c.CreateCluster(ctx, &v1alpha.CreateClusterRequest{
+			res, err := c.CreateCluster(ctx, connect.NewRequest(&v1alpha.CreateClusterRequest{
 				Cluster: &v1alpha.Cluster{
 					DisplayName: displayName,
 					NumNodes:    numNodes,
 					MachineType: machineType.Value(),
 				},
-			})
+			}))
 			if err != nil {
 				return fmt.Errorf("ke.v1alpha: failed to CreateCluster: %w", err)
 			}
-			message, err := protojson.Marshal(res)
+			message, err := protojson.Marshal(helperapi.GetResponseMsg(res))
 			if err != nil {
 				return err
 			}

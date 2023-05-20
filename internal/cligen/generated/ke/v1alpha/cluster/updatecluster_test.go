@@ -5,10 +5,11 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/bufbuild/connect-go"
 	"github.com/golang/mock/gomock"
 	mockruntime "github.com/nokamoto/2pf23/internal/cli/runtime/mock"
-	mock_kev1alpha "github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
 	"github.com/nokamoto/2pf23/internal/util/helper"
+	"github.com/nokamoto/2pf23/internal/util/helper/mock"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -30,18 +31,18 @@ func Test_newUpdateCluster(t *testing.T) {
 		{
 			name: "unchanged",
 			args: "foo",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().UpdateCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.UpdateClusterRequest{
+					c.EXPECT().UpdateCluster(context.TODO(), helper.ConnectEqual(&kev1alpha.UpdateClusterRequest{
 						Cluster: &kev1alpha.Cluster{
 							Name: "foo",
 						},
 						UpdateMask: mask(),
-					})).Return(&kev1alpha.Cluster{
+					})).Return(connect.NewResponse(&kev1alpha.Cluster{
 						Name: "foo",
-					}, nil),
+					}), nil),
 				)
 			},
 			expected: &kev1alpha.Cluster{
@@ -51,11 +52,11 @@ func Test_newUpdateCluster(t *testing.T) {
 		{
 			name: "update fields",
 			args: "foo --display-name bar --num-nodes 3 --machine-type MACHINE_TYPE_STANDARD",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().UpdateCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.UpdateClusterRequest{
+					c.EXPECT().UpdateCluster(context.TODO(), helper.ConnectEqual(&kev1alpha.UpdateClusterRequest{
 						Cluster: &kev1alpha.Cluster{
 							Name:        "foo",
 							DisplayName: "bar",
@@ -63,12 +64,12 @@ func Test_newUpdateCluster(t *testing.T) {
 							MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 						},
 						UpdateMask: mask("display_name", "num_nodes", "machine_type"),
-					})).Return(&kev1alpha.Cluster{
+					})).Return(connect.NewResponse(&kev1alpha.Cluster{
 						Name:        "foo",
 						DisplayName: "bar",
 						NumNodes:    3,
 						MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
-					}, nil),
+					}), nil),
 				)
 			},
 			expected: &kev1alpha.Cluster{
@@ -81,18 +82,18 @@ func Test_newUpdateCluster(t *testing.T) {
 		{
 			name: "update fields with default values",
 			args: "foo --num-nodes 0 --machine-type MACHINE_TYPE_UNSPECIFIED",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),
-					c.EXPECT().UpdateCluster(context.TODO(), helper.ProtoEqual(&kev1alpha.UpdateClusterRequest{
+					c.EXPECT().UpdateCluster(context.TODO(), helper.ConnectEqual(&kev1alpha.UpdateClusterRequest{
 						Cluster: &kev1alpha.Cluster{
 							Name: "foo",
 						},
 						UpdateMask: mask("num_nodes", "machine_type"),
-					})).Return(&kev1alpha.Cluster{
+					})).Return(connect.NewResponse(&kev1alpha.Cluster{
 						Name: "foo",
-					}, nil),
+					}), nil),
 				)
 			},
 			expected: &kev1alpha.Cluster{
@@ -102,7 +103,7 @@ func Test_newUpdateCluster(t *testing.T) {
 		{
 			name: "failed to get a client for ke.v1alpha",
 			args: "foo",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(nil, clientErr),
@@ -113,7 +114,7 @@ func Test_newUpdateCluster(t *testing.T) {
 		{
 			name: "failed to update a cluster",
 			args: "foo",
-			mock: func(rt *mockruntime.MockRuntime, c *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(rt *mockruntime.MockRuntime, c *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
 					rt.EXPECT().Context(gomock.Any()).Return(context.TODO()),
 					rt.EXPECT().KeV1alpha(gomock.Any()).Return(c, nil),

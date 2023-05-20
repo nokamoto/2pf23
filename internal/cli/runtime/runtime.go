@@ -3,16 +3,16 @@ package runtime
 
 import (
 	"context"
+	"net/http"
 
-	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"github.com/bufbuild/connect-go"
+	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha/kev1alphaconnect"
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Runtime interface {
 	Context(*cobra.Command) context.Context
-	KeV1alpha(*cobra.Command) (kev1alpha.KeServiceClient, error)
+	KeV1alpha(*cobra.Command) (kev1alphaconnect.KeServiceClient, error)
 }
 
 type runtime struct{}
@@ -21,22 +21,14 @@ func NewRuntime() Runtime {
 	return runtime{}
 }
 
-func run[T any](cobra *cobra.Command, f func(grpc.ClientConnInterface) T, empty T) (T, error) {
-	var target string
-	var opts []grpc.DialOption
-	target = "localhost:9000"
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(target, opts...)
-	if err != nil {
-		return empty, err
-	}
-	return f(conn), nil
-}
-
 func (runtime) Context(cobra *cobra.Command) context.Context {
 	return context.Background()
 }
 
-func (runtime) KeV1alpha(cobra *cobra.Command) (kev1alpha.KeServiceClient, error) {
-	return run(cobra, kev1alpha.NewKeServiceClient, nil)
+func (runtime) KeV1alpha(cobra *cobra.Command) (kev1alphaconnect.KeServiceClient, error) {
+	return kev1alphaconnect.NewKeServiceClient(
+		http.DefaultClient,
+		"http://localhost:9000",
+		connect.WithGRPC(),
+	), nil
 }

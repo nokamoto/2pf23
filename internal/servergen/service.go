@@ -56,6 +56,10 @@ func (p *Printer) PrintService(out io.Writer, svc *v1.Service) error {
 			Path: s,
 		})
 	}
+	imports = append(imports, &v1.ImportPath{
+		Alias: "helperapi",
+		Path:  "github.com/nokamoto/2pf23/internal/util/helper",
+	})
 
 	var delete, list, update bool
 	for _, call := range svc.GetCalls() {

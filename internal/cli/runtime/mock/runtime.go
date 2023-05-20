@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	kev1alphaconnect "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha/kev1alphaconnect"
 	cobra "github.com/spf13/cobra"
 )
 
@@ -51,10 +51,10 @@ func (mr *MockRuntimeMockRecorder) Context(arg0 interface{}) *gomock.Call {
 }
 
 // KeV1alpha mocks base method.
-func (m *MockRuntime) KeV1alpha(arg0 *cobra.Command) (kev1alpha.KeServiceClient, error) {
+func (m *MockRuntime) KeV1alpha(arg0 *cobra.Command) (kev1alphaconnect.KeServiceClient, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "KeV1alpha", arg0)
-	ret0, _ := ret[0].(kev1alpha.KeServiceClient)
+	ret0, _ := ret[0].(kev1alphaconnect.KeServiceClient)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
