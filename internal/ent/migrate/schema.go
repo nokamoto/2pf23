@@ -14,6 +14,7 @@ var (
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 2147483647},
 		{Name: "display_name", Type: field.TypeString, Size: 2147483647},
 		{Name: "num_nodes", Type: field.TypeInt32},
+		{Name: "machine_type", Type: field.TypeInt32},
 	}
 	// ClustersTable holds the schema information for the "clusters" table.
 	ClustersTable = &schema.Table{

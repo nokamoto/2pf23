@@ -21,4 +21,8 @@ func init() {
 	clusterDescNumNodes := clusterFields[3].Descriptor()
 	// cluster.NumNodesValidator is a validator for the "num_nodes" field. It is called by the builders before save.
 	cluster.NumNodesValidator = clusterDescNumNodes.Validators[0].(func(int32) error)
+	// clusterDescMachineType is the schema descriptor for machine_type field.
+	clusterDescMachineType := clusterFields[4].Descriptor()
+	// cluster.MachineTypeValidator is a validator for the "machine_type" field. It is called by the builders before save.
+	cluster.MachineTypeValidator = clusterDescMachineType.Validators[0].(func(int32) error)
 }

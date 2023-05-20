@@ -17,6 +17,8 @@ const (
 	FieldDisplayName = "display_name"
 	// FieldNumNodes holds the string denoting the num_nodes field in the database.
 	FieldNumNodes = "num_nodes"
+	// FieldMachineType holds the string denoting the machine_type field in the database.
+	FieldMachineType = "machine_type"
 	// Table holds the table name of the cluster in the database.
 	Table = "clusters"
 )
@@ -27,6 +29,7 @@ var Columns = []string{
 	FieldName,
 	FieldDisplayName,
 	FieldNumNodes,
+	FieldMachineType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -44,6 +47,8 @@ var (
 	NameValidator func(string) error
 	// NumNodesValidator is a validator for the "num_nodes" field. It is called by the builders before save.
 	NumNodesValidator func(int32) error
+	// MachineTypeValidator is a validator for the "machine_type" field. It is called by the builders before save.
+	MachineTypeValidator func(int32) error
 )
 
 // OrderOption defines the ordering options for the Cluster queries.
@@ -67,4 +72,9 @@ func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
 // ByNumNodes orders the results by the num_nodes field.
 func ByNumNodes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNumNodes, opts...).ToFunc()
+}
+
+// ByMachineType orders the results by the machine_type field.
+func ByMachineType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMachineType, opts...).ToFunc()
 }

@@ -21,7 +21,7 @@ func initClusters(t *testing.T, c *ent.Client, init ...*kev1alpha.Cluster) {
 	t.Helper()
 	var builders []*ent.ClusterCreate
 	for _, x := range init {
-		builders = append(builders, c.Cluster.Create().SetName(x.Name).SetDisplayName(x.DisplayName).SetNumNodes(x.NumNodes))
+		builders = append(builders, ent.ClusterCreateQuery(c.Cluster.Create(), x))
 	}
 	_, err := c.Cluster.CreateBulk(builders...).Save(context.Background())
 	if err != nil {
@@ -67,11 +67,13 @@ func TestCluster_Create(t *testing.T) {
 				Name:        "test name",
 				DisplayName: "test display name",
 				NumNodes:    3,
+				MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 			},
 			want: &kev1alpha.Cluster{
 				Name:        "test name",
 				DisplayName: "test display name",
 				NumNodes:    3,
+				MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 			},
 		},
 		{
@@ -271,14 +273,16 @@ func TestCluster_Update(t *testing.T) {
 				Name:        "test name",
 				DisplayName: "test display name 2",
 				NumNodes:    2,
+				MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 			},
 			mask: &fieldmaskpb.FieldMask{
-				Paths: []string{"display_name", "num_nodes"},
+				Paths: []string{"display_name", "num_nodes", "machine_type"},
 			},
 			want: &kev1alpha.Cluster{
 				Name:        "test name",
 				DisplayName: "test display name 2",
 				NumNodes:    2,
+				MachineType: kev1alpha.MachineType_MACHINE_TYPE_STANDARD,
 			},
 		},
 		{
