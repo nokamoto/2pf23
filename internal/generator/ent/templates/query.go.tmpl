@@ -14,7 +14,7 @@ func {{.Ent.Name}}Proto(x *ent.{{.Ent.Name}}) *{{.Ent.ImportPath.Alias}}.{{.Ent.
                 {{.}}: x.{{.}},
 {{- end}}
 {{- range .Ent.EnumFields}}
-                {{.}}: x.{{.}},
+                {{.Name}}: {{.Type}}(x.{{.Name}}),
 {{- end}}
         }
 }

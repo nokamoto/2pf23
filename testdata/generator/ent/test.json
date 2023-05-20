@@ -9,6 +9,9 @@
         "NumNodes"
     ],
     "enumFields": [
-        "MachineType"
+        {
+            "name": "MachineType",
+            "type": "v1alpha.MachineType"
+        }
     ]
 }

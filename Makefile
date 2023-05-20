@@ -70,6 +70,7 @@ gen: $(GOBIN)/buf
 	buf generate --template build/buf/buf.gen.local.yaml
 	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
 	go run ./cmd/server-gen/main.go build/server internal/server/generated
+	go run ./cmd/tools ent build/ent internal/ent/proto
 
 tilt:
 	curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash

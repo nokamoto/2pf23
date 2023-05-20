@@ -59,6 +59,12 @@ func NewWalk(indir string, outdir string) (*Walk, error) {
 
 func (w *Walk) Walk() error {
 	p := Printer{}
+
+	err := os.MkdirAll(w.directory, 0o777)
+	if err != nil {
+		return fmt.Errorf("failed to mkdir %s: %w", w.directory, err)
+	}
+
 	for _, ent := range w.ents {
 		base := filepath.Base(w.directory)
 
@@ -69,7 +75,7 @@ func (w *Walk) Walk() error {
 
 		file := filepath.Join(w.directory, fmt.Sprintf("%s.go", strings.ToLower(ent.GetName())))
 		if err := gen.WriteFormattedGo(file, b.Bytes()); err != nil {
-			return fmt.Errorf("failed to write file: %s: %w", file, err)
+			return fmt.Errorf("failed to write file: %s: %w\n%s", file, err, b.String())
 		}
 	}
 	return nil

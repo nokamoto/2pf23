@@ -43,11 +43,18 @@ func NewPlugin() *Plugin {
 					}
 
 					for _, field := range msg.GetField() {
+						if field.GetName() == "name" {
+							continue
+						}
+
 						goName := cases.Title(language.English, cases.NoLower).String(field.GetJsonName())
 
 						switch field.GetType() {
 						case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
-							ent.EnumFields = append(ent.EnumFields, goName)
+							ent.EnumFields = append(ent.EnumFields, &v1.EnumField{
+								Name: goName,
+								Type: protogen.GoTypeNameFromFullyQualified(field.GetTypeName()),
+							})
 
 						case descriptorpb.FieldDescriptorProto_TYPE_STRING, descriptorpb.FieldDescriptorProto_TYPE_INT32:
 							ent.Fields = append(ent.Fields, goName)

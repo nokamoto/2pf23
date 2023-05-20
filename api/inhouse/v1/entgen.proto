@@ -6,6 +6,16 @@ import "api/inhouse/v1/gen.proto";
 
 option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
 
+// EnumField is a field of an enum.
+message EnumField {
+  // type is the type of the enum field.
+  // e.g. v1alpha.MachineType
+  string type = 1;
+  // name is the name of the enum field.
+  // e.g. MachineType
+  string name = 2;
+}
+
 message Ent {
   // name is the name of the ent resource.
   // e.g. Cluster
@@ -17,6 +27,5 @@ message Ent {
   // e.g. DisplayName, NumNodes
   repeated string fields = 3;
   // enum_fields is the list of enum fields of the resource.
-  // e.g. MachineType
-  repeated string enum_fields = 4;
+  repeated EnumField enum_fields = 4;
 }
