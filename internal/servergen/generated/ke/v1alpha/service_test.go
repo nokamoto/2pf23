@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/bufbuild/connect-go"
 	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
@@ -15,8 +16,6 @@ import (
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"go.uber.org/zap/zaptest"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -26,10 +25,10 @@ type testcase[T1 any, T2 any] struct {
 	req      *T1
 	mock     func(*mockv1alpha.Mockruntime)
 	expected *T2
-	code     codes.Code
+	code     connect.Code
 }
 
-func run[T1 any, T2 any](t *testing.T, f func(*service, context.Context, *T1) (*T2, error), tt []testcase[T1, T2]) {
+func run[T1 any, T2 any](t *testing.T, f func(*service, context.Context, *connect.Request[T1]) (*connect.Response[T2], error), tt []testcase[T1, T2]) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
@@ -41,12 +40,13 @@ func run[T1 any, T2 any](t *testing.T, f func(*service, context.Context, *T1) (*
 				tc.mock(rt)
 			}
 
-			res, err := f(s, context.TODO(), tc.req)
-			if code := status.Code(err); code != tc.code {
+			res, err := f(s, context.TODO(), connect.NewRequest(tc.req))
+
+			if code := helperapi.CodeOf(err); code != tc.code {
 				t.Errorf("expected %v, got %v", tc.code, code)
 			}
 
-			if diff := cmp.Diff(res, tc.expected, protocmp.Transform()); diff != "" {
+			if diff := cmp.Diff(helperapi.GetResponseMsg(res), tc.expected, protocmp.Transform()); diff != "" {
 				t.Errorf("differs: (-want +got)\n%s", diff)
 			}
 		})
@@ -80,21 +80,21 @@ func Test_CreateCluster(t *testing.T) {
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
 			},
-			code: codes.InvalidArgument,
+			code: connect.CodeInvalidArgument,
 		},
 		{
 			name: "not found",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
 			},
-			code: codes.NotFound,
+			code: connect.CodeNotFound,
 		},
 		{
 			name: "unknown error",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("unknown"))
 			},
-			code: codes.Unknown,
+			code: connect.CodeUnknown,
 		},
 	}
 
@@ -124,21 +124,21 @@ func Test_GetCluster(t *testing.T) {
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
 			},
-			code: codes.InvalidArgument,
+			code: connect.CodeInvalidArgument,
 		},
 		{
 			name: "not found",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
 			},
-			code: codes.NotFound,
+			code: connect.CodeNotFound,
 		},
 		{
 			name: "unknown error",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil, errors.New("unknown"))
 			},
-			code: codes.Unknown,
+			code: connect.CodeUnknown,
 		},
 	}
 	run(t, (*service).GetCluster, testcases)
@@ -161,21 +161,21 @@ func Test_DeleteCluster(t *testing.T) {
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
 			},
-			code: codes.InvalidArgument,
+			code: connect.CodeInvalidArgument,
 		},
 		{
 			name: "not found",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
 			},
-			code: codes.NotFound,
+			code: connect.CodeNotFound,
 		},
 		{
 			name: "unknown error",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil, errors.New("unknown"))
 			},
-			code: codes.Unknown,
+			code: connect.CodeUnknown,
 		},
 	}
 	run(t, (*service).DeleteCluster, testcases)
@@ -241,28 +241,28 @@ func Test_ListCluster(t *testing.T) {
 			req: &kev1alpha.ListClusterRequest{
 				PageToken: "invalid",
 			},
-			code: codes.InvalidArgument,
+			code: connect.CodeInvalidArgument,
 		},
 		{
 			name: "invalid argument",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, app.ErrInvalidArgument)
 			},
-			code: codes.InvalidArgument,
+			code: connect.CodeInvalidArgument,
 		},
 		{
 			name: "not found",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, app.ErrNotFound)
 			},
-			code: codes.NotFound,
+			code: connect.CodeNotFound,
 		},
 		{
 			name: "unknown error",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().List(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil, errors.New("unknown"))
 			},
-			code: codes.Unknown,
+			code: connect.CodeUnknown,
 		},
 	}
 	run(t, (*service).ListCluster, testcases)
@@ -304,14 +304,14 @@ func Test_UpdateCluster(t *testing.T) {
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, app.ErrInvalidArgument)
 			},
-			code: codes.InvalidArgument,
+			code: connect.CodeInvalidArgument,
 		},
 		{
 			name: "not found",
 			mock: func(rt *mockv1alpha.Mockruntime) {
 				rt.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, app.ErrNotFound)
 			},
-			code: codes.NotFound,
+			code: connect.CodeNotFound,
 		},
 	}
 	run(t, (*service).UpdateCluster, tests)

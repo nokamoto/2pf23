@@ -34,6 +34,9 @@ $(GOBIN)/protoc-gen-go:
 $(GOBIN)/protoc-gen-go-grpc:
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
+$(GOBIN)/protoc-gen-connect-go:
+	go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@v1.7.0
+
 $(GOBIN)/buf:
 	go install github.com/bufbuild/buf/cmd/buf@v1.17.0
 
@@ -46,7 +49,7 @@ go: $(GOBIN)/gofumpt
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 	go mod tidy
 
-proto: $(GOBIN)/protoc-gen-go $(GOBIN)/protoc-gen-go-grpc $(GOBIN)/buf
+proto: $(GOBIN)/protoc-gen-go $(GOBIN)/protoc-gen-go-grpc $(GOBIN)/buf $(GOBIN)/protoc-gen-connect-go
 	buf lint --config build/buf/buf.yaml --error-format=json
 	buf format --config build/buf/buf.yaml -w
 	buf generate --template build/buf/buf.gen.yaml
