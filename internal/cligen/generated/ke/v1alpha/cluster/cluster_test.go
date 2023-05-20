@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
 	"github.com/nokamoto/2pf23/internal/cli/runtime/mock"
-	"github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
+	"github.com/nokamoto/2pf23/internal/util/helper/mock"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/testing/protocmp"
 )
@@ -18,7 +18,7 @@ import (
 type testcase[T any] struct {
 	name     string
 	args     string
-	mock     func(*mockruntime.MockRuntime, *mock_kev1alpha.MockKeServiceClient)
+	mock     func(*mockruntime.MockRuntime, *mockhelper.MockKeServiceClient)
 	expected *T
 	err      error
 }
@@ -29,7 +29,7 @@ func run[T any](t *testing.T, tt []testcase[T], f func(runtime.Runtime) *cobra.C
 			ctrl := gomock.NewController(t)
 
 			rt := mockruntime.NewMockRuntime(ctrl)
-			client := mock_kev1alpha.NewMockKeServiceClient(ctrl)
+			client := mockhelper.NewMockKeServiceClient(ctrl)
 			if tc.mock != nil {
 				tc.mock(rt, client)
 			}

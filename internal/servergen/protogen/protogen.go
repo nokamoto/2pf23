@@ -113,10 +113,9 @@ func (p *Plugin) updateCall(m *protogen.MethodDescriptor) *v1.Call {
 func (p *Plugin) service(svc *descriptorpb.ServiceDescriptorProto, file *descriptorpb.FileDescriptorProto) (*v1.Service, error) {
 	api := protogen.NewAPIDescriptor(file)
 	resp := &v1.Service{
-		Name:                api.ServiceName(),
-		ApiVersion:          api.APIVersion(),
-		ApiImportPath:       api.ImportPath(),
-		UnimplementedServer: fmt.Sprintf("%s.Unimplemented%sServer", api.APIVersion(), svc.GetName()),
+		Name:          api.ServiceName(),
+		ApiVersion:    api.APIVersion(),
+		ApiImportPath: api.ImportPath(),
 	}
 	for _, method := range svc.GetMethod() {
 		m := protogen.NewMethodDescriptor(method)

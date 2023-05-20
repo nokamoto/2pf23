@@ -6,7 +6,9 @@ import (
 )
 
 import (
+	"github.com/bufbuild/connect-go"
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
+	helperapi "github.com/nokamoto/2pf23/internal/util/helper"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -25,13 +27,13 @@ func newDeleteCluster(rt runtime.Runtime) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to create a client for ke.v1alpha: %w", err)
 			}
-			res, err := c.DeleteCluster(ctx, &v1alpha.DeleteClusterRequest{
+			res, err := c.DeleteCluster(ctx, connect.NewRequest(&v1alpha.DeleteClusterRequest{
 				Name: args[0],
-			})
+			}))
 			if err != nil {
 				return fmt.Errorf("ke.v1alpha: failed to DeleteCluster: %w", err)
 			}
-			message, err := protojson.Marshal(res)
+			message, err := protojson.Marshal(helperapi.GetResponseMsg(res))
 			if err != nil {
 				return err
 			}

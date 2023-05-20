@@ -106,7 +106,6 @@ func TestPlugin_Run(t *testing.T) {
 								Alias: "v1alpha",
 								Path:  "com.example.ke.v1alpha",
 							},
-							UnimplementedServer: "v1alpha.UnimplementedKeServiceServer",
 							Calls: []*v1.Call{
 								{
 									Name:              "CreateCluster",

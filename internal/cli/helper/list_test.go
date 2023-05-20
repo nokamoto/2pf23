@@ -5,10 +5,11 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/bufbuild/connect-go"
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
-	mock_kev1alpha "github.com/nokamoto/2pf23/internal/mock/pkg/api/ke/v1alpha"
 	"github.com/nokamoto/2pf23/internal/util/helper"
+	"github.com/nokamoto/2pf23/internal/util/helper/mock"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"google.golang.org/protobuf/testing/protocmp"
 )
@@ -19,45 +20,45 @@ func TestListAll(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock func(*mock_kev1alpha.MockKeServiceClient)
+		mock func(*mockhelper.MockKeServiceClient)
 		want []*kev1alpha.Cluster
 		err  error
 	}{
 		{
 			name: "empty",
-			mock: func(m *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(m *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
-					m.EXPECT().ListCluster(gomock.Any(), helper.ProtoEqual(&kev1alpha.ListClusterRequest{
+					m.EXPECT().ListCluster(gomock.Any(), helper.ConnectEqual(&kev1alpha.ListClusterRequest{
 						PageSize: size,
-					})).Return(&kev1alpha.ListClusterResponse{}, nil),
+					})).Return(connect.NewResponse(&kev1alpha.ListClusterResponse{}), nil),
 				)
 			},
 		},
 		{
 			name: "call twice",
-			mock: func(m *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(m *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
-					m.EXPECT().ListCluster(gomock.Any(), helper.ProtoEqual(&kev1alpha.ListClusterRequest{
+					m.EXPECT().ListCluster(gomock.Any(), helper.ConnectEqual(&kev1alpha.ListClusterRequest{
 						PageSize:  size,
 						PageToken: "",
-					})).Return(&kev1alpha.ListClusterResponse{
+					})).Return(connect.NewResponse(&kev1alpha.ListClusterResponse{
 						Clusters: []*kev1alpha.Cluster{
 							{
 								Name: "1",
 							},
 						},
 						NextPageToken: "1",
-					}, nil),
-					m.EXPECT().ListCluster(gomock.Any(), helper.ProtoEqual(&kev1alpha.ListClusterRequest{
+					}), nil),
+					m.EXPECT().ListCluster(gomock.Any(), helper.ConnectEqual(&kev1alpha.ListClusterRequest{
 						PageSize:  size,
 						PageToken: "1",
-					})).Return(&kev1alpha.ListClusterResponse{
+					})).Return(connect.NewResponse(&kev1alpha.ListClusterResponse{
 						Clusters: []*kev1alpha.Cluster{
 							{
 								Name: "2",
 							},
 						},
-					}, nil),
+					}), nil),
 				)
 			},
 			want: []*kev1alpha.Cluster{
@@ -71,16 +72,16 @@ func TestListAll(t *testing.T) {
 		},
 		{
 			name: "error",
-			mock: func(m *mock_kev1alpha.MockKeServiceClient) {
+			mock: func(m *mockhelper.MockKeServiceClient) {
 				gomock.InOrder(
-					m.EXPECT().ListCluster(gomock.Any(), gomock.Any()).Return(&kev1alpha.ListClusterResponse{
+					m.EXPECT().ListCluster(gomock.Any(), gomock.Any()).Return(connect.NewResponse(&kev1alpha.ListClusterResponse{
 						Clusters: []*kev1alpha.Cluster{
 							{
 								Name: "1",
 							},
 						},
 						NextPageToken: "1",
-					}, nil),
+					}), nil),
 					m.EXPECT().ListCluster(gomock.Any(), gomock.Any()).Return(nil, rpcErr),
 				)
 			},
@@ -95,7 +96,7 @@ func TestListAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			m := mock_kev1alpha.NewMockKeServiceClient(ctrl)
+			m := mockhelper.NewMockKeServiceClient(ctrl)
 
 			if tt.mock != nil {
 				tt.mock(m)
@@ -114,6 +115,7 @@ func TestListAll(t *testing.T) {
 				func(v *kev1alpha.ListClusterResponse) {
 					got.Clusters = append(got.Clusters, v.GetClusters()...)
 				},
+				(*kev1alpha.ListClusterResponse).GetNextPageToken,
 			)
 
 			if !errors.Is(err, tt.err) {

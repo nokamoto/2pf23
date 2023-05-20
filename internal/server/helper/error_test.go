@@ -6,7 +6,7 @@ import (
 
 	"github.com/bufbuild/connect-go"
 	"github.com/nokamoto/2pf23/internal/app"
-	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"github.com/nokamoto/2pf23/internal/util/helper"
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -49,35 +49,9 @@ func TestErrorOr(t *testing.T) {
 			if got != tt.res {
 				t.Errorf("ErrorOr() got = %v, want %v", got, tt.res)
 			}
-			if code := CodeOf(err); code != tt.code {
+			if code := helper.CodeOf(err); code != tt.code {
 				t.Errorf("ErrorOr() code = %v, want %v", code, tt.code)
 			}
 		})
-	}
-}
-
-func TestGetMsg(t *testing.T) {
-	req := connect.NewRequest(&kev1alpha.CreateClusterRequest{})
-	if got := GetMsg(req); got != req.Msg {
-		t.Errorf("GetMsg() = %v, want %v", got, req.Msg)
-	}
-	if got := GetMsg[kev1alpha.CreateClusterRequest](nil); got != nil {
-		t.Errorf("GetMsg() = %v, want %v", got, nil)
-	} else {
-		// t.Logf("panic: %v", got.Cluster)
-		t.Logf("should not panic: %v", got.GetCluster())
-	}
-}
-
-func TestGetResponseMsg(t *testing.T) {
-	res := connect.NewResponse(&kev1alpha.CreateClusterRequest{})
-	if got := GetResponseMsg(res); got != res.Msg {
-		t.Errorf("GetMsg() = %v, want %v", got, res.Msg)
-	}
-	if got := GetResponseMsg[kev1alpha.CreateClusterRequest](nil); got != nil {
-		t.Errorf("GetMsg() = %v, want %v", got, nil)
-	} else {
-		// t.Logf("panic: %v", got.Cluster)
-		t.Logf("should not panic: %v", got.GetCluster())
 	}
 }

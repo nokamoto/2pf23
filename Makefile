@@ -1,4 +1,3 @@
-API_GO_FILES = $(shell find pkg/api -name '*grpc.pb.go')
 COMMANDS = pf ke-apis
 GOBIN = $(shell go env GOPATH)/bin
 
@@ -15,7 +14,7 @@ endef
 fast:
 	go test ./...
 
-test: proto mock testdata gen go
+test: proto testdata gen go
 
 lint: $(GOBIN)/golangci-lint
 	golangci-lint run
@@ -30,9 +29,6 @@ $(GOBIN)/gofumpt:
 
 $(GOBIN)/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.30.0
-
-$(GOBIN)/protoc-gen-go-grpc:
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
 $(GOBIN)/protoc-gen-connect-go:
 	go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@v1.7.0
@@ -49,16 +45,13 @@ go: $(GOBIN)/gofumpt
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 	go mod tidy
 
-proto: $(GOBIN)/protoc-gen-go $(GOBIN)/protoc-gen-go-grpc $(GOBIN)/buf $(GOBIN)/protoc-gen-connect-go
+proto: $(GOBIN)/protoc-gen-go $(GOBIN)/buf $(GOBIN)/protoc-gen-connect-go
 	buf lint --config build/buf/buf.yaml --error-format=json
 	buf format --config build/buf/buf.yaml -w
 	buf generate --template build/buf/buf.gen.yaml
 
 cialpha:
 	go run ./build/ci/test/main.go
-
-mock:
-	$(foreach file,$(API_GO_FILES),go run -mod=mod github.com/golang/mock/mockgen -source $(file) -destination internal/mock/$(file))
 
 .PHONY: build
 build: $(GOBIN)/ko

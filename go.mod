@@ -18,7 +18,6 @@ require (
 	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	golang.org/x/net v0.10.0
 	golang.org/x/text v0.9.0
-	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 )
 

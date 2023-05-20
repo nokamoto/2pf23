@@ -35,7 +35,7 @@ func newListCluster(rt runtime.Runtime) *cobra.Command {
 			getter := func(v *v1alpha.ListClusterResponse) {
 				res.Clusters = append(res.Clusters, v.Clusters...)
 			}
-			err = helper.ListAll(ctx, c.ListCluster, setter, getter)
+			err = helper.ListAll(ctx, c.ListCluster, setter, getter, (*v1alpha.ListClusterResponse).GetNextPageToken)
 			if err != nil {
 				return fmt.Errorf("ke.v1alpha: failed to ListCluster: %w", err)
 			}

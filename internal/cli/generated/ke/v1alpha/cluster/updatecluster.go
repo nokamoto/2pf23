@@ -7,8 +7,10 @@ import (
 )
 
 import (
+	"github.com/bufbuild/connect-go"
 	helper "github.com/nokamoto/2pf23/internal/cli/helper"
 	"github.com/nokamoto/2pf23/internal/cli/runtime"
+	helperapi "github.com/nokamoto/2pf23/internal/util/helper"
 	v1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -45,7 +47,7 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to create a field mask: %w", err)
 			}
-			res, err := c.UpdateCluster(ctx, &v1alpha.UpdateClusterRequest{
+			res, err := c.UpdateCluster(ctx, connect.NewRequest(&v1alpha.UpdateClusterRequest{
 				UpdateMask: mask,
 				Cluster: &v1alpha.Cluster{
 					Name:        args[0],
@@ -53,11 +55,11 @@ func newUpdateCluster(rt runtime.Runtime) *cobra.Command {
 					NumNodes:    numNodes,
 					MachineType: machineType.Value(),
 				},
-			})
+			}))
 			if err != nil {
 				return fmt.Errorf("ke.v1alpha: failed to UpdateCluster: %w", err)
 			}
-			message, err := protojson.Marshal(res)
+			message, err := protojson.Marshal(helperapi.GetResponseMsg(res))
 			if err != nil {
 				return err
 			}

@@ -41,9 +41,6 @@ message Service {
   // api_import_path is the import path of the gRPC API.
   // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
   ImportPath api_import_path = 3;
-  // unimplemented_server is the name of the unimplemented server.
-  // e.g. v1alpha.UnimplementedKeServer
-  string unimplemented_server = 4;
   // calls is the list of gRPC calls.
-  repeated Call calls = 5;
+  repeated Call calls = 4;
 }

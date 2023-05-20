@@ -50,7 +50,7 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 			getter := func(v *{{.Command.Response.Type}}) {
 				res.{{.Command.Response.ListField}} = append(res.{{.Command.Response.ListField}}, v.{{.Command.Response.ListField}}...)
 			}
-			err = helper.ListAll(ctx, c.{{.Command.Method}}, setter, getter)
+			err = helper.ListAll(ctx, c.{{.Command.Method}}, setter, getter, (*{{.Command.Response.Type}}).GetNextPageToken)
 {{- else}}
 {{- if eq .Command.MethodType 5}}
 			var paths []string
@@ -74,12 +74,16 @@ func new{{.Command.Method}}({{.Runtime.Name}} {{.Runtime.Type}}) *cobra.Command 
 				return fmt.Errorf("failed to create a field mask: %w", err)
 			}
 {{- end}}
-			res, err := c.{{.Command.Method}}(ctx, {{.Command.Request | ToValue 3}})
+			res, err := c.{{.Command.Method}}(ctx, connect.NewRequest({{.Command.Request | ToValue 3}}))
 {{- end}}
 			if err != nil {
 				return fmt.Errorf("{{.Command.Api}}.{{.Command.ApiVersion}}: failed to {{.Command.Method}}: %w", err)
 			}
-			message, err := protojson.Marshal({{if eq .Command.MethodType 4}}&{{end}}res)
+{{- if eq .Command.MethodType 4}}
+			message, err := protojson.Marshal(&res)
+{{- else}}
+			message, err := protojson.Marshal(helperapi.GetResponseMsg(res))
+{{- end}}
 			if err != nil {
 				return err
 			}
