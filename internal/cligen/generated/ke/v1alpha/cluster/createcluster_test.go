@@ -12,14 +12,12 @@ import (
 	"github.com/nokamoto/2pf23/internal/util/helper"
 	"github.com/nokamoto/2pf23/internal/util/helper/mock"
 	kev1alpha "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func Test_newCreate(t *testing.T) {
 	clientErr := errors.New("client error")
-	rpcErr := status.Errorf(codes.Unavailable, "rpc error")
+	rpcErr := connect.NewError(connect.CodeInternal, errors.New("rpc error"))
 
 	set := func(args string, cluster *kev1alpha.Cluster) testcase[kev1alpha.Cluster] {
 		return testcase[kev1alpha.Cluster]{

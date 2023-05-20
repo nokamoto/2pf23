@@ -25,7 +25,7 @@ func Test_newUpdateCluster(t *testing.T) {
 	}
 
 	clientErr := errors.New("client error")
-	rpcErr := errors.New("rpc error")
+	rpcErr := connect.NewError(connect.CodeInternal, errors.New("rpc error"))
 
 	tt := []testcase[kev1alpha.Cluster]{
 		{
