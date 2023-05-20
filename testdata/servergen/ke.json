@@ -5,7 +5,6 @@
     "alias": "kev1alpha",
     "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
   },
-  "unimplementedServer": "kev1alpha.UnimplementedKeServiceServer",
   "calls": [
     {
       "name": "CreateCluster",

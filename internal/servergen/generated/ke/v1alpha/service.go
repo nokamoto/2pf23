@@ -26,7 +26,6 @@ type runtime interface {
 }
 
 type service struct {
-	kev1alpha.UnimplementedKeServiceServer
 	logger *zap.Logger
 	rt     runtime
 }

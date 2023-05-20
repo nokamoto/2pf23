@@ -30,9 +30,6 @@ $(GOBIN)/gofumpt:
 $(GOBIN)/protoc-gen-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.30.0
 
-$(GOBIN)/protoc-gen-go-grpc:
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-
 $(GOBIN)/protoc-gen-connect-go:
 	go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@v1.7.0
 

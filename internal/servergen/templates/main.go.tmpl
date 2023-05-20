@@ -29,7 +29,6 @@ type runtime interface {
 }
 
 type service struct {
-	{{.Service.UnimplementedServer}}
 	logger *zap.Logger
 	rt     runtime
 }
