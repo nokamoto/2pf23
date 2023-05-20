@@ -52,6 +52,19 @@ func (cu *ClusterUpdate) AddNumNodes(i int32) *ClusterUpdate {
 	return cu
 }
 
+// SetMachineType sets the "machine_type" field.
+func (cu *ClusterUpdate) SetMachineType(i int32) *ClusterUpdate {
+	cu.mutation.ResetMachineType()
+	cu.mutation.SetMachineType(i)
+	return cu
+}
+
+// AddMachineType adds i to the "machine_type" field.
+func (cu *ClusterUpdate) AddMachineType(i int32) *ClusterUpdate {
+	cu.mutation.AddMachineType(i)
+	return cu
+}
+
 // Mutation returns the ClusterMutation object of the builder.
 func (cu *ClusterUpdate) Mutation() *ClusterMutation {
 	return cu.mutation
@@ -96,6 +109,11 @@ func (cu *ClusterUpdate) check() error {
 			return &ValidationError{Name: "num_nodes", err: fmt.Errorf(`ent: validator failed for field "Cluster.num_nodes": %w`, err)}
 		}
 	}
+	if v, ok := cu.mutation.MachineType(); ok {
+		if err := cluster.MachineTypeValidator(v); err != nil {
+			return &ValidationError{Name: "machine_type", err: fmt.Errorf(`ent: validator failed for field "Cluster.machine_type": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -122,6 +140,12 @@ func (cu *ClusterUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.AddedNumNodes(); ok {
 		_spec.AddField(cluster.FieldNumNodes, field.TypeInt32, value)
+	}
+	if value, ok := cu.mutation.MachineType(); ok {
+		_spec.SetField(cluster.FieldMachineType, field.TypeInt32, value)
+	}
+	if value, ok := cu.mutation.AddedMachineType(); ok {
+		_spec.AddField(cluster.FieldMachineType, field.TypeInt32, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -165,6 +189,19 @@ func (cuo *ClusterUpdateOne) SetNumNodes(i int32) *ClusterUpdateOne {
 // AddNumNodes adds i to the "num_nodes" field.
 func (cuo *ClusterUpdateOne) AddNumNodes(i int32) *ClusterUpdateOne {
 	cuo.mutation.AddNumNodes(i)
+	return cuo
+}
+
+// SetMachineType sets the "machine_type" field.
+func (cuo *ClusterUpdateOne) SetMachineType(i int32) *ClusterUpdateOne {
+	cuo.mutation.ResetMachineType()
+	cuo.mutation.SetMachineType(i)
+	return cuo
+}
+
+// AddMachineType adds i to the "machine_type" field.
+func (cuo *ClusterUpdateOne) AddMachineType(i int32) *ClusterUpdateOne {
+	cuo.mutation.AddMachineType(i)
 	return cuo
 }
 
@@ -225,6 +262,11 @@ func (cuo *ClusterUpdateOne) check() error {
 			return &ValidationError{Name: "num_nodes", err: fmt.Errorf(`ent: validator failed for field "Cluster.num_nodes": %w`, err)}
 		}
 	}
+	if v, ok := cuo.mutation.MachineType(); ok {
+		if err := cluster.MachineTypeValidator(v); err != nil {
+			return &ValidationError{Name: "machine_type", err: fmt.Errorf(`ent: validator failed for field "Cluster.machine_type": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -268,6 +310,12 @@ func (cuo *ClusterUpdateOne) sqlSave(ctx context.Context) (_node *Cluster, err e
 	}
 	if value, ok := cuo.mutation.AddedNumNodes(); ok {
 		_spec.AddField(cluster.FieldNumNodes, field.TypeInt32, value)
+	}
+	if value, ok := cuo.mutation.MachineType(); ok {
+		_spec.SetField(cluster.FieldMachineType, field.TypeInt32, value)
+	}
+	if value, ok := cuo.mutation.AddedMachineType(); ok {
+		_spec.AddField(cluster.FieldMachineType, field.TypeInt32, value)
 	}
 	_node = &Cluster{config: cuo.config}
 	_spec.Assign = _node.assignValues

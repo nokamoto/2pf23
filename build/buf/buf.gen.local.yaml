@@ -8,3 +8,7 @@ plugins:
     out: build/server
     opt:
       - debug
+  - plugin: ent
+    out: build/ent
+    opt:
+      - debug

@@ -17,6 +17,7 @@ func (Cluster) Fields() []ent.Field {
 		field.Text("name").NotEmpty().Unique(),
 		field.Text("display_name"),
 		field.Int32("num_nodes").NonNegative(),
+		field.Int32("machine_type").NonNegative(),
 	}
 }
 

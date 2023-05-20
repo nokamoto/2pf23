@@ -24,29 +24,17 @@ func NewCluster(client *ent.Client) *Cluster {
 	}
 }
 
-func (c *Cluster) proto(x *ent.Cluster) *kev1alpha.Cluster {
-	return &kev1alpha.Cluster{
-		Name:        x.Name,
-		DisplayName: x.DisplayName,
-		NumNodes:    x.NumNodes,
-	}
-}
-
 // Create creates a cluster.
 // If the cluster already exists, it returns infra.ErrAlreadyExists.
 func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) (*kev1alpha.Cluster, error) {
-	res, err := c.client.Cluster.Create().
-		SetName(cluster.GetName()).
-		SetDisplayName(cluster.GetDisplayName()).
-		SetNumNodes(cluster.GetNumNodes()).
-		Save(ctx)
+	res, err := ent.ClusterCreateQuery(c.client.Cluster.Create(), cluster).Save(ctx)
 	if ent.IsConstraintError(err) {
 		return nil, fmt.Errorf("%w: %s", infra.ErrAlreadyExists, cluster.GetName())
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed saving cluster: %w", err)
 	}
-	return c.proto(res), nil
+	return ent.ClusterProto(res), nil
 }
 
 // Get returns a cluster by name.
@@ -59,7 +47,7 @@ func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, err
 	if err != nil {
 		return nil, err
 	}
-	return c.proto(res), nil
+	return ent.ClusterProto(res), nil
 }
 
 // Delete deletes a cluster by name.
@@ -93,7 +81,7 @@ func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination)
 	}
 	var clusters []*kev1alpha.Cluster
 	for _, x := range res {
-		clusters = append(clusters, c.proto(x))
+		clusters = append(clusters, ent.ClusterProto(x))
 	}
 	return clusters, next, nil
 }
@@ -126,11 +114,11 @@ func (c *Cluster) Update(ctx context.Context, cluster *kev1alpha.Cluster, mask *
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
-	updated := c.proto(got)
+	updated := ent.ClusterProto(got)
 	proto.Merge(updated, cluster)
-	got, err = tx.Cluster.UpdateOneID(got.ID).SetDisplayName(updated.GetDisplayName()).SetNumNodes(updated.GetNumNodes()).Save(ctx)
+	got, err = ent.ClusterUpdateOneQuery(tx.Cluster.UpdateOneID(got.ID), updated).Save(ctx)
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
-	return c.proto(got), nil
+	return ent.ClusterProto(got), nil
 }

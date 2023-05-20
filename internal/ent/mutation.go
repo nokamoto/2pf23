@@ -29,17 +29,19 @@ const (
 // ClusterMutation represents an operation that mutates the Cluster nodes in the graph.
 type ClusterMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int64
-	name          *string
-	display_name  *string
-	num_nodes     *int32
-	addnum_nodes  *int32
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Cluster, error)
-	predicates    []predicate.Cluster
+	op              Op
+	typ             string
+	id              *int64
+	name            *string
+	display_name    *string
+	num_nodes       *int32
+	addnum_nodes    *int32
+	machine_type    *int32
+	addmachine_type *int32
+	clearedFields   map[string]struct{}
+	done            bool
+	oldValue        func(context.Context) (*Cluster, error)
+	predicates      []predicate.Cluster
 }
 
 var _ ent.Mutation = (*ClusterMutation)(nil)
@@ -274,6 +276,62 @@ func (m *ClusterMutation) ResetNumNodes() {
 	m.addnum_nodes = nil
 }
 
+// SetMachineType sets the "machine_type" field.
+func (m *ClusterMutation) SetMachineType(i int32) {
+	m.machine_type = &i
+	m.addmachine_type = nil
+}
+
+// MachineType returns the value of the "machine_type" field in the mutation.
+func (m *ClusterMutation) MachineType() (r int32, exists bool) {
+	v := m.machine_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMachineType returns the old "machine_type" field's value of the Cluster entity.
+// If the Cluster object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ClusterMutation) OldMachineType(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMachineType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMachineType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMachineType: %w", err)
+	}
+	return oldValue.MachineType, nil
+}
+
+// AddMachineType adds i to the "machine_type" field.
+func (m *ClusterMutation) AddMachineType(i int32) {
+	if m.addmachine_type != nil {
+		*m.addmachine_type += i
+	} else {
+		m.addmachine_type = &i
+	}
+}
+
+// AddedMachineType returns the value that was added to the "machine_type" field in this mutation.
+func (m *ClusterMutation) AddedMachineType() (r int32, exists bool) {
+	v := m.addmachine_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMachineType resets all changes to the "machine_type" field.
+func (m *ClusterMutation) ResetMachineType() {
+	m.machine_type = nil
+	m.addmachine_type = nil
+}
+
 // Where appends a list predicates to the ClusterMutation builder.
 func (m *ClusterMutation) Where(ps ...predicate.Cluster) {
 	m.predicates = append(m.predicates, ps...)
@@ -308,7 +366,7 @@ func (m *ClusterMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ClusterMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.name != nil {
 		fields = append(fields, cluster.FieldName)
 	}
@@ -317,6 +375,9 @@ func (m *ClusterMutation) Fields() []string {
 	}
 	if m.num_nodes != nil {
 		fields = append(fields, cluster.FieldNumNodes)
+	}
+	if m.machine_type != nil {
+		fields = append(fields, cluster.FieldMachineType)
 	}
 	return fields
 }
@@ -332,6 +393,8 @@ func (m *ClusterMutation) Field(name string) (ent.Value, bool) {
 		return m.DisplayName()
 	case cluster.FieldNumNodes:
 		return m.NumNodes()
+	case cluster.FieldMachineType:
+		return m.MachineType()
 	}
 	return nil, false
 }
@@ -347,6 +410,8 @@ func (m *ClusterMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDisplayName(ctx)
 	case cluster.FieldNumNodes:
 		return m.OldNumNodes(ctx)
+	case cluster.FieldMachineType:
+		return m.OldMachineType(ctx)
 	}
 	return nil, fmt.Errorf("unknown Cluster field %s", name)
 }
@@ -377,6 +442,13 @@ func (m *ClusterMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetNumNodes(v)
 		return nil
+	case cluster.FieldMachineType:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMachineType(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Cluster field %s", name)
 }
@@ -388,6 +460,9 @@ func (m *ClusterMutation) AddedFields() []string {
 	if m.addnum_nodes != nil {
 		fields = append(fields, cluster.FieldNumNodes)
 	}
+	if m.addmachine_type != nil {
+		fields = append(fields, cluster.FieldMachineType)
+	}
 	return fields
 }
 
@@ -398,6 +473,8 @@ func (m *ClusterMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case cluster.FieldNumNodes:
 		return m.AddedNumNodes()
+	case cluster.FieldMachineType:
+		return m.AddedMachineType()
 	}
 	return nil, false
 }
@@ -413,6 +490,13 @@ func (m *ClusterMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddNumNodes(v)
+		return nil
+	case cluster.FieldMachineType:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMachineType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Cluster numeric field %s", name)
@@ -449,6 +533,9 @@ func (m *ClusterMutation) ResetField(name string) error {
 		return nil
 	case cluster.FieldNumNodes:
 		m.ResetNumNodes()
+		return nil
+	case cluster.FieldMachineType:
+		m.ResetMachineType()
 		return nil
 	}
 	return fmt.Errorf("unknown Cluster field %s", name)

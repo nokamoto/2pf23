@@ -65,6 +65,7 @@ testdata:
 gen: $(GOBIN)/buf
 	go install ./cmd/protoc-gen-cli
 	go install ./cmd/protoc-gen-server
+	go install ./cmd/protoc-gen-ent
 	buf generate --template build/buf/buf.gen.local.yaml
 	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
 	go run ./cmd/server-gen/main.go build/server internal/server/generated

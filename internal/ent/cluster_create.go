@@ -37,6 +37,12 @@ func (cc *ClusterCreate) SetNumNodes(i int32) *ClusterCreate {
 	return cc
 }
 
+// SetMachineType sets the "machine_type" field.
+func (cc *ClusterCreate) SetMachineType(i int32) *ClusterCreate {
+	cc.mutation.SetMachineType(i)
+	return cc
+}
+
 // SetID sets the "id" field.
 func (cc *ClusterCreate) SetID(i int64) *ClusterCreate {
 	cc.mutation.SetID(i)
@@ -96,6 +102,14 @@ func (cc *ClusterCreate) check() error {
 			return &ValidationError{Name: "num_nodes", err: fmt.Errorf(`ent: validator failed for field "Cluster.num_nodes": %w`, err)}
 		}
 	}
+	if _, ok := cc.mutation.MachineType(); !ok {
+		return &ValidationError{Name: "machine_type", err: errors.New(`ent: missing required field "Cluster.machine_type"`)}
+	}
+	if v, ok := cc.mutation.MachineType(); ok {
+		if err := cluster.MachineTypeValidator(v); err != nil {
+			return &ValidationError{Name: "machine_type", err: fmt.Errorf(`ent: validator failed for field "Cluster.machine_type": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -139,6 +153,10 @@ func (cc *ClusterCreate) createSpec() (*Cluster, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.NumNodes(); ok {
 		_spec.SetField(cluster.FieldNumNodes, field.TypeInt32, value)
 		_node.NumNodes = value
+	}
+	if value, ok := cc.mutation.MachineType(); ok {
+		_spec.SetField(cluster.FieldMachineType, field.TypeInt32, value)
+		_node.MachineType = value
 	}
 	return _node, _spec
 }

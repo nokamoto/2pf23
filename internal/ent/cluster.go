@@ -21,7 +21,9 @@ type Cluster struct {
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
 	// NumNodes holds the value of the "num_nodes" field.
-	NumNodes     int32 `json:"num_nodes,omitempty"`
+	NumNodes int32 `json:"num_nodes,omitempty"`
+	// MachineType holds the value of the "machine_type" field.
+	MachineType  int32 `json:"machine_type,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -30,7 +32,7 @@ func (*Cluster) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case cluster.FieldID, cluster.FieldNumNodes:
+		case cluster.FieldID, cluster.FieldNumNodes, cluster.FieldMachineType:
 			values[i] = new(sql.NullInt64)
 		case cluster.FieldName, cluster.FieldDisplayName:
 			values[i] = new(sql.NullString)
@@ -72,6 +74,12 @@ func (c *Cluster) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field num_nodes", values[i])
 			} else if value.Valid {
 				c.NumNodes = int32(value.Int64)
+			}
+		case cluster.FieldMachineType:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field machine_type", values[i])
+			} else if value.Valid {
+				c.MachineType = int32(value.Int64)
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -117,6 +125,9 @@ func (c *Cluster) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("num_nodes=")
 	builder.WriteString(fmt.Sprintf("%v", c.NumNodes))
+	builder.WriteString(", ")
+	builder.WriteString("machine_type=")
+	builder.WriteString(fmt.Sprintf("%v", c.MachineType))
 	builder.WriteByte(')')
 	return builder.String()
 }

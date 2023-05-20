@@ -67,6 +67,11 @@ func NumNodes(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldEQ(FieldNumNodes, v))
 }
 
+// MachineType applies equality check predicate on the "machine_type" field. It's identical to MachineTypeEQ.
+func MachineType(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldEQ(FieldMachineType, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Cluster {
 	return predicate.Cluster(sql.FieldEQ(FieldName, v))
@@ -235,6 +240,46 @@ func NumNodesLT(v int32) predicate.Cluster {
 // NumNodesLTE applies the LTE predicate on the "num_nodes" field.
 func NumNodesLTE(v int32) predicate.Cluster {
 	return predicate.Cluster(sql.FieldLTE(FieldNumNodes, v))
+}
+
+// MachineTypeEQ applies the EQ predicate on the "machine_type" field.
+func MachineTypeEQ(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldEQ(FieldMachineType, v))
+}
+
+// MachineTypeNEQ applies the NEQ predicate on the "machine_type" field.
+func MachineTypeNEQ(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldNEQ(FieldMachineType, v))
+}
+
+// MachineTypeIn applies the In predicate on the "machine_type" field.
+func MachineTypeIn(vs ...int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldIn(FieldMachineType, vs...))
+}
+
+// MachineTypeNotIn applies the NotIn predicate on the "machine_type" field.
+func MachineTypeNotIn(vs ...int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldNotIn(FieldMachineType, vs...))
+}
+
+// MachineTypeGT applies the GT predicate on the "machine_type" field.
+func MachineTypeGT(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldGT(FieldMachineType, v))
+}
+
+// MachineTypeGTE applies the GTE predicate on the "machine_type" field.
+func MachineTypeGTE(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldGTE(FieldMachineType, v))
+}
+
+// MachineTypeLT applies the LT predicate on the "machine_type" field.
+func MachineTypeLT(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldLT(FieldMachineType, v))
+}
+
+// MachineTypeLTE applies the LTE predicate on the "machine_type" field.
+func MachineTypeLTE(v int32) predicate.Cluster {
+	return predicate.Cluster(sql.FieldLTE(FieldMachineType, v))
 }
 
 // And groups predicates with the AND operator between them.

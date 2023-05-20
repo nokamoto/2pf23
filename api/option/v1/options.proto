@@ -11,4 +11,8 @@ message Resource {
     // usage is usage of the field in the CLI.
     string usage = 50000;
   }
+  extend google.protobuf.MessageOptions {
+    // ent_query is a flag to generate ent query code.
+    bool ent_query = 50001;
+  }
 }

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package api.inhouse.v1;
+
+import "api/inhouse/v1/gen.proto";
+
+option go_package = "github.com/nokamoto/2pf23/pkg/api/inhouse/v1";
+
+message Ent {
+  // name is the name of the ent resource.
+  // e.g. Cluster
+  string name = 1;
+  // import_path is the import path of the proto resource.
+  // e.g. github.com/nokamoto/2pf23/pkg/api/ke/v1alpha
+  ImportPath import_path = 2;
+  // fields is the list of fields of the resource.
+  // e.g. DisplayName, NumNodes
+  repeated string fields = 3;
+  // enum_fields is the list of enum fields of the resource.
+  // e.g. MachineType
+  repeated string enum_fields = 4;
+}
