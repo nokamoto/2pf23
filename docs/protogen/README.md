@@ -35,11 +35,9 @@ cmd := &cobra.Command{
 And the following gRPC service implementation is generated in [service.go](../../internal/server/generated/ke/v1alpha/service.go):
 
 ```go
-type service struct {
-	v1alpha.UnimplementedKeServiceServer
-}
+type service struct {}
 
-func (s *service) CreateCluster(ctx context.Context, req *v1alpha.CreateClusterRequest) (*v1alpha.Cluster, error) {
+func (s *service) CreateCluster(ctx context.Context, req *connect.Request[v1alpha.CreateClusterRequest]) (*connect.Response[v1alpha.Cluster], error) {
     // ...
 }
 ```
