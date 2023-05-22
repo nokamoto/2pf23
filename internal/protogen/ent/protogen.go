@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nokamoto/2pf23/internal/protogen"
+	"github.com/nokamoto/2pf23/internal/protogen/core"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	optionv1 "github.com/nokamoto/2pf23/pkg/api/option/v1"
 	"golang.org/x/text/cases"
@@ -16,14 +16,14 @@ import (
 
 // Plugin is a protoc plugin to generate ent code.
 type Plugin struct {
-	protogen.Plugin
+	core.Plugin
 }
 
 // NewPlugin returns a new Plugin with stdin and stdout.
 func NewPlugin() *Plugin {
 	var p *Plugin
 	p = &Plugin{
-		*protogen.NewPlugin(func(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, error) {
+		*core.NewPlugin(func(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, error) {
 			m := map[string]*v1.Ent{}
 
 			for _, file := range req.GetProtoFile() {
@@ -39,7 +39,7 @@ func NewPlugin() *Plugin {
 					filename := fmt.Sprintf("%s.json", strings.ToLower(msg.GetName()))
 					ent := &v1.Ent{
 						Name:       msg.GetName(),
-						ImportPath: protogen.NewAPIDescriptor(file).ImportPath(),
+						ImportPath: core.NewAPIDescriptor(file).ImportPath(),
 					}
 
 					for _, field := range msg.GetField() {
@@ -53,7 +53,7 @@ func NewPlugin() *Plugin {
 						case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
 							ent.EnumFields = append(ent.EnumFields, &v1.EnumField{
 								Name: goName,
-								Type: protogen.GoTypeNameFromFullyQualified(field.GetTypeName()),
+								Type: core.GoTypeNameFromFullyQualified(field.GetTypeName()),
 							})
 
 						case descriptorpb.FieldDescriptorProto_TYPE_STRING, descriptorpb.FieldDescriptorProto_TYPE_INT32:

@@ -59,17 +59,17 @@ build: $(GOBIN)/ko
 
 .PHONY: testdata
 testdata:
+	go run ./cmd/tools cli testdata/generator/cli/test.json internal/generator/cli/generated github.com/nokamoto/2pf23/internal/generator/cli/generated
+	go run ./cmd/tools server testdata/generator/server internal/generator/server/generated --mock
 	go run ./cmd/tools ent testdata/generator/ent internal/generator/ent/generated generated
-	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated github.com/nokamoto/2pf23/internal/cligen/generated
-	go run ./cmd/server-gen/main.go testdata/servergen internal/servergen/generated --mock
 
 gen: $(GOBIN)/buf
 	go install ./cmd/protoc-gen-cli
 	go install ./cmd/protoc-gen-server
 	go install ./cmd/protoc-gen-ent
 	buf generate --template build/buf/buf.gen.local.yaml
-	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
-	go run ./cmd/server-gen/main.go build/server internal/server/generated
+	go run ./cmd/tools cli build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
+	go run ./cmd/tools server build/server internal/server/generated
 	go run ./cmd/tools ent build/ent internal/ent/proto proto
 
 tilt:

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nokamoto/2pf23/internal/servergen/protogen"
+	"github.com/nokamoto/2pf23/internal/protogen/server"
 )
 
 func main() {
