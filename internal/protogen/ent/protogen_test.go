@@ -64,6 +64,7 @@ func TestNewPlugin(t *testing.T) {
 									{
 										JsonName: proto.String("category"),
 										Type:     descriptorpb.FieldDescriptorProto_TYPE_ENUM.Enum(),
+										TypeName: proto.String(".api.library.v1alpha.Category"),
 									},
 									{
 										JsonName: proto.String("numBooks"),
@@ -89,8 +90,11 @@ func TestNewPlugin(t *testing.T) {
 								"Name",
 								"NumBooks",
 							},
-							EnumFields: []string{
-								"Category",
+							EnumFields: []*v1.EnumField{
+								{
+									Type: "v1alpha.Category",
+									Name: "Category",
+								},
 							},
 						}),
 					},

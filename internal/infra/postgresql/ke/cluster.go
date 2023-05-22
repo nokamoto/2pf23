@@ -7,6 +7,7 @@ import (
 	"github.com/mennanov/fmutils"
 	"github.com/nokamoto/2pf23/internal/ent"
 	entcluster "github.com/nokamoto/2pf23/internal/ent/cluster"
+	entproto "github.com/nokamoto/2pf23/internal/ent/proto"
 	"github.com/nokamoto/2pf23/internal/infra"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
@@ -27,14 +28,14 @@ func NewCluster(client *ent.Client) *Cluster {
 // Create creates a cluster.
 // If the cluster already exists, it returns infra.ErrAlreadyExists.
 func (c *Cluster) Create(ctx context.Context, cluster *kev1alpha.Cluster) (*kev1alpha.Cluster, error) {
-	res, err := ent.ClusterCreateQuery(c.client.Cluster.Create(), cluster).Save(ctx)
+	res, err := entproto.ClusterCreateQuery(c.client.Cluster.Create(), cluster).Save(ctx)
 	if ent.IsConstraintError(err) {
 		return nil, fmt.Errorf("%w: %s", infra.ErrAlreadyExists, cluster.GetName())
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed saving cluster: %w", err)
 	}
-	return ent.ClusterProto(res), nil
+	return entproto.ClusterProto(res), nil
 }
 
 // Get returns a cluster by name.
@@ -47,7 +48,7 @@ func (c *Cluster) Get(ctx context.Context, name string) (*kev1alpha.Cluster, err
 	if err != nil {
 		return nil, err
 	}
-	return ent.ClusterProto(res), nil
+	return entproto.ClusterProto(res), nil
 }
 
 // Delete deletes a cluster by name.
@@ -81,7 +82,7 @@ func (c *Cluster) List(ctx context.Context, pageSize int32, page *v1.Pagination)
 	}
 	var clusters []*kev1alpha.Cluster
 	for _, x := range res {
-		clusters = append(clusters, ent.ClusterProto(x))
+		clusters = append(clusters, entproto.ClusterProto(x))
 	}
 	return clusters, next, nil
 }
@@ -114,11 +115,11 @@ func (c *Cluster) Update(ctx context.Context, cluster *kev1alpha.Cluster, mask *
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
-	updated := ent.ClusterProto(got)
+	updated := entproto.ClusterProto(got)
 	proto.Merge(updated, cluster)
-	got, err = ent.ClusterUpdateOneQuery(tx.Cluster.UpdateOneID(got.ID), updated).Save(ctx)
+	got, err = entproto.ClusterUpdateOneQuery(tx.Cluster.UpdateOneID(got.ID), updated).Save(ctx)
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
-	return ent.ClusterProto(got), nil
+	return entproto.ClusterProto(got), nil
 }

@@ -1,0 +1,17 @@
+{
+    "name": "Cluster",
+    "importPath": {
+        "alias": "v1alpha",
+        "path": "github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+    },
+    "fields": [
+        "DisplayName",
+        "NumNodes"
+    ],
+    "enumFields": [
+        {
+            "name": "MachineType",
+            "type": "v1alpha.MachineType"
+        }
+    ]
+}

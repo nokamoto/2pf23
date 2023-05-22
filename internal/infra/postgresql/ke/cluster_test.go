@@ -10,6 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nokamoto/2pf23/internal/ent"
 	"github.com/nokamoto/2pf23/internal/ent/enttest"
+	entproto "github.com/nokamoto/2pf23/internal/ent/proto"
 	"github.com/nokamoto/2pf23/internal/infra"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
@@ -21,7 +22,7 @@ func initClusters(t *testing.T, c *ent.Client, init ...*kev1alpha.Cluster) {
 	t.Helper()
 	var builders []*ent.ClusterCreate
 	for _, x := range init {
-		builders = append(builders, ent.ClusterCreateQuery(c.Cluster.Create(), x))
+		builders = append(builders, entproto.ClusterCreateQuery(c.Cluster.Create(), x))
 	}
 	_, err := c.Cluster.CreateBulk(builders...).Save(context.Background())
 	if err != nil {
