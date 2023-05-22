@@ -59,7 +59,7 @@ build: $(GOBIN)/ko
 
 .PHONY: testdata
 testdata:
-	go run ./cmd/tools ent testdata/generator/ent internal/generator/ent/generated
+	go run ./cmd/tools ent testdata/generator/ent internal/generator/ent/generated generated
 	go run ./cmd/cli-gen/main.go testdata/cligen/generated.json internal/cligen/generated github.com/nokamoto/2pf23/internal/cligen/generated
 	go run ./cmd/server-gen/main.go testdata/servergen internal/servergen/generated --mock
 
@@ -70,7 +70,7 @@ gen: $(GOBIN)/buf
 	buf generate --template build/buf/buf.gen.local.yaml
 	go run ./cmd/cli-gen/main.go build/cli/test.json internal/cli/generated github.com/nokamoto/2pf23/internal/cli/generated
 	go run ./cmd/server-gen/main.go build/server internal/server/generated
-	go run ./cmd/tools ent build/ent internal/ent/proto
+	go run ./cmd/tools ent build/ent internal/ent/proto proto
 
 tilt:
 	curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash

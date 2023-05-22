@@ -18,6 +18,7 @@ import (
 type Walk struct {
 	ents      []*v1.Ent
 	directory string
+	pkg       string
 }
 
 // NewWalk creates a new Walk.
@@ -26,9 +27,12 @@ type Walk struct {
 // It contains protojson encoded v1.Ent files.
 //
 // outdir is a directory where the generated files are placed.
-func NewWalk(indir string, outdir string) (*Walk, error) {
+//
+// pkg is a package name of the generated files.
+func NewWalk(indir string, outdir string, pkg string) (*Walk, error) {
 	w := &Walk{
 		directory: outdir,
+		pkg:       pkg,
 	}
 	err := filepath.WalkDir(indir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -66,10 +70,8 @@ func (w *Walk) Walk() error {
 	}
 
 	for _, ent := range w.ents {
-		base := filepath.Base(w.directory)
-
 		var b bytes.Buffer
-		if err := p.PrintQuery(&b, ent, base); err != nil {
+		if err := p.PrintQuery(&b, ent, w.pkg); err != nil {
 			return fmt.Errorf("failed to print query: %w", err)
 		}
 
