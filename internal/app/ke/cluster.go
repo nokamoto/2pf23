@@ -11,6 +11,7 @@ import (
 	"github.com/nokamoto/2pf23/internal/infra"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -33,11 +34,15 @@ const (
 //
 // All methods of Cluster returns errors defined in internal/app/errors.go, such as app.ErrNotFound. Or it returns errors as is if unknown.
 type Cluster struct {
-	rt runtime
+	rt     runtime
+	logger *zap.Logger
 }
 
-func NewCluster(rt runtime) *Cluster {
-	return &Cluster{rt: rt}
+func NewCluster(rt runtime, logger *zap.Logger) *Cluster {
+	return &Cluster{
+		rt:     rt,
+		logger: logger.With(zap.String("app", "cluster")),
+	}
 }
 
 func (c *Cluster) generateName() string {

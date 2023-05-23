@@ -121,5 +121,8 @@ func (c *Cluster) Update(ctx context.Context, cluster *kev1alpha.Cluster, mask *
 	if err != nil {
 		return nil, rollback(tx, err)
 	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 	return entproto.ClusterProto(got), nil
 }

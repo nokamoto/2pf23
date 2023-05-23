@@ -56,7 +56,16 @@ func setupEnt(logger *zap.Logger) *ent.Client {
 	password := envOr("POSTGRESQL_PASSWORD", "local")
 	dataSource := fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable", host, user, dbname, password)
 	logger.Debug("connecting to postgres", zap.String("host", host), zap.String("dbname", dbname), zap.String("user", user))
-	client, err := ent.Open("postgres", dataSource)
+
+	var opts []ent.Option
+	if os.Getenv("DEBUG") != "" {
+		opts = append(opts, ent.Debug())
+		opts = append(opts, ent.Log(func(a ...any) {
+			logger.Debug("ent", zap.Any("args", a))
+		}))
+	}
+
+	client, err := ent.Open("postgres", dataSource, opts...)
 	if err != nil {
 		logger.Fatal("failed opening connection to postgres", zap.Error(err))
 	}
@@ -87,7 +96,7 @@ func main() {
 	rt := &runtime{
 		Cluster: keinfra.NewCluster(client),
 	}
-	app := ke.NewCluster(rt)
+	app := ke.NewCluster(rt, logger)
 	svc := v1alphaservice.NewService(logger, app)
 
 	port := envOr("GRPC_PORT", "9000")
