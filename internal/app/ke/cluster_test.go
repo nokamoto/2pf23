@@ -15,6 +15,7 @@ import (
 	"github.com/nokamoto/2pf23/internal/util/helper"
 	v1 "github.com/nokamoto/2pf23/pkg/api/inhouse/v1"
 	"github.com/nokamoto/2pf23/pkg/api/ke/v1alpha"
+	"go.uber.org/zap/zaptest"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -32,7 +33,7 @@ func run[T1 any, T2 any](t *testing.T, f func(*Cluster, context.Context, T1) (T2
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			rt := mockke.NewMockruntime(ctrl)
-			sut := NewCluster(rt)
+			sut := NewCluster(rt, zaptest.NewLogger(t))
 			if tt.mock != nil {
 				tt.mock(rt)
 			}
@@ -244,7 +245,7 @@ func TestCluster_List(t *testing.T) {
 			if tt.mock != nil {
 				tt.mock(rt)
 			}
-			sut := NewCluster(rt)
+			sut := NewCluster(rt, zaptest.NewLogger(t))
 
 			got, gotPage, err := sut.List(context.TODO(), tt.pageSize, page)
 			if !errors.Is(err, tt.err) {
@@ -373,7 +374,7 @@ func TestCluster_Update(t *testing.T) {
 			if tt.mock != nil {
 				tt.mock(rt)
 			}
-			sut := NewCluster(rt)
+			sut := NewCluster(rt, zaptest.NewLogger(t))
 
 			got, err := sut.Update(context.TODO(), tt.req, tt.mask)
 			if !errors.Is(err, tt.err) {
