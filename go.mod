@@ -3,7 +3,7 @@ module github.com/nokamoto/2pf23
 go 1.20
 
 require (
-	dagger.io/dagger v0.6.3
+	dagger.io/dagger v0.7.0
 	entgo.io/ent v0.12.3
 	github.com/bufbuild/connect-go v1.7.0
 	github.com/golang/mock v1.6.0
