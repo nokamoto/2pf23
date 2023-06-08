@@ -3,7 +3,7 @@ module github.com/nokamoto/2pf23
 go 1.20
 
 require (
-	dagger.io/dagger v0.7.0
+	dagger.io/dagger v0.7.1
 	entgo.io/ent v0.12.3
 	github.com/bufbuild/connect-go v1.8.0
 	github.com/golang/mock v1.6.0
@@ -23,6 +23,7 @@ require (
 
 require (
 	ariga.io/atlas v0.10.2-0.20230427182402-87a07dfb83bf // indirect
+	github.com/99designs/gqlgen v0.17.2 // indirect
 	github.com/Khan/genqlient v0.5.0 // indirect
 	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
