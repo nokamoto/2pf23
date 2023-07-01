@@ -37,7 +37,7 @@ $(GOBIN)/buf:
 	go install github.com/bufbuild/buf/cmd/buf@v1.17.0
 
 $(GOBIN)/ko:
-	go install github.com/google/ko@v0.13.0
+	go install github.com/google/ko@v0.14.1
 
 go: $(GOBIN)/gofumpt
 	go generate ./...
