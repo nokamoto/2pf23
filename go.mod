@@ -3,7 +3,7 @@ module github.com/nokamoto/2pf23
 go 1.20
 
 require (
-	dagger.io/dagger v0.7.1
+	dagger.io/dagger v0.7.2
 	entgo.io/ent v0.12.3
 	github.com/bufbuild/connect-go v1.9.0
 	github.com/golang/mock v1.6.0
@@ -40,8 +40,8 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/tools v0.8.1-0.20230428195545-5283a0178901 // indirect
+	golang.org/x/tools v0.9.3 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 )
