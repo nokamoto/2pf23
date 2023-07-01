@@ -4,13 +4,19 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'web/**'
+    paths-ignore:
+      - 'cmd/**'
+      - 'docs/**'
+      - 'internal/**'
+      - 'pkg/**'
   pull_request:
     branches:
       - main
-    paths:
-      - 'web/**'
+    paths-ignore:
+      - 'cmd/**'
+      - 'docs/**'
+      - 'internal/**'
+      - 'pkg/**'
 
 jobs:
   test:
