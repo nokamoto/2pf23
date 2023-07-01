@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "test": "echo todo",
-    "ci": "npm run format && npm run lint && npm run test"
+    "test": "npm run format && npm run lint"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",

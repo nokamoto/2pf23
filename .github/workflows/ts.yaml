@@ -28,4 +28,6 @@ jobs:
           node-version: 20
       - run: npm ci
         working-directory: web/2pf23console
+      - run: npm run test
+        working-directory: web/2pf23console
       - run: git diff --exit-code
