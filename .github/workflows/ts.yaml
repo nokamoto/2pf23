@@ -1,0 +1,33 @@
+name: TypeScript
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'cmd/**'
+      - 'docs/**'
+      - 'internal/**'
+      - 'pkg/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'cmd/**'
+      - 'docs/**'
+      - 'internal/**'
+      - 'pkg/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: web/2pf23console
+      - run: npm run test
+        working-directory: web/2pf23console
+      - run: git diff --exit-code
