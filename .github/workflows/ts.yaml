@@ -34,4 +34,5 @@ jobs:
         working-directory: web/2pf23console
       - run: git diff --exit-code
       - uses: codecov/codecov-action@v3
-        working-directory: web/2pf23console
+        with:
+          working-directory: web/2pf23console
