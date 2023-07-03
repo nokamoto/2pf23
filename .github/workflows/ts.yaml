@@ -5,18 +5,20 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'cmd/**'
-      - 'docs/**'
-      - 'internal/**'
-      - 'pkg/**'
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '**.md'
+      - 'testdata/**'
   pull_request:
     branches:
       - main
     paths-ignore:
-      - 'cmd/**'
-      - 'docs/**'
-      - 'internal/**'
-      - 'pkg/**'
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '**.md'
+      - 'testdata/**'
 
 jobs:
   test:
@@ -31,3 +33,6 @@ jobs:
       - run: npm run test
         working-directory: web/2pf23console
       - run: git diff --exit-code
+      - uses: codecov/codecov-action@v3
+        with:
+          working-directory: web/2pf23console
