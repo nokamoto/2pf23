@@ -72,5 +72,10 @@ gen: $(GOBIN)/buf
 	go run ./cmd/tools server build/server internal/server/generated
 	go run ./cmd/tools ent build/ent internal/ent/proto proto
 
-tilt:
+pack:
+	sudo add-apt-repository -y ppa:cncf-buildpacks/pack-cli
+	sudo apt-get update
+	sudo apt-get install pack-cli
+
+tilt: pack $(GOBIN)/ko
 	curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
