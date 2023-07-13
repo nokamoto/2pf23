@@ -15,7 +15,7 @@ require (
 	github.com/mennanov/fmutils v0.2.0
 	github.com/spf13/cobra v1.7.0
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
+	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 	golang.org/x/net v0.11.0
 	golang.org/x/text v0.10.0
 	google.golang.org/protobuf v1.31.0
